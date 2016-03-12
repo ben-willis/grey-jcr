@@ -1,0 +1,44 @@
+div(class="ui grid")
+	div(class="six wide column")
+		h1(class="ui header basic segment")
+			img(src="/images/coat-of-arms.png")
+			div(class="content") Grey
+				div(class="sub header") JCR
+	div(class="ten wide column")
+		div(class="ui stackable text menu")
+			if user
+				if user.level >= 4
+					a(class="item" href="/admin") Admin
+				a(class="item" href="/services/feedback") Feedback
+				a(class="item" href="/events/calendar") Calendar
+				a(class="item" href="/services/elections") Elections
+				if user.level == 5
+					a(class="item" ) Room Booking
+					a(class="item" ) Menus
+			if !user
+				div(class="right item")
+					a(class='ui primary button' href='/login')
+						i(class='sign in icon')
+						| Log in
+			else
+				div(class='ui right dropdown link item' )
+					img(class="ui avatar image" src="/api/users/"+user.username+"/avatar")
+					div(class="text")= user.name + ' ('+user.username+')'
+					i(class="dropdown icon")
+					div(class="menu")
+						a(class="item" href='/services/user/'+user.username) View Profile
+						a(class="item" href='/services/user/'+user.username+'/update') Update Profile
+						a(class='item' href='/logout')
+							i(class='sign out icon')
+							| Log Out
+
+		div(class="ui secondary menu"): div(class="right menu")
+			div(class="item")
+				a(class="ui icon facebook button" href="https://www.facebook.com/greycollegejcr/"): i(class="facebook icon")
+			div(class="item")
+				a(class="ui icon twitter button" href="https://twitter.com/greyjcr"): i(class="twitter icon")
+			div(class="item")
+				a(class="ui icon youtube button" href="https://www.youtube.com/channel/UCmZ_ll7dit6Ulys-ts5FjVA"): i(class="youtube icon")
+
+script.
+	$('.ui.right.dropdown.dropdown').dropdown();

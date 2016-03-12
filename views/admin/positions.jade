@@ -1,0 +1,187 @@
+- var title = 'Home'
+
+doctype html
+html
+	head
+		include ./head.jade
+	body
+		div(class='ui container')
+			include ./header.jade
+			include ./menu.jade
+			h2 Positions
+			h3 Create a new position
+			form(class="ui form" method="POST" action="/admin/positions/new")
+				div(class="field")
+					label Title
+					input(type="text" name="title")
+				div(class="field")
+					label Level
+					select(name="level")
+						option(value="4") Exec
+						option(value="3") Officer
+						option(value="2") Welfare
+						option(value="1") Representative 
+				button(type="submit" class="ui submit button")
+					i(Class="write icon")
+					| Create
+			div(class="ui divider")
+
+			h3 Exec
+			div(class="ui three cards")
+				- for(i=0; i<exec.length; i)
+					- currentPosition = exec[i].id;
+
+					div(class="card")
+						div(class="content")
+							a(class="right floated ui red icon mini button" href="/admin/positions/"+currentPosition+"/delete")
+								i(class="remove icon")
+							div(class="header")= exec[i].title
+
+						div(class="extra content")
+							div(class="ui labels")
+								- if (exec[i].username != null)
+									- while (i<exec.length && currentPosition == exec[i].id)
+
+										div(class="ui image label")
+											img(src="/api/users/"+exec[i].username+"/avatar")
+											= exec[i].name
+											a(href="/admin/positions/"+currentPosition+"/removeUser/"+exec[i].username class="delete icon"): i(class="fitted delete icon")
+										- i++
+								- else
+									- i++
+
+						div(class="extra content")
+							form(class="ui form" method="POST" action="/admin/positions/"+currentPosition+"/addUser")
+								div(class="ui search field")
+									div(class="ui action input")
+										input(type="text" name="username" class="prompt" placeholder="Add a new user...")
+										button(type="submit" class="ui button") Add
+									div(class="results")
+
+						a(class="ui bottom attatched edit button" href="/admin/positions/"+currentPosition+"/edit")
+							i(class="edit icon")
+							| Edit
+
+			div(class="ui divider")
+
+			h3 Officers
+			div(class="ui three cards")
+				- for(i=0; i<officers.length; i)
+					- currentPosition = officers[i].id;
+
+					div(class="card")
+						div(class="content")
+							a(class="right floated ui red icon mini button" href="/admin/positions/"+currentPosition+"/delete")
+								i(class="remove icon")
+							div(class="header")= officers[i].title
+
+						div(class="extra content")
+							div(class="ui labels")
+								- if (officers[i].username != null)
+									- while (i<officers.length && currentPosition == officers[i].id)
+
+										div(class="ui image label")
+											img(src="/api/users/"+officers[i].username+"/avatar")
+											= officers[i].name
+											a(href="/admin/positions/"+currentPosition+"/removeUser/"+officers[i].username class="delete icon"): i(class="fitted delete icon")
+										- i++
+								- else
+									- i++
+
+						div(class="extra content")
+							form(class="ui form" method="POST" action="/admin/positions/"+currentPosition+"/addUser")
+								div(class="ui search field")
+									div(class="ui action input")
+										input(type="text" name="username" class="prompt" placeholder="Add a new user...")
+										button(type="submit" class="ui button") Add
+									div(class="results")
+
+						a(class="ui bottom attatched edit button" href="/admin/positions/"+currentPosition+"/edit")
+							i(class="edit icon")
+							| Edit
+			div(class="ui divider")
+
+			h3 Welfare
+			div(class="ui three cards")
+				- for(i=0; i<welfare.length; i)
+					- currentPosition = welfare[i].id;
+
+					div(class="card")
+						div(class="content")
+							a(class="right floated ui red icon mini button" href="/admin/positions/"+currentPosition+"/delete")
+								i(class="remove icon")
+							div(class="header")= welfare[i].title
+
+						div(class="extra content")
+							div(class="ui labels")
+								- if (welfare[i].username != null)
+									- while (i<welfare.length && currentPosition == welfare[i].id)
+
+										div(class="ui image label")
+											img(src="/api/users/"+welfare[i].username+"/avatar")
+											= welfare[i].name
+											a(href="/admin/positions/"+currentPosition+"/removeUser/"+welfare[i].username class="delete icon"): i(class="fitted delete icon")
+										- i++
+								- else
+									- i++
+
+						div(class="extra content")
+							form(class="ui form" method="POST" action="/admin/positions/"+currentPosition+"/addUser")
+								div(class="ui search field")
+									div(class="ui action input")
+										input(type="text" name="username" class="prompt" placeholder="Add a new user...")
+										button(type="submit" class="ui button") Add
+									div(class="results")
+
+						a(class="ui bottom attatched edit button" href="/admin/positions/"+currentPosition+"/edit")
+							i(class="edit icon")
+							| Edit
+			div(Class="ui divider")
+
+			h3 Reps
+			div(class="ui three cards")
+				- for(i=0; i<reps.length; i)
+					- currentPosition = reps[i].id;
+
+					div(class="card")
+						div(class="content")
+							a(class="right floated ui red icon mini button" href="/admin/positions/"+currentPosition+"/delete")
+								i(class="remove icon")
+							div(class="header")= reps[i].title
+							
+						div(class="extra content")
+							div(class="ui labels")
+								- if (reps[i].username != null)
+									- while (i<reps.length && currentPosition == reps[i].id)
+
+										div(class="ui image label")
+											img(src="/api/users/"+reps[i].username+"/avatar")
+											= reps[i].name
+											a(href="/admin/positions/"+currentPosition+"/removeUser/"+reps[i].username class="delete icon"): i(class="fitted delete icon")
+										- i++
+								- else
+									- i++
+
+						div(class="extra content")
+							form(class="ui form" method="POST" action="/admin/positions/"+currentPosition+"/addUser")
+								div(class="ui search field")
+									div(class="ui action input")
+										input(type="text" name="username" class="prompt" placeholder="Add a new user...")
+										button(type="submit" class="ui button") Add
+									div(class="results")
+
+						a(class="ui bottom attatched edit button" href="/admin/positions/"+currentPosition+"/edit")
+							i(class="edit icon")
+							| Edit
+
+		script.
+			$('.ui.search').search({
+				apiSettings: {
+					url: '/api/users/?q={query}'
+				},
+				fields: {
+					results: 'users',
+					title: 'username',
+					description : 'name'
+				}
+			});

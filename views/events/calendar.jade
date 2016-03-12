@@ -1,0 +1,89 @@
+-
+	months = ["January", "February", "March","April", "May", "June","July", "August", "September","October", "November", "December"];
+	currentYear = parseInt(year);
+	currentMonth = parseInt(month)-1;
+	currentDay = 0;
+	currentIndex = 0;
+	cellDate = null;
+
+	// Calculate Weeks in current month
+	monthEndingDate = new Date(currentYear, currentMonth+1, 0);
+	monthStartingDate = new Date(currentYear, currentMonth, 1);
+	daysInMonth = monthEndingDate.getDate();
+	weeksInMonth = (daysInMonth%7 == 0 ? 0 : 1) + Math.floor(daysInMonth/7);
+	if((monthEndingDate.getDay()+6)%7 < (monthStartingDate.getDay()+6)%7) { weeksInMonth++;}
+
+mixin day(cellNum)
+	-
+		if (currentDay == 0 && cellNum == (monthStartingDate.getDay()+6)%7) {
+			currentDay = 1;
+		}
+		cellDate = null;
+		cellDay = null;
+		if (currentDay != 0 && currentDay <= daysInMonth) {
+			cellDate = new Date(currentYear, currentMonth, currentDay);
+			cellDay = cellDate.getDate();
+			currentDay++;
+		}
+	td
+		div(class="cell")
+			div(class="ui sub header")= cellDay
+			- eventToday = true;
+			while (eventToday)
+				if (events.length == currentIndex || cellDate == null) 
+					- eventToday = false;
+				else if (events[currentIndex].timestamp.getDate() == cellDate.getDate())
+					a(class="ui label" href="/events/"+currentYear+"/"+currentMonth+"/"+events[currentIndex].slug)= events[currentIndex].name
+					- eventToday = true;
+					- currentIndex++;
+				else
+					- eventToday = false;
+
+- var title = 'Events Calendar'
+
+doctype html
+html
+	head
+		include ../head.jade
+	body
+		div(class='ui container')
+			include ../header.jade
+			include ../menu.jade
+			h2(class="ui header")= title
+			p= monthEndingDate
+			div(class="ui vertical segment")
+				h3(class="ui header")= months[currentMonth] + " " + currentYear
+				table(class="ui celled fixed seven column table")
+					thead: tr
+						th Monday
+						th Tuesday
+						th Wednesday
+						th Thursday
+						th Friday
+						th Saturday
+						th Sunday
+					tbody
+						- for (i = 0; i < weeksInMonth; i++)
+							tr(class="top aligned")
+								- for (j = 0; j < 7; j++)
+									+day(j + 7*i)
+					tfoot: tr
+						th(colspan="7")
+							if (currentMonth == 0)
+								a(class="ui left floated button" href="/events/calendar/"+(currentYear-1)+"/12/")
+									i(class="left arrow icon")
+									= "December "+(currentYear-1)
+							else
+								a(class="ui left floated button" href="/events/calendar/"+currentYear+"/"+(currentMonth)+"/")
+									i(class="left arrow icon")
+									= months[currentMonth-1] + " " + currentYear
+							if (currentMonth == 11)
+								a(class="ui right floated button" href="/events/calendar/"+(currentYear+1)+"/1/")
+									= "January " + (parseInt(currentYear)+1)
+									i(class="right arrow icon")
+							else
+								a(class="ui right floated button" href="/events/calendar/"+currentYear+"/"+(currentMonth+2)+"/")
+									= months[currentMonth+1] + " " + currentYear
+									i(class="right arrow icon")
+
+		include ../footer.jade

@@ -1,0 +1,28 @@
+- var title = 'Home'
+
+doctype html
+html
+	head
+		include ./head.jade
+	body
+		div(class='ui container')
+			include ./header.jade
+			include ./menu.jade
+			h3 Feedback
+			table(class="ui fixed table")
+				thead
+					tr
+						th Title
+						th Author
+						th Date
+						th Replies
+				tbody
+					each post in feedback
+						tr
+							td
+								a(href="/admin/feedback/"+post.id)= post.title
+							td= (post.anonymous) ? 'Anonymous' : post.name
+							td= prettydate.format(new Date(post.timestamp))
+							td
+								a(class="ui label" href="/admin/feedback/"+post.id)= post.no_replies
+			

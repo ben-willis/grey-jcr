@@ -1,0 +1,22 @@
+div(class='ui stackable red inverted menu')
+	a(class=(current=="home")?'active item':'item' href='/') Home
+	a(class=(current=="jcr")?'active item':'item' href='/jcr') The JCR
+	a(class=(current=="support")?'active item':'item' href='/support') Support
+	a(class=(current=="welfare")?'active item':'item' href='/welfare') Welfare
+	a(class=(current=="events")?'active item':'item' href='/events') Events
+	a(class=(current=="facilities")?'active item':'item' href='/facilities') Facilities
+
+	div(class="right menu")
+		div(class="ui right aligned category search item")
+			div(class="ui inverted transparent icon input")
+				input(class="prompt" type="text" placeholder="Search...")
+				i(class="search icon")
+		div(class="results")
+
+		script.
+			$('.ui.search').search({
+				apiSettings: {
+					url: '/api/search?q={query}'
+				},
+				type: 'category'
+			});

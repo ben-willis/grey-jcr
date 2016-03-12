@@ -1,0 +1,45 @@
+- var title = 'View Feedback'
+
+doctype html
+html
+	head
+		include ../head.jade
+	body
+		div(class='ui container')
+			include ../header.jade
+			include ../menu.jade
+			h2(class="ui header")= title
+			div(class="ui vertical segment")
+				h3(class="ui header")
+					img(src=(!feedback[0].anonymous) ? "/api/users/"+feedback[0].author+"/avatar" : "/api/users/anon/avatar" class="ui circular image")
+					div(class="content")
+						= feedback[0].title
+						if (feedback[0].anonymous)
+							div(class="sub header")= Anonymous
+						else
+							div(class="sub header")= feedback[0].name
+				div(class="feedback")= feedback[0].message
+				div(class="ui comments")
+					- for (i=1; i<feedback.length; i++)
+						div(class="comment")
+							span(class="avatar")
+								img(src=(!feedback[0].anonymous || feedback[i].exec) ? "/api/users/"+feedback[i].author+"/avatar" : "/api/users/anon/avatar")
+							div(class="content")
+								if (feedback[i].exec)
+									span(class="author") Exec
+								else if (!feedback[0].anonymous)
+									span(class="author")= feedback[i].name
+								else
+									span(class="author") Anonymous
+								div(class="metadata")
+									div(class="date")= prettydate.format(new Date(feedback[i].timestamp))
+								div(class="feedback text")= feedback[i].message
+
+					form(class="ui reply form" method="POST" action="")
+						div(class="field")
+							textarea(rows="3" name="message")
+						button(type="submit" class="ui submit button")
+							i(class="reply icon")
+							| Reply
+
+		include ../footer.jade

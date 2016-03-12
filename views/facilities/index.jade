@@ -1,0 +1,21 @@
+- var title = 'Facilities'
+
+doctype html
+html
+	head
+		include ../head.jade
+	body
+		div(class='ui container')
+			include ../header.jade
+			- var current="facilities";
+			include ../menu.jade
+			h2(class="ui header")= title
+			div(class="ui vertical segment")
+				h3(class="ui header") The Bar
+				img(class="ui medium right floated image" src="http://testing.greyjcr.com/uploads/Bar.jpg")
+				p Grey Bar is the social hub of the college, with almost all of the events put on by the JCR and it’s members including it in some way. These events can range from sporting socials to bops and formals with very special occasions such as BarFest or Informal Ball extending opening hours to as late as 2:00AM. The bar contains a projector for important sporting events which can be turned on upon request along with a dart board, a football table, a pub quiz machine, and a brand new PlayStation 4 with Fifa 14 for those who are willing to try their skill.
+				p Grey Bar is run by the Bar Committee, which organizes and runs Barfest, a bar festival which is held in the Epiphany Term. This event is a celebration of bar culture worldwide and will see beers, ciders, wines and cocktails from every corner of the globe brought right to your doorstep and is coupled with live entertainment throughout the day. Barfest is one of the best events in the College Social Calendar and not to be missed! Drinks are amongst the cheapest of all the college bars in Durham, with shots for as little as £1.40 and pints as low as £1.60. We offer a range of bottled ciders, beers, spirits and soft drinks and are always open for suggestions if you would like to see something new and exciting.
+			div(class="ui vertical segment")
+				h3 The Gym
+				p Grey has two gym rooms, one dedicated to weights equipment (see below), and the other to cardio equipment. Membership of the gym can be bought on a yearly or termly basis. If you would like to enquire about gym membership, please email grey.treasurer@durham.ac.uk.
+		include ../footer.jade

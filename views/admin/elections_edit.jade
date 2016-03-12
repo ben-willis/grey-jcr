@@ -1,0 +1,98 @@
+- var title = 'Elections'
+
+doctype html
+html
+	head
+		include ./head.jade
+	body
+		div(class='ui container')
+			include ./header.jade
+			- var current="elections";
+			include ./menu.jade
+			h2= title
+			div(class="ui vertical clearing segment")
+				h3 Edit an Election
+				form(class="ui edit form" method="POST" action="")
+					div(class="required field")
+						label Title
+						input(type="text" name="title" value=election.title)
+					div(class="required field")
+						label Status
+						select(name="status")
+							if (election.status == 0)
+								option(value="0" selected) Closed
+							else
+								option(value="0") Closed
+							if (election.status == 1)
+								option(value="1" selected) Publicizing
+							else
+								option(value="1") Publicizing
+							if (election.status == 2)
+								option(value="2" selected) Open
+							else
+								option(value="2") Open
+					button(type="submit" class="ui right floated submit button")
+						i(class="save icon")
+						| Save
+					div(class="ui error message")
+			div(class="ui vertical clearing segment")
+				h3 Add a positions
+				form(class="ui addposition form" method="POST" action="/admin/elections/"+election.id+"/newposition")
+					div(class="required field")
+						label Position name
+						input(type="text" name="name")
+					button(type="submit" class="ui right floated submit button")
+						i(class="plus icon")
+						| Add
+					div(class="ui error message") 
+			div(class="ui vertical clearing segment")
+				h3 Add Candidates
+				div(class="ui three column stackable grid")
+					- for(i=0; i<positions.length; i)
+						- currentPosition = positions[i].id;
+
+						div(class="column")
+							div(class="ui clearing segment")
+								div(class="ui header")
+									= positions[i].name
+								a(class="ui red right corner label" href="/admin/elections/"+election.id+"/"+currentPosition+"/delete")
+									i(class="remove icon")
+								div(class="ui middle aligned divided list")
+									-if (positions[i].nomination_id != null)
+										- while(i<positions.length && currentPosition == positions[i].id)
+											div(class="item")
+													= positions[i].nomination_name + " "
+													a(class="ui tiny icon" href="/admin/elections/"+election.id+"/"+currentPosition+"/"+positions[i].nomination_id+"/delete")
+														i(class="red remove icon")
+											- i++
+									- else
+										- i++
+								form(class="ui addnomination form" action="/admin/elections/"+election.id+"/"+currentPosition+"/newnomination" method="POST" enctype="multipart/form-data")
+									div(class="required field")
+										label Nomination name
+										input(type="text" name="name")
+									div(class="field")
+										label Manifesto (pdf)
+										input(type="file" name="manifesto")
+									button(type="submit" class="ui right floated submit button")
+										i(class="plus icon")
+										| Add
+									div(class="ui error message") 
+			
+
+				script.
+					$('.edit.form').form({
+						fields: {
+							title: 'empty'
+						}
+					});
+					$('.addposition.form').form({
+						fields: {
+							name: 'empty'
+						}
+					});
+					$('.addnomination.form').form({
+						fields: {
+							name: 'empty'
+						}
+					});

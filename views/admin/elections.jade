@@ -1,0 +1,69 @@
+- var title = 'Elections'
+
+doctype html
+html
+	head
+		include ./head.jade
+	body
+		div(class='ui container')
+			include ./header.jade
+			include ./menu.jade
+			h2= title
+			div(class="ui vertical segment")
+				h3 Create a new election
+				form(class="ui form" method="POST" action="")
+					div(class="field")
+						label Name
+						input(type="text" name="title")
+					button(type="submit" class="ui submit button")
+						i(class="write icon")
+						| Create
+					div(class="ui error message")
+
+				script.
+					$('.form').form({
+						fields: {
+							name: 'empty',
+						}
+					});
+
+			div(class="ui vertical segment")
+				h3 Previous Elections
+
+				table(class="ui striped table")
+					thead
+						tr
+							th Name
+							th Status
+							th Actions
+					tbody
+						- currElection = null;
+						- i = 0;
+						- while( i<elections.length)
+							- if (elections[i].election_id != currElection)
+								- currElection = elections[i].election_id
+								tr
+									td= elections[i].election_title
+									if (elections[i].status == 2)
+										td Open
+									else if (elections[i].status == 1)
+										td Publicizing
+									else
+										td Closed
+									td
+										div(class=(elections[i].status==0)?"ui floating icon dropdown button":"ui floating icon disabled dropdown button" )
+											i(class="file text outline icon")
+											span(class="text") Results
+											div(class="menu")
+												- while(i< elections.length && elections[i].election_id == currElection)
+													a(class="item" href="/admin/elections/"+currElection+"/"+elections[i].id+"/results")= elections[i].name
+													- i++
+										a(class="ui button" href="/admin/elections/"+currElection)
+											i(class="edit icon")
+											| Edit
+										a(class="ui negative button" href="/admin/elections/"+currElection+"/delete")
+											i(class="remove icon")
+											| Delete
+
+						script.
+							$('.dropdown').dropdown();
