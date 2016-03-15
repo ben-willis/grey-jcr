@@ -12,77 +12,52 @@ html
 			p The Elections system allows you to vote for candidates in husted JCR elections as well as in college referendums.
 			div(class="ui vertical segment")
 				h3(class="ui header") Open Elections
-				- var i = 0;
-				- if (i == nominations.length || nominations[i].status == 1)
+				if (open.length == 0)
 					div(class="ui message") There are currently no open elections.
-				- // While the election we're on is open
-				- while (i<nominations.length && nominations[i].status == 2 )
-					- // Write the name of the election
-					h4(class="ui header")= nominations[i].title
-					- // Set the current election
-					- var currentElection = nominations[i].id;
-					- // While the current election is the same as the nominations
+				each election in open
+					h4(class="ui header")= election.title
 					div(class="ui three column stackable padded grid")
-						- while (i<nominations.length && currentElection == nominations[i].id)
-							div(class="column"): div(class="ui segment")
-								- // We write the position name
-								h5(class="ui header")= nominations[i].position_name
+						each position in election.positions
+							div(class="column")
+								h5(class="ui header")= position.name
 								div(class="divided list")
-								- // Set the current position
-								- var currentPosition = nominations[i].position_id;
-								- // While we're on the current position
-								- while (i<nominations.length && currentPosition == nominations[i].position_id)
+								each nomination in position.nominations
 									- // if there is a candidate we write it
-									- if (nominations[i].nomination_name != null)
+									if (nomination.name != null)
 										div(class="item")
-											= nominations[i].nomination_name
+											= nomination.name
 											|  - 
-											if (nominations[i].nomination_manifesto != null)
-												a(href="/files/manifestos/"+nominations[i].nomination_manifesto) Manifesto
+											if (nomination.manifesto != null)
+												a(href="/files/manifestos/"+nomination.manifesto) Manifesto
 											else
 												| Manifesto Unavailable
-										- i++;
-									- else
-										- i++;
-					if (nominations[i-1].voted)
-						a(class="ui primary button" href="/services/elections/"+currentElection) Your Vote
+					if (election.voted)
+						a(class="ui primary button" href="/services/elections/"+election.id) Your Vote
 					else
-						a(class="ui primary button" href="/services/elections/"+currentElection) Vote Now
+						a(class="ui primary button" href="/services/elections/"+election.id) Vote Now
 
 
 			div(class="ui vertical segment")
-				h3 Upcoming Elections
-				- if (i == nominations.length)
+				h3(class="ui header") Upcoming Elections
+				if (publicizing.length == 0)
 					div(class="ui message") There are currently no upcoming elections.
-				- // While the election we're on is publicizing
-				- while (i<nominations.length && nominations[i].status == 1 )
-					- // Write the name of the election
-					h4(class="ui header")= nominations[i].title
-					- // Set the current election
-					- var currentElection = nominations[i].id;
-					- // While the current election is the same as the nominations
+				each election in publicizing
+					h4(class="ui header")= election.title
 					div(class="ui three column stackable padded grid")
-						- while (i<nominations.length && currentElection == nominations[i].id)
-							div(class="column"): div(class="ui segment")
-								- // We write the position name
-								h5(class="ui header")= nominations[i].position_name
+						each position in election.positions
+							div(class="column")
+								h5(class="ui header")= position.name
 								div(class="divided list")
-								- // Set the current position
-								- var currentPosition = nominations[i].position_id;
-								- // While we're on the current position
-								- while (i<nominations.length && currentPosition == nominations[i].position_id)
+								each nomination in position.nominations
 									- // if there is a candidate we write it
-									- if (nominations[i].nomination_name != null)
+									if (nomination.name != null)
 										div(class="item")
-											= nominations[i].nomination_name
+											= nomination.name
 											|  - 
-											if (nominations[i].nomination_manifesto != null)
-												a(href="/files/manifestos/"+nominations[i].nomination_manifesto) Manifesto
+											if (nomination.manifesto != null)
+												a(href="/files/manifestos/"+nomination.manifesto) Manifesto
 											else
 												| Manifesto Unavailable
-										- i++
-									- else
-										- i++
 
 				
 		include ../footer.jade
