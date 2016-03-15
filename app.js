@@ -8,11 +8,12 @@ var bodyParser = require('body-parser');
 var flash = require('connect-flash');
 var passport = require('passport');
 var session = require('express-session');
+var redisStore = require('connect-redis')(session);
 var LocalStrategy = require('passport-local').Strategy;
 var https = require('https');
 var pgp = require('pg-promise')();
 var compress = require('compression');
-var helmet = require('helmet')
+var helmet = require('helmet');
 
 var routes = require('./routes/index');
 var admin = require('./routes/admin/index');
@@ -43,7 +44,12 @@ app.use(bodyParser.json());
 app.use(flash());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(session({ secret: process.env.SESSION_PASSWORD, resave: true, saveUninitialized: true }));
+app.use(session({
+  store: new redisStore({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT}),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
