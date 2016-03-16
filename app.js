@@ -65,7 +65,7 @@ passport.deserializeUser(function (username, done) {
   db.one('SELECT users.username, users.name, users.email FROM users WHERE username=$1', username)
     .then(function (data) {
       user = data;
-      return db.manyOrNone('SELECT positions.title, positions.level, positions.id FROM positions RIGHT JOIN userPositions ON positions.id = userPositions.position WHERE userPositions.username=$1', username);
+      return db.manyOrNone('SELECT file_directories.id AS dirid, positions.title, positions.level, positions.id FROM (positions LEFT JOIN file_directories ON file_directories.owner=positions.id) RIGHT JOIN userPositions ON positions.id = userPositions.position WHERE userPositions.username=$1 AND (file_directories.parent=0 OR file_directories IS NULL)', username);
     })
     .then(function (positions) {
       user.level = 0;
