@@ -6,9 +6,9 @@ var blog = require('./blog');
 var feedback = require('./feedback');
 var events = require('./events');
 var elections = require('./elections');
+var files = require('./files');
 
 router.use(function (req, res, next) {
-	console.log('here?');
 	//Check User Authenticated
 	if (!req.isAuthenticated()) {
 		req.session.redirect_to = req.originalUrl;
@@ -18,7 +18,6 @@ router.use(function (req, res, next) {
 		err.status = 403;
 		return next(err);
 	} else {
-		console.log('here?');
 		return next();
 	}
 });
@@ -32,7 +31,8 @@ router.use('/positions', positions);
 router.use('/blog', blog);
 router.use('/feedback', feedback);
 router.use('/events', events);
-router.use('/elections', elections);elections
+router.use('/elections', elections);
+router.use('/files', files);
 
 
 module.exports = router;

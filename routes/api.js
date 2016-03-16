@@ -133,7 +133,7 @@ router.get('/files/:directoryid', function (req, res, next) {
 	req.db.one("SELECT name, id, parent FROM file_directories WHERE id=$1", [req.params.directoryid])
 		.then(function (data){
 			current = data;
-			return req.db.manyOrNone("SELECT name, path, description FROM files WHERE directoryid=$1", [req.params.directoryid])
+			return req.db.manyOrNone("SELECT id, timestamp, name, path, description FROM files WHERE directoryid=$1", [req.params.directoryid])
 		})
 		.then(function (data) {
 			files = data;
