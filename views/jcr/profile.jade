@@ -1,0 +1,67 @@
+- var title = 'Profile'
+
+doctype html
+html
+	head
+		include ../head.jade
+	body
+		div(class='ui container')
+			include ../header.jade
+			include ../menu.jade
+			h2= title
+			div(class="ui divided stackable vertically padded grid")
+				div(class="ten wide column")
+					h3 Recent Posts
+					div(class="ui divided items")
+						each post in posts
+							div(class="item")
+								div(class="content")
+									- post.timestamp = new Date(post.timestamp);
+									a(class="header" href="/jcr/blog/"+post.position_slug+"/"+post.timestamp.getFullYear()+"/"+(post.timestamp.getMonth()+1)+"/"+post.slug)= post.title
+									div(class="meta")
+										span(class="author")
+											i(class="ui user icon")
+											= post.name + " ("+post.position_title+")"
+										span(class="timestamp")
+											i(class="ui clock icon")
+											= prettydate.format(post.timestamp)
+									div(class="article description")!= post.message
+				div(class="six wide column")
+					h3 Files
+					div(class="ui vertical segment")
+						div(class="ui directory list")
+
+					script.
+						var parent = 0;
+						var current = !{position.dirid};
+						function getFiles(dirId) {
+							$('.directory.list').parent().addClass("loading");
+							$('.directory.list').html("");
+							$.get('/api/files/'+dirId, function (data) {
+								$('.directory.list').parent().removeClass("loading");
+								current = data.current;
+								if (current.parent != 0) {
+									$('.directory.list').append(
+										"<a class='directory item' data-id="+current.parent+"><i class='level up icon'></i><div class='content'><div class='header'>Up a level</div></div>"
+									);
+								}
+								for (i=0; i<data.directories.length; i++) {
+									$('.directory.list').append(
+										"<a class='directory item' data-id="+data.directories[i].id+"><i class='folder icon'></i><div class='content'><div class='header'>"+data.directories[i].name+"</div></div>"
+									);
+								}
+								for (i=0; i<data.files.length; i++) {
+									$('.directory.list').append(
+										"<a href='/files/uploaded/"+data.files[i].path+"' class='item'><i class='file icon'></i><div class='content'><div class='header'>"+data.files[i].name+"</div>"+((data.files[i].description)?"<div class='description'>"+data.files[i].description+"</div>":"")+"</div>"
+									);
+								}
+							});
+						}
+						$(document).on("click",".directory.item" ,function (e){
+							e.preventDefault();
+							parent = current;
+							getFiles($(this).attr("data-id"));
+						})
+						getFiles(current);
+
+		include ../footer.jade
