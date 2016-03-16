@@ -32,8 +32,14 @@ router.post('/new', function (req, res, next) {
 		err = new Error("Bad Request");
 		return next(err);
 	}
-	req.db.none("INSERT INTO positions(title, level, slug) VALUES ($1, $2, $3)", [req.body.title, req.body.level, slugify(req.body.title)]).then(function(){
-		res.redirect('/admin/positions');
+	req.db.one("INSERT INTO positions(title, level, slug) VALUES ($1, $2, $3) RETURNING id", [req.body.title, req.body.level, slugify(req.body.title)])
+		.then(function (result){
+		if (req.body.level == "4") {
+			return req.db.none("INSERT INTO file_directories(name, parent, owner) VALUES ($1, $2, $3)", [req.body.title, 0, result.id]);
+		}
+		return res.redirect('/admin/positions');
+	}).then(function () {
+		return res.redirect('/admin/positions');
 	}).catch(function (err) {
 		next(err);
 	})

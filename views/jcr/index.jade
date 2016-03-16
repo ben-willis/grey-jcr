@@ -29,9 +29,9 @@ html
 								div(class="header")= position.title
 								div(class="meta")=position.name
 							div(class="extra content")
-								a(class="description link", data-position=position.id)
-									i(class="file text icon")
-									| About
+								a(href="/jcr/blog/"+position.slug)
+									i(class="user icon")
+									| Profile
 
 			div(class="ui vertical segment" id="officers")
 				h3(class="ui header") JCR Officers
