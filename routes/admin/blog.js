@@ -4,7 +4,7 @@ var validator = require('validator');
 
 /* GET blog page. */
 router.get('/', function (req, res, next) {
-	req.db.many('SELECT blog.id, blog.title, blog.message, blog.timestamp, positions.title AS position FROM blog LEFT JOIN positions ON positions.id=blog.positionid WHERE blog.author=$1 ORDER BY timestamp DESC', req.user.username)
+	req.db.manyOrNone('SELECT blog.id, blog.title, blog.message, blog.timestamp, positions.title AS position FROM blog LEFT JOIN positions ON positions.id=blog.positionid WHERE blog.author=$1 ORDER BY timestamp DESC', req.user.username)
 		.then(function (posts) {
 			res.render('admin/blog', {posts: posts});
 		})
