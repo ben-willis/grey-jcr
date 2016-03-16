@@ -33,11 +33,17 @@ router.get('/blog', function (req, res, next) {
 
 /* GET blog for a position page. */
 router.get('/blog/:position', function (req, res, next) {
-	// Get all the jcr officers positions
+	var posts;
 	req.db.manyOrNone("SELECT *, blog.title AS title, blog.slug AS slug, positions.title AS position_title, positions.slug AS positions_slug FROM blog LEFT JOIN users ON blog.author=users.username LEFT JOIN positions ON blog.positionid=positions.id WHERE positions.slug=$1", [req.params.position])
-		.then(function (posts) {
-			res.render('jcr/blog', { posts: posts});
-		}).catch(function (err) {
+		.then(function (data) {
+			posts = data;
+			return req.db.one("SELECT title, description, level, slug, file_directories.id AS dirId FROM positions LEFT JOIN file_directories ON file_directories.owner=positions.id WHERE positions.slug=$1 AND file_directories.parent=0", [req.params.position]);
+		})
+		.then(function (position) {
+			console.log(position);
+			res.render('jcr/profile', { posts: posts, position: position});
+		})
+		.catch(function (err) {
 			next(err);
 		});
 });

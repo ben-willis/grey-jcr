@@ -126,4 +126,26 @@ router.get('/users/:username/avatar', function (req, res, next) {
 	
 });
 
+router.get('/files/:directoryid', function (req, res, next) {
+	var current
+	var files;
+	var directories;
+	req.db.one("SELECT name, id, parent FROM file_directories WHERE id=$1", [req.params.directoryid])
+		.then(function (data){
+			current = data;
+			return req.db.manyOrNone("SELECT name, path, description FROM files WHERE directoryid=$1", [req.params.directoryid])
+		})
+		.then(function (data) {
+			files = data;
+			return req.db.manyOrNone("SELECT name, id FROM file_directories WHERE parent=$1", [req.params.directoryid]);
+		})
+		.then(function (data) {
+			directories = data;
+			res.json({"current": current,"directories": directories, "files": files});
+		})
+		.catch(function (err) {
+			next(err);
+		});
+});
+
 module.exports = router;
