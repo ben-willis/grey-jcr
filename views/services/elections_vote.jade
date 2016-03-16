@@ -20,22 +20,16 @@ html
 			div(class="ui vertical segment")
 				if (!voted)
 					form(class="ui form" action="/services/elections/"+election.id method="POST")
-						- var i = 0;
-						- while (i<nominations.length)
-							- // We write the position name
-							h4(class="ui dividing header")= nominations[i].position_name
-							- // Set the current position
-							- var currentPosition = nominations[i].position_id;
-							- // While we're on the current position
+						each position in election.positions
+							h4(class="ui dividing header")= position.name
 							div(class="ui middle aligned two column stackable vertically divided grid")
-								- while (i<nominations.length && currentPosition == nominations[i].position_id)
+								each nomination in position.nominations
 									div(class="row")
 										div(class="column")
-											label= nominations[i].name
+											label= nomination.name
 										div(class="column")
 											div(class="ui input")
-												input(type="text" name='candidates[c'+nominations[i].id+']' size="1")
-									- i++
+												input(type="text" name='candidates[c'+nomination.id+']' size="1")
 						div(class="inline field")
 							div(class="ui checkbox")
 								input(type="checkbox" name="confirm")
@@ -58,23 +52,17 @@ html
 							}
 						})
 				else
-					- var i = 0;
-					- while (i<nominations.length)
-						- // We write the position name
-						h4(class="ui dividing header")= nominations[i].position_name
-						- // Set the current position
-						- var currentPosition = nominations[i].position_id;
-						- // While we're on the current position
+					each position in election.positions
+						h4(class="ui dividing header")= position.name
 						div(class="ui middle aligned two column stackable vertically divided grid")
-							- while (i<nominations.length && currentPosition == nominations[i].position_id)
+							each nomination in position.nominations
 								div(class="row")
 									div(class="column")
-										label= nominations[i].name
+										label= nomination.name
 									div(class="column")
-										if (nominations[i].value != 0)
-											div(class="ui circular label")=nominations[i].value
+										if (nomination.value != 0)
+											div(class="ui circular label")=nomination.value
 										else
 											div(class="ui circular label")
-								- i++
 				
 		include ../footer.jade

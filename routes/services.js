@@ -4,6 +4,7 @@ var multer = require('multer');
 var upload = multer({dest: __dirname+'/../tmp'});
 var mv = require('mv');
 var mime = require('mime');
+var treeize   = require('treeize');
 
 router.use(function (req, res, next) {
 	if (req.isAuthenticated()) {
@@ -93,9 +94,21 @@ router.post('/feedback/:feedbackid', function (req, res, next) {
 
 /* GET the election page */
 router.get('/elections', function (req, res, next) {
-	req.db.manyOrNone('SELECT (SELECT COUNT(*)>0 FROM election_votes AS votes WHERE votes.electionid=elections.id AND votes.username=$1) AS voted, elections.id, elections.title, elections.status, election_positions.id AS position_id, election_positions.name AS position_name, election_nominations.name AS nomination_name, election_nominations.manifesto AS nomination_manifesto FROM elections FULL JOIN election_positions ON elections.id=election_positions.electionid FULL JOIN election_nominations ON election_positions.id=election_nominations.positionid WHERE (elections.status=1 OR elections.status=2) AND election_positions.electionid IS NOT NULL AND election_nominations.electionid IS NOT NULL AND election_positions.id IS NOT NULL ORDER BY elections.status DESC, elections.id ASC, election_positions.id ASC', [req.user.username])
-		.then(function (nominations) {
-			res.render('services/elections', {nominations: nominations});
+	req.db.manyOrNone('SELECT (SELECT COUNT(*)>0 FROM election_votes AS votes WHERE votes.electionid=elections.id AND votes.username=$1) AS voted, elections.id, elections.title, elections.status, election_positions.id AS "positions:id", election_positions.name AS "positions:name", election_nominations.name AS "positions:nominations:name", election_nominations.manifesto AS "positions:nominations:manifesto" FROM elections FULL JOIN election_positions ON elections.id=election_positions.electionid FULL JOIN election_nominations ON election_positions.id=election_nominations.positionid WHERE (elections.status=1 OR elections.status=2) AND election_positions.electionid IS NOT NULL AND election_nominations.electionid IS NOT NULL AND election_positions.id IS NOT NULL ORDER BY elections.status DESC, elections.id ASC, election_positions.id ASC', [req.user.username])
+		.then(function (elections) {
+			var electionTree = new treeize();
+			electionTree.grow(elections);
+			elections = electionTree.getData();
+			var open = [];
+			var publicizing = [];
+			for (var i = 0; i < elections.length; i++) {
+				if (elections[i].status == 2) {
+					open.push(elections[i]);
+				} else {
+					publicizing.push(elections[i]);
+				}
+			};
+			res.render('services/elections', {open: open, publicizing: publicizing});
 		})
 		.catch(function (err) {
 			next(err);
@@ -115,14 +128,17 @@ router.get('/elections/:electionid', function (req, res, next) {
 				req.db.one('SELECT COUNT(id) FROM election_votes WHERE username=$1 AND electionid=$2', [req.user.username, req.params.electionid])
 					.then(function (voteCount) {
 						if (voteCount.count == 0) {
-							return req.db.many('SELECT election_nominations.name, election_nominations.id, election_positions.name as position_name, election_positions.id AS position_id FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid WHERE election_nominations.electionid=$1 ORDER BY election_positions.id', [req.params.electionid]);
+							return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid WHERE election_nominations.electionid=$1 ORDER BY election_positions.id', [req.params.electionid]);
 						} else {
 							voted = true;
-							return req.db.many('SELECT election_nominations.name, election_nominations.id, election_positions.name as position_name, election_positions.id AS position_id, election_votes.value FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid LEFT JOIN election_votes ON election_votes.nominationid=election_nominations.id WHERE election_nominations.electionid=$1 AND election_votes.username=$2 ORDER BY election_positions.id', [req.params.electionid, req.user.username]);
+							return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id", election_votes.value AS "positions:nominations:value" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid LEFT JOIN election_votes ON election_votes.nominationid=election_nominations.id WHERE election_nominations.electionid=$1 AND election_votes.username=$2 ORDER BY election_positions.id', [req.params.electionid, req.user.username]);
 						}
 					})
 					.then(function (nominations) {
-						res.render('services/elections_vote', {election: election, nominations: nominations, voted: voted});
+						var positionsTree = new treeize();
+						positionsTree.grow(nominations);
+						election.positions = positionsTree.getData();
+						res.render('services/elections_vote', {election: election, voted: voted});
 					})
 					.catch( function (err) {
 						next(err);

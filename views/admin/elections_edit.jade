@@ -48,26 +48,20 @@ html
 			div(class="ui vertical clearing segment")
 				h3 Add Candidates
 				div(class="ui three column stackable grid")
-					- for(i=0; i<positions.length; i)
-						- currentPosition = positions[i].id;
-
+					each position in election.positions
 						div(class="column")
 							div(class="ui clearing segment")
-								div(class="ui header")
-									= positions[i].name
-								a(class="ui red right corner label" href="/admin/elections/"+election.id+"/"+currentPosition+"/delete")
+								div(class="ui header")= position.name
+								a(class="ui red right corner label" href="/admin/elections/"+election.id+"/"+position.id+"/delete")
 									i(class="remove icon")
-								div(class="ui middle aligned divided list")
-									-if (positions[i].nomination_id != null)
-										- while(i<positions.length && currentPosition == positions[i].id)
+								if (position.nominations)
+									div(class="ui middle aligned divided list")
+										each nomination in position.nominations
 											div(class="item")
-													= positions[i].nomination_name + " "
-													a(class="ui tiny icon" href="/admin/elections/"+election.id+"/"+currentPosition+"/"+positions[i].nomination_id+"/delete")
+													= nomination.name + " "
+													a(class="ui tiny icon" href="/admin/elections/"+election.id+"/"+position.id+"/"+nomination.id+"/delete")
 														i(class="red remove icon")
-											- i++
-									- else
-										- i++
-								form(class="ui addnomination form" action="/admin/elections/"+election.id+"/"+currentPosition+"/newnomination" method="POST" enctype="multipart/form-data")
+								form(class="ui addnomination form" action="/admin/elections/"+election.id+"/"+position.id+"/newnomination" method="POST" enctype="multipart/form-data")
 									div(class="required field")
 										label Nomination name
 										input(type="text" name="name")

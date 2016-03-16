@@ -16,7 +16,7 @@ router.get('/', function (req, res, next) {
 	req.db.manyOrNone("SELECT blog.title, blog.message, blog.timestamp, blog.slug, users.name, users.username, positions.title AS position_title, positions.slug AS position_slug FROM blog LEFT JOIN users ON blog.author=users.username LEFT JOIN positions ON blog.positionid=positions.id ORDER BY timestamp DESC LIMIT 7")
 		.then(function (posts) {
 			blog = posts;
-			return req.db.manyOrNone("SELECT events.name, events.timestamp, events.slug, events.image FROM events WHERE timestamp>NOW() ORDER BY timestamp ASC");
+			return req.db.manyOrNone("SELECT events.name, events.timestamp, events.slug, events.image FROM events WHERE timestamp>NOW() ORDER BY timestamp ASC LIMIT 6");
 		}).then(function (events){
 			res.render('home', {blog: blog, events: events});
 		})

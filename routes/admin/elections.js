@@ -4,14 +4,15 @@ var multer = require('multer');
 var upload = multer({dest: __dirname+'/../../tmp'});
 var mv = require('mv');
 var mime = require('mime');
+var treeize   = require('treeize');
 
 /* GET the elections page */
 router.get('/', function (req, res, next) {
-	console.log('here?');
-	req.db.manyOrNone('SELECT elections.id AS election_id, elections.title AS election_title, elections.status, election_positions.id, election_positions.name FROM elections FULL JOIN election_positions ON election_positions.electionid = elections.id ORDER BY id ASC')
+	req.db.manyOrNone('SELECT elections.id, elections.title, elections.status, election_positions.id AS "positions:id", election_positions.name AS "positions:name" FROM elections FULL JOIN election_positions ON election_positions.electionid = elections.id ORDER BY elections.id ASC')
 		.then(function (elections) {
-			console.log('here?');
-			return res.render('admin/elections', {elections: elections});
+			var electionsTree = new treeize;
+			electionsTree.grow(elections);
+			return res.render('admin/elections', {elections: electionsTree.getData()});
 		})
 		.catch(function (err) {
 			return next(err);
@@ -43,7 +44,7 @@ router.get('/:id/delete', function (req, res, next) {
 
 /* GET the election results */
 router.get('/:electionid/:positionid/results', function (req, res, next) {
-	req.db.one('SELECT (elections.status=0) AS closed WHERE elections.id=$1', [req.params.electionid])
+	req.db.one('SELECT (elections.status=0) AS closed FROM elections WHERE elections.id=$1', [req.params.electionid])
 		.then(function (election) {
 			if (!election.closed) {
 				err = new Error("Election is no closed");
@@ -105,7 +106,7 @@ router.get('/:electionid/:positionid/results', function (req, res, next) {
 				// Calculate quota
 				var quota = Math.floor(validVotes/2)+1;
 				result += "<b>Round "+round+"</b><br/>";
-				result += "There are "+validVotes+" valid votes giving a quota of "+quota+".<br/><br/>";
+				result += "There "+((validVotes==1)?"is "+validVotes+" valid vote":"are "+validVotess+" valid votes")+" giving a quota of "+quota+".<br/><br/>";
 				// Order the nominations
 				var first = null, last = null;
 				for( nomination in nominations ) {
@@ -158,15 +159,17 @@ router.get('/:electionid/:positionid/results', function (req, res, next) {
 /* GET the edit election page */
 router.get('/:id', function (req, res, next) {
 	var election;
-	var positions;
 	req.db.one('SELECT elections.id, elections.title, elections.status FROM elections WHERE elections.id=$1', [req.params.id])
 		.then(function (data) {
 			election = data;
-			return req.db.manyOrNone('SELECT election_positions.id, election_positions.name, election_nominations.id AS nomination_id, election_nominations.name AS nomination_name FROM election_positions FULL JOIN election_nominations ON election_positions.id=election_nominations.positionid WHERE (election_positions.electionid=$1 OR election_nominations.electionid=$1) ORDER BY election_positions.id ASC', [req.params.id]);
+			return req.db.manyOrNone('SELECT election_positions.id, election_positions.name, election_nominations.id AS "nominations:id", election_nominations.name AS "nominations:name" FROM election_positions FULL JOIN election_nominations ON election_positions.id=election_nominations.positionid WHERE (election_positions.electionid=$1 OR election_nominations.electionid=$1) ORDER BY election_positions.id ASC', [req.params.id]);
 		})
 		.then(function (data) {
-			positions = data;
-			res.render('admin/elections_edit', {election: election, positions: positions});
+			var positionsTree = new treeize;
+			positionsTree.grow(data);
+			election.positions = positionsTree.getData();
+			console.log(election)
+			res.render('admin/elections_edit', {election: election});
 		})
 		.catch(function (err) {
 			next(err);
