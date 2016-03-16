@@ -131,7 +131,7 @@ passport.use(new LocalStrategy(
             // If the user doesn't exist check they're grey then add them
             if (!user) {
               if (response.college != "Grey College") return done(null, false);
-              return db.one("INSERT INTO users(username, email, name) VALUES ($1, $2, $3); SELECT * FROM users WHERE username=$1", [username, response.email, name]);
+              return db.one("INSERT INTO users(username, email, name) VALUES ($1, $2, $3) RETURNING *", [username, response.email, name]);
             } else {
               return db.one("UPDATE users SET email=$2 WHERE username=$1; SELECT * FROM users WHERE username=$1", [username, response.email]);
             }
