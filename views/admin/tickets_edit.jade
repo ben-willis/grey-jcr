@@ -1,0 +1,34 @@
+- var title = 'Tickets'
+
+doctype html
+html
+	head
+		include ./head.jade
+	body
+		div(class='ui container')
+			include ./header.jade
+			include ./menu.jade
+			h2= title
+			h3 Edit a Ticket
+			form(class="ui edit form" method="POST" action="/admin/tickets/"+ticket.id)
+				div(class="field")
+					label Name
+					input(type="text" name="name" value=ticket.name)
+				div(class="field")
+					label Min Size Booking
+					input(type="text" name="min_booking" value=ticket.min_booking)
+				div(class="field")
+					label Max Size Booking
+					input(type="text" name="max_booking" value=ticket.max_booking)
+				div(class="field")
+					label Block Debtors
+					input(type="text" name="block_debtors" value=ticket.block_debtors)
+				div(class="field")
+					label Guests
+					input(type="text" name="guests" value=ticket.guests)
+				div(class="field")
+					label Stock
+					input(type="text" name="stock" value=ticket.stock)
+				button(type="submit" class="ui submit button") 
+					i(class="save icon")
+					| Save
