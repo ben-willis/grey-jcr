@@ -29,6 +29,16 @@ html
 						div(class="field")
 							label Time
 							input(type="text" name="time" value=("0"+event.timestamp.getHours()).slice(-2)+":"+("0"+event.timestamp.getMinutes()).slice(-2))
+					div(class="field")
+						label Assign Tickets
+						select(class="ui fluid search dropdown" multiple="" name="tickets")
+							each ticket in tickets
+								if (ticket.selected)
+									option(value=ticket.id selected)= ticket.name
+								else
+									option(value=ticket.id)= ticket.name
+						script.
+							$('.search.dropdown').dropdown();
 					button(type="submit" class="ui submit button")
 						i(class="save icon")
 						| Save
