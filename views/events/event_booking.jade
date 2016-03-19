@@ -1,0 +1,49 @@
+- var title = "Your Booking for "+event.name;
+
+doctype html
+html
+	head
+		include ../head.jade
+	body
+		div(class='ui container')
+			include ../header.jade
+			include ../menu.jade
+			h2(class="ui header")= title
+			div(class="ui vertical segment")
+				p= "You've booked a "+booking.ticket_name+" (£"+(booking.ticket_price/100).toFixed(2)+")"
+				if (new Date(booking.ticket_close) > new Date())
+					p You can update your preferences until booking closes.
+					form(class="ui form" method="POST" action="/events/"+booking.id)
+						each option in options
+							div(class="field")
+								label= option.name
+								select(name="choices[]" class="ui dropdown")
+									- var selected = false;
+									each choice in option.choices
+										if (choice.selected)
+											- selected = true;
+											option(value=choice.id selected)= choice.name + " [£"+(choice.price/100).toFixed(2)+"]"
+										else
+											option(value=choice.id)= choice.name + " [£"+(choice.price/100).toFixed(2)+"]"
+									if (!selected)
+										option(value="" selected) None Selected
+						div(class="field")
+							label Notes (e.g. Dietary preferences)
+							textarea(name="notes" rows=3)=booking.notes
+						button(class="ui submit button" type="submit") Save
+
+					script.
+						$('.ui.dropdown').dropdown();
+				else
+					ul
+						each option in options
+							- var selected = false;
+							each choice in option.choices
+								if (choice.selected)
+									- selected = true;
+									li= option.name+": "+choice.name+" [£"+choice.price/100+"]"
+							if (!selected)
+								li= option.name + ": None Selected"
+					p= "Notes: "+booking.notes
+
+		include ../footer.jade

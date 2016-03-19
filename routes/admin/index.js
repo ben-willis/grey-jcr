@@ -5,6 +5,7 @@ var positions = require('./positions');
 var blog = require('./blog');
 var feedback = require('./feedback');
 var events = require('./events');
+var tickets = require('./tickets');
 var elections = require('./elections');
 var files = require('./files');
 
@@ -31,6 +32,7 @@ router.use('/positions', positions);
 router.use('/blog', blog);
 router.use('/feedback', feedback);
 router.use('/events', events);
+router.use('/tickets', tickets);
 router.use('/elections', elections);
 router.use('/files', files);
 
