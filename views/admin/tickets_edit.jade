@@ -31,9 +31,13 @@ html
 							div(class="ui checkbox")
 								input(type="checkbox" name="guests" tabindex="0")
 								label Allow Guests
-					div(class="field")
-						label Stock
-						input(type="text" name="stock" value=ticket.stock)
+					div(class="two fields")
+						div(class="field")
+							label Stock
+							input(type="text" name="stock" value=ticket.stock)
+						div(class="field")
+							label Price
+							input(type="text" name="price" value=(ticket.price/100).toFixed())
 					div(class="two fields")
 						label Open Booking
 						div(class="field")
@@ -58,31 +62,31 @@ html
 
 			div(class="ui vertical segment")
 				h3 Edit Options
-					each option in options
-						form(class="ui editoption form" method="POST" action="/admin/tickets/"+ticket.id+"/"+option.id)
-							div(class="field")
-								label Option Name
-								input(type="text" name="name" value=option.name)
-							if (option.choices)
-								each choice in option.choices
-									input(type="text" name="choice["+choice.id+"][id]" value=choice.id hidden)
-									div(class="two fields")
-										div(class="field")
-											label Choice Name
-											input(type="text" name="choice["+choice.id+"][name]" value=choice.name)
-										div(class="field")
-											label Choice Price
-											input(type="text" name="choice["+choice.id+"][price]" value=(choice.price/100))
-							div(class="two fields")
+				each option in options
+					form(class="ui editoption form" method="POST" action="/admin/tickets/"+ticket.id+"/"+option.id)
+						div(class="field")
+							label Option Name
+							input(type="text" name="name" value=option.name)
+						if (option.choices)
+							each choice in option.choices
+								input(type="text" name="choice["+choice.id+"][id]" value=choice.id hidden)
+								div(class="two fields")
 									div(class="field")
-										label New Choice Name
-										input(type="text" name="newchoice[name]")
+										label Choice Name
+										input(type="text" name="choice["+choice.id+"][name]" value=choice.name)
 									div(class="field")
-										label New Choice Price
-										input(type="text" name="newchoice[price]")
-							button(class="ui submit button" type="submit")
-								i(class="save icon")
-								| Save
+										label Choice Price
+										input(type="text" name="choice["+choice.id+"][price]" value=(choice.price/100).toFixed(2))
+						div(class="two fields")
+								div(class="field")
+									label New Choice Name
+									input(type="text" name="newchoice[name]")
+								div(class="field")
+									label New Choice Price
+									input(type="text" name="newchoice[price]")
+						button(class="ui submit button" type="submit")
+							i(class="save icon")
+							| Save
 
 			div(class="ui vertical segment")
 				h3 Add an option

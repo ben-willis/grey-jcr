@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var treeize   = require('treeize');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -143,14 +144,64 @@ router.get('/:eventid/:ticketid/', function (req, res, next) {
 
 
 /* GET your booking */
-router.get('/:year/:month/:day/:slug/booking', function (req, res, next) {
-	req.db.one("SELECT * FROM bookings LEFT JOIN events ON bookings.eventid=events.id LEFT JOIN tickets on bookings.ticketid=tickets.id WHERE date_part('year', events.timestamp)=$1 AND date_part('month', events.timestamp)=$2 AND date_part('day', events.timestamp)=$3 AND slug=$4 AND bookings.username=$5", [req.params.year, req.params.month, req.params.day,req.params.slug, req.user.username])
-		.then(function (booking) {
-			res.render('events/event_booking', {booking: booking});
+router.get('/:year/:month/:day/:slug/:ticketid/booking', function (req, res, next) {
+	var booking;
+	var event;
+	req.db.one("SELECT events.id, events.name FROM events WHERE date_part('year', events.timestamp)=$1 AND date_part('month', events.timestamp)=$2 AND date_part('day', events.timestamp)=$3 AND slug=$4",[req.params.year, req.params.month, req.params.day, req.params.slug])
+		.then(function (data) {
+			event = data;
+			return req.db.many('SELECT bookings.id, bookings.notes, tickets.close_sales AS ticket_close, tickets.name AS ticket_name, tickets.price AS ticket_price, tickets.id AS ticket_id, ticket_option_choices.id AS "choices:id", ticket_option_choices.name AS "choices:name" FROM bookings LEFT JOIN tickets ON bookings.ticketid=tickets.id LEFT JOIN booking_choices ON booking_choices.bookingid=bookings.id LEFT JOIN ticket_option_choices ON ticket_option_choices.id=booking_choices.choiceid WHERE tickets.id=$1 AND bookings.username=$2', [req.params.ticketid, req.user.username]);
+		})
+		.then(function (data) {
+			var bookingTree = new treeize;
+			bookingTree.grow(data);
+			booking = bookingTree.getData()[0];
+			return req.db.manyOrNone('SELECT ticket_options.name, ticket_options.id, ticket_option_choices.id AS "choices:id", ticket_option_choices.name AS "choices:name", ticket_option_choices.price AS "choices:price" FROM ticket_options LEFT JOIN ticket_option_choices ON ticket_option_choices.optionid=ticket_options.id WHERE ticket_options.ticketid=$1', [req.params.ticketid]);
+		})
+		.then(function (options) {
+			var optionsTree = new treeize;
+			optionsTree.grow(options);
+			options = optionsTree.getData();
+			for (var i = 0; i < options.length; i++) {
+				for (var j = 0; j < options[i].choices.length; j++) {
+					for (var k = 0; k < booking.choices.length; k++) {
+						if (booking.choices[k].id == options[i].choices[j].id) {
+							options[i].choices[j].selected = true;
+						}
+					};
+					options[i].choices[j].selected = (options[i].choices[j].selected == true);
+				};
+			};
+			res.render('events/event_booking', {event: event, booking: booking, options: options});
 		})
 		.catch(function (err) {
 			next(err);
 		});
+});
+
+/* POST a booking update */
+router.post('/:bookingid', function (req, res, next) {
+	req.db.none('DELETE FROM booking_choices WHERE bookingid=$1', [req.params.bookingid])
+		.then(function () {
+			var query = 'INSERT INTO booking_choices(bookingid, choiceid) VALUES ';
+			var values = [req.params.bookingid];
+			for (var i = 0; i < req.body.choices.length; i++) {
+				if (i!=0) {
+					query+=', '
+				}
+				query+='($1, '+req.body.choices[i]+')'
+			};
+			return req.db.none(query, values);
+		})
+		.then(function (){
+			return req.db.none('UPDATE bookings SET notes=$1 WHERE bookings.id=$2', [req.body.notes, req.params.bookingid]);
+		})
+		.then(function () {
+			res.send('Success');
+		})
+		.catch(function (err) {
+			next(err);
+		})
 });
 
 /* GET an event */
