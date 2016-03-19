@@ -13,31 +13,32 @@ html
 				= title
 				div(class="sub header")= event.timestamp.toDateString()
 			div(class="ui vertical segment")!= event.description
-			each ticket in tickets
-				div(class="ui vertical segment")
-					h3= ticket.name
-					if (ticket.username != null)
-						a(class="ui button" href="/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug+"/"+ticket.id+"/booking") Your Booking
-					if (ticket.close_sales < (new Date()))
-						p Booking is now closed.
-					else if (ticket.time_to_open > 0)
-						p Booking opens in: <br/>
-							span(class="countdown" data-seconds=Math.floor(ticket.time_to_open))
-						a(class="ui primary transition hidden booking button" href="/events/"+event.id+"/"+ticket.id+"/book" ) Book Now!
-						script.
-							$(".countdown").kkcountdown({
-								dayText: ' day, ',
-								daysText: ' days, ',
-								hoursText: ' hours, ',
-								minutesText: ' minutes and ',
-								secondsText: ' seconds!',
-								displayZeroDays : false,
-								callback: function() {
-									$('.countdown').parent().transition('fade out', function(){
-										$('.booking.button').transition('fade in');
-									});
-								}
-							});
-					else
-						a(class="ui primary button" href="/events/"+event.id+"/"+ticket.id+"/book") Book Now!
+			if (user)
+				each ticket in tickets
+					div(class="ui vertical segment")
+						h3= ticket.name
+						if (ticket.username != null)
+							a(class="ui button" href="/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug+"/"+ticket.id+"/booking") Your Booking
+						if (ticket.close_sales < (new Date()))
+							p Booking is now closed.
+						else if (ticket.time_to_open > 0)
+							p Booking opens in: <br/>
+								span(class="countdown" data-seconds=Math.floor(ticket.time_to_open))
+							a(class="ui primary transition hidden booking button" href="/events/"+event.id+"/"+ticket.id+"/book" ) Book Now!
+							script.
+								$(".countdown").kkcountdown({
+									dayText: ' day, ',
+									daysText: ' days, ',
+									hoursText: ' hours, ',
+									minutesText: ' minutes and ',
+									secondsText: ' seconds!',
+									displayZeroDays : false,
+									callback: function() {
+										$('.countdown').parent().transition('fade out', function(){
+											$('.booking.button').transition('fade in');
+										});
+									}
+								});
+						else
+							a(class="ui primary button" href="/events/"+event.id+"/"+ticket.id+"/book") Book Now!
 		include ../footer.jade

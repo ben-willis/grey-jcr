@@ -12,11 +12,11 @@ html
 				h2 Login
 				script.
 					console.log(!{JSON.stringify(query)})
-				if (query && query.unauthorised)
+				if (query && query.unauthorised=="")
 					div(class="ui error message")
 						div(class="header") Unauthorised Access
 						p Please log in to access this part of the website
-				if (query && query.failure)
+				if (query && query.failure=="")
 					div(class="ui error message")
 						div(class="header") Login Error
 						p Your username and password were not accepted

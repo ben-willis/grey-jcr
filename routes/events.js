@@ -210,6 +210,7 @@ router.get('/:year/:month/:day/:slug', function (req, res, next) {
 	req.db.one("SELECT events.id, events.name, slug, events.description, events.timestamp FROM events WHERE date_part('year', events.timestamp)=$1 AND date_part('month', events.timestamp)=$2 AND date_part('day', events.timestamp)=$3 AND slug=$4", [req.params.year, req.params.month, req.params.day,req.params.slug])
 		.then(function (data) {
 			event = data;
+			if (!req.user) return;
 			return req.db.manyOrNone("SELECT tickets.id, tickets.name, bookings.username, EXTRACT('EPOCH' FROM (tickets.open_sales - NOW())) AS time_to_open, tickets.close_sales FROM (tickets LEFT JOIN events_tickets ON events_tickets.ticketid=tickets.id) LEFT JOIN bookings ON bookings.ticketid=tickets.id WHERE events_tickets.eventid=$1 AND (bookings.username=$2 OR bookings.username IS NULL)", [data.id, req.user.username]);
 		})
 		.then(function (tickets) {
