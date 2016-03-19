@@ -1,0 +1,21 @@
+- var title = "Enter details";
+
+doctype html
+html
+	head
+		include ../head.jade
+	body
+		div(class='ui container')
+			include ../header.jade
+			include ../menu.jade
+			h2(class="ui header")= title
+			p= "You must book on a minimum of "+ticket.min_booking+" people."
+			div(class="ui vertical segment")
+				form(class="ui form" method="POST" action="/events/"+eventid+"/"+ticket.id+"/book")
+					- for(i=0; i<ticket.max_booking; i++)
+						div(class=(i<ticket.min_booking)?"required field":"field")
+							label= "Username "+(i+1)
+							input(type="text" name="bookings[]")
+					button(class="ui submit button" type="submit") Book
+
+		include ../footer.jade

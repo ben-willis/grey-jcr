@@ -6,7 +6,6 @@ var blog = require('./blog');
 var feedback = require('./feedback');
 var events = require('./events');
 var tickets = require('./tickets');
-var files = require('./files');
 var elections = require('./elections');
 var files = require('./files');
 

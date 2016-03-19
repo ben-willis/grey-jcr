@@ -33,7 +33,7 @@ mixin day(cellNum)
 				if (events.length == currentIndex || cellDate == null) 
 					- eventToday = false;
 				else if (events[currentIndex].timestamp.getDate() == cellDate.getDate())
-					a(class="ui label" href="/events/"+currentYear+"/"+currentMonth+"/"+events[currentIndex].slug)= events[currentIndex].name
+					a(class="ui label" href="/events/"+currentYear+"/"+(currentMonth+1)+"/"+cellDate.getDate()+"/"+events[currentIndex].slug)= events[currentIndex].name
 					- eventToday = true;
 					- currentIndex++;
 				else

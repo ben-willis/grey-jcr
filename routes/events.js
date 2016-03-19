@@ -25,10 +25,144 @@ router.get('/calendar/:year?/:month?', function (req, res, next) {
 		});
 });
 
-router.get('/:year/:month/:slug', function (req, res, next) {
-	req.db.one("SELECT id, name, slug, description, timestamp FROM events WHERE date_part('year', events.timestamp)=$1 AND date_part('month', events.timestamp)=$2 AND slug=$3", [req.params.year, req.params.month, req.params.slug])
-		.then(function (event) {
-			res.render('events/event', {event: event});
+/* GET the bookings page */
+router.get('/:eventid/:ticketid/book', function (req, res, next) {
+	req.db.one('SELECT * FROM tickets WHERE id=$1', [req.params.ticketid])
+		.then(function (ticket) {
+			if (ticket.open_sales > (new Date()) || ticket.close_sales < (new Date())) {
+				err = new Error("Booking is not open at this time");
+				throw err;
+			}
+			res.render('events/event_book', {eventid: req.params.eventid, ticket: ticket});
+		})
+		.catch(function (err) {
+			next(err);
+		});
+});
+
+/* POST a reservation */
+router.post('/:eventid/:ticketid/book', function (req, res, next) {
+	req.body.bookings;
+	bookings = [];
+	for (var i = 0; i < req.body.bookings.length; i++) {
+		if (req.body.bookings[i] != "") {
+			bookings.push(req.body.bookings[i]);
+		}
+	};
+
+	req.db.tx(function (t) {
+	    // t = this;
+	    return this.sequence(function (index, data, delay) {
+			switch (index) {
+				// Check they haven't already booked on
+				case 0:
+					var query = 'SELECT id FROM bookings WHERE ticketid=$1 AND (';
+					var values = [req.params.ticketid];
+					for (i = 0; i<bookings.length; i++) {
+						if (i!=0) {
+							query += ' OR ';
+						}
+						query += 'username=$'+(i+2);
+						values.push(bookings[i]);
+					}
+					query += ')';
+					return this.query(query, values);
+				// Check they booked the right number of places
+				case 1:
+					if (data.length > 0) {
+						err = new Error("Somebodies already booked on");
+						throw err;
+					}
+					return req.db.one("SELECT min_booking, max_booking, open_sales, close_sales FROM tickets WHERE id=$1", [req.params.ticketid])
+				// Check there are enough places
+				case 2:
+					if (bookings.length < data.min_booking) {
+						err = new Error("You haven't booked the minimum number on");
+						throw err;
+					} else if (bookings.length > data.max_booking) {
+						err = new Error("You've tried to book more than the max'");
+						throw err;
+					} else if (data.open_sales > (new Date()) || data.close_sales < (new Date())) {
+						err = new Error("Booking is not open at this time");
+						throw err;
+					}
+					return this.query('SELECT stock - (SELECT COUNT(*) FROM bookings WHERE ticketid=$1) AS remaining FROM tickets WHERE id=$1', [req.params.ticketid]);
+				// Book them on
+				case 3:
+					if (data.remaining < bookings.length) {
+						err = new Error("No more tickets left");
+						throw err;
+					}
+					var query = 'INSERT INTO bookings (username, booked_by, eventid, ticketid) VALUES';
+					var values = [req.user.username, req.params.eventid, req.params.ticketid];
+					for (i = 0; i<bookings.length; i++) {
+						if (i!=0) {
+							query += ', ';
+						}
+						query += '($'+(i+4)+', $1, $2, $3)';
+						values.push(bookings[i]);
+					}
+					console.log(query);
+					console.log(values);
+					return this.query(query, values);
+			}
+		});
+	})
+	    .then(function (data) {
+	        res.redirect(303, '/events/'+req.params.eventid+'/'+req.params.ticketid+'/book/result?success');
+	    })
+	    .catch(function (err) {
+	        return next(err.error);
+	    });
+});
+
+router.get('/:eventid/:ticketid/book/result', function (req, res, next) {
+	if (req.query.success != undefined) {
+		req.db.many('SELECT username FROM bookings WHERE ticketid=$1 AND booked_by=$2',[req.params.ticketid, req.user.username])
+			.then(function (bookings){
+				res.render('events/event_book_result', {bookings:bookings});
+			})
+			.catch(function (err) {
+				next(err);
+			});
+	} else {
+		res.render('events/event_book_result');
+	}
+});
+
+/* GET the enter details page */
+router.get('/:eventid/:ticketid/', function (req, res, next) {
+	req.db.manyOrNone('SELECT * FROM bookings WHERE booked_by=$1 AND status=1', [req.user.username])
+		.then(function (bookings) {
+			res.render('events/event_book', {reservations: bookings, eventid: req.params.eventid, ticketid: req.params.ticketid});
+		})
+		.catch(function (err) {
+			next(err);
+		})
+});
+
+
+/* GET your booking */
+router.get('/:year/:month/:day/:slug/booking', function (req, res, next) {
+	req.db.one("SELECT * FROM bookings LEFT JOIN events ON bookings.eventid=events.id LEFT JOIN tickets on bookings.ticketid=tickets.id WHERE date_part('year', events.timestamp)=$1 AND date_part('month', events.timestamp)=$2 AND date_part('day', events.timestamp)=$3 AND slug=$4 AND bookings.username=$5", [req.params.year, req.params.month, req.params.day,req.params.slug, req.user.username])
+		.then(function (booking) {
+			res.render('events/event_booking', {booking: booking});
+		})
+		.catch(function (err) {
+			next(err);
+		});
+});
+
+/* GET an event */
+router.get('/:year/:month/:day/:slug', function (req, res, next) {
+	var event;
+	req.db.one("SELECT events.id, events.name, slug, events.description, events.timestamp FROM events WHERE date_part('year', events.timestamp)=$1 AND date_part('month', events.timestamp)=$2 AND date_part('day', events.timestamp)=$3 AND slug=$4", [req.params.year, req.params.month, req.params.day,req.params.slug])
+		.then(function (data) {
+			event = data;
+			return req.db.manyOrNone("SELECT tickets.id, tickets.name, bookings.username, EXTRACT('EPOCH' FROM (tickets.open_sales - NOW())) AS time_to_open, tickets.close_sales FROM (tickets LEFT JOIN events_tickets ON events_tickets.ticketid=tickets.id) LEFT JOIN bookings ON bookings.ticketid=tickets.id WHERE events_tickets.eventid=$1 AND (bookings.username=$2 OR bookings.username IS NULL)", [data.id, req.user.username]);
+		})
+		.then(function (tickets) {
+			res.render('events/event', {event: event, tickets: tickets});
 		})
 		.catch(function (err) {
 			next(err);

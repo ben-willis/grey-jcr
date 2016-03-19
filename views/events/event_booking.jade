@@ -1,0 +1,15 @@
+- var title = "Your Booking";
+
+doctype html
+html
+	head
+		include ../head.jade
+	body
+		div(class='ui container')
+			include ../header.jade
+			include ../menu.jade
+			h2(class="ui header")= title
+			div(class="ui vertical segment")
+				p= "You've booked a "+booking.name
+
+		include ../footer.jade

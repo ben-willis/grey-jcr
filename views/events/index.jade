@@ -14,7 +14,7 @@ html
 				h3(class="ui header") Upcoming Events
 				div(class="ui link four cards")
 					each event in events
-						a(class="card" href="/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+event.slug)
+						a(class="card" href="/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug)
 							if (event.image)
 								div(class="image")
 									img(src="/images/events/"+event.image)

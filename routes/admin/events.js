@@ -8,7 +8,7 @@ var mime = require('mime');
 
 /* GET events page. */
 router.get('/', function (req, res, next) {
-	req.db.manyOrNone('SELECT events.id, events.name, events.description, events.timestamp FROM events ORDER BY timestamp DESC LIMIT 4')
+	req.db.manyOrNone('SELECT events.id, events.name, events.description, events.timestamp FROM events ORDER BY timestamp ASC')
 		.then(function (events) {
 			res.render('admin/events', {events: events});
 		})

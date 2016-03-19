@@ -9,26 +9,61 @@ html
 			include ./header.jade
 			include ./menu.jade
 			h2= title
-			h3 Edit a Ticket
-			form(class="ui edit form" method="POST" action="/admin/tickets/"+ticket.id)
-				div(class="field")
-					label Name
-					input(type="text" name="name" value=ticket.name)
-				div(class="field")
-					label Min Size Booking
-					input(type="text" name="min_booking" value=ticket.min_booking)
-				div(class="field")
-					label Max Size Booking
-					input(type="text" name="max_booking" value=ticket.max_booking)
-				div(class="field")
-					label Block Debtors
-					input(type="text" name="block_debtors" value=ticket.block_debtors)
-				div(class="field")
-					label Guests
-					input(type="text" name="guests" value=ticket.guests)
-				div(class="field")
-					label Stock
-					input(type="text" name="stock" value=ticket.stock)
-				button(type="submit" class="ui submit button") 
-					i(class="save icon")
-					| Save
+			div(class="ui vertical segment")
+				h3 Edit a Ticket
+				form(class="ui edit form" method="POST" action="/admin/tickets/"+ticket.id)
+					div(class="field")
+						label Name
+						input(type="text" name="name" value=ticket.name)
+					div(class="field")
+						label Min Size Booking
+						input(type="text" name="min_booking" value=ticket.min_booking)
+					div(class="field")
+						label Max Size Booking
+						input(type="text" name="max_booking" value=ticket.max_booking)
+					div(class="field")
+						div(class="ui checkbox")
+							input(type="checkbox" name="block_debtors" tabindex="0")
+							label Block Debtors
+					div(class="field")
+						div(class="ui checkbox")
+							input(type="checkbox" name="guests" tabindex="0")
+							label Allow Guests
+					div(class="field")
+						label Stock
+						input(type="text" name="stock" value=ticket.stock)
+					div(class="two fields")
+						label Open Booking
+						div(class="field")
+							label Date
+							input(type="text" name="open_sales_date" value=ticket.open_sales.getDate() + "-"+(ticket.open_sales.getMonth() + 1)+"-"+ticket.open_sales.getFullYear())
+						div(class="field")
+							label Time
+							input(type="text" name="open_sales_time" value=("0"+ticket.open_sales.getHours()).slice(-2)+":"+("0"+ticket.open_sales.getMinutes()).slice(-2))
+					div(class="two fields")
+						label Close Booking
+						div(class="field")
+							label Date
+							input(type="text" name="close_sales_date" value=ticket.close_sales.getDate() + "-"+(ticket.close_sales.getMonth() + 1)+"-"+ticket.close_sales.getFullYear())
+						div(class="field")
+							label Time
+							input(type="text" name="close_sales_time" value=("0"+ticket.close_sales.getHours()).slice(-2)+":"+("0"+ticket.close_sales.getMinutes()).slice(-2))
+				
+					button(type="submit" class="ui submit button") 
+						i(class="save icon")
+						| Save
+					div(class="ui error message")
+
+			script.
+				$('.form').form({
+					fields: {
+						name: 'empty',
+						min_booking: 'integer',
+						max_booking: 'integer',
+						stock: 'integer',
+						open_sales_date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]',
+						open_sales_time: 'regExp[/([01]?[0-9]|2[0-3]):[0-5][0-9]/ig]',
+						close_sales_date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]',
+						close_sales_time: 'regExp[/([01]?[0-9]|2[0-3]):[0-5][0-9]/ig]'
+					}
+				});
