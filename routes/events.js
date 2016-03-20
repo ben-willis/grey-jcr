@@ -41,7 +41,7 @@ router.get('/:eventid/:ticketid/book', function (req, res, next) {
 		});
 });
 
-/* POST a reservation */
+/* POST a booking */
 router.post('/:eventid/:ticketid/book', function (req, res, next) {
 	req.body.bookings;
 	bookings = [];
@@ -53,6 +53,8 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 
 	req.db.tx(function (t) {
 	    // t = this;
+	    var ticketname;
+	    var ticketprice;
 	    return this.sequence(function (index, data, delay) {
 			switch (index) {
 				// Check they haven't already booked on
@@ -74,9 +76,10 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 						err = new Error("Somebodies already booked on");
 						throw err;
 					}
-					return req.db.one("SELECT min_booking, max_booking, open_sales, close_sales FROM tickets WHERE id=$1", [req.params.ticketid])
+					return req.db.one("SELECT name, min_booking, max_booking, open_sales, close_sales, price FROM tickets WHERE id=$1", [req.params.ticketid])
 				// Check there are enough places
 				case 2:
+					console.log(data);
 					if (bookings.length < data.min_booking) {
 						err = new Error("You haven't booked the minimum number on");
 						throw err;
@@ -87,6 +90,8 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 						err = new Error("Booking is not open at this time");
 						throw err;
 					}
+					ticketname = data.name;
+					ticketprice = data.price;
 					return this.query('SELECT stock - (SELECT COUNT(*) FROM bookings WHERE ticketid=$1) AS remaining FROM tickets WHERE id=$1', [req.params.ticketid]);
 				// Book them on
 				case 3:
@@ -103,8 +108,20 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 						query += '($'+(i+4)+', $1, $2, $3)';
 						values.push(bookings[i]);
 					}
-					console.log(query);
-					console.log(values);
+					query += ' RETURNING id, username';
+					return this.query(query, values);
+				case 4:
+					console.log(ticketname);
+					var query = 'INSERT INTO debts (name, amount, bookingid, username) VALUES '
+					var values = [ticketname, ticketprice];
+					for (var i = 0; i < data.length; i++) {
+						if (i!=0) {
+							query += ', '
+						}
+						query += '($1, $2, $'+(2*i + 3)+', $'+(2*i + 4)+')';
+						values.push(data[i].id);
+						values.push(data[i].username);
+					};
 					return this.query(query, values);
 			}
 		});
@@ -164,11 +181,13 @@ router.get('/:year/:month/:day/:slug/:ticketid/booking', function (req, res, nex
 			options = optionsTree.getData();
 			for (var i = 0; i < options.length; i++) {
 				for (var j = 0; j < options[i].choices.length; j++) {
-					for (var k = 0; k < booking.choices.length; k++) {
-						if (booking.choices[k].id == options[i].choices[j].id) {
-							options[i].choices[j].selected = true;
-						}
-					};
+					if (booking.choices) {
+						for (var k = 0; k < booking.choices.length; k++) {
+							if (booking.choices[k].id == options[i].choices[j].id) {
+								options[i].choices[j].selected = true;
+							}
+						};
+					}
 					options[i].choices[j].selected = (options[i].choices[j].selected == true);
 				};
 			};
@@ -194,7 +213,20 @@ router.post('/:bookingid', function (req, res, next) {
 			return req.db.none(query, values);
 		})
 		.then(function (){
-			return req.db.none('UPDATE bookings SET notes=$1 WHERE bookings.id=$2', [req.body.notes, req.params.bookingid]);
+			return req.db.one('UPDATE bookings SET notes=$1 WHERE bookings.id=$2 RETURNING ticketid AS id', [req.body.notes, req.params.bookingid]);
+		})
+		.then(function (ticket){
+			query = 'UPDATE debts SET amount=(SELECT SUM(price) FROM ticket_option_choices WHERE '
+			values = [ticket.id, req.params.bookingid];
+			for (var i = 0; i < req.body.choices.length; i++) {
+				if (i!=0) {
+					query+=' OR '
+				}
+				query += 'id=$'+(i+3);
+				values.push(req.body.choices[i]);
+			};
+			query += ') + (SELECT price FROM tickets WHERE id=$1) WHERE bookingid=$2'
+			return req.db.none(query, values);
 		})
 		.then(function () {
 			res.send('Success');

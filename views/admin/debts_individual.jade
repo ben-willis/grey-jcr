@@ -1,0 +1,29 @@
+- var title = 'Debts'
+
+doctype html
+html
+	head
+		include ./head.jade
+	body
+		div(class='ui container')
+			include ./header.jade
+			include ./menu.jade
+			h2= debts[0].user_name
+			div(class="ui vertical segment")
+				h3 Debts
+				table(class="ui fixed table")
+					thead
+						tr
+							th Name
+							th Message
+							th Amount
+							th Actions
+					tbody
+						each debt in debts
+							tr
+								td= debt.name
+								td= debt.message
+								td= debt.amount
+								td
+									a(class="ui button" href="/admin/debts/"+debt.username)
+										| View
