@@ -24,7 +24,7 @@ html
 								tr
 									td= debtor.name+" ("+debtor.username+")"
 									td= debtor.email
-									td= debtor.amount
+									td= "£"+(debtor.amount/100).toFixed(2)
 									td
 										a(class="ui button" href="/admin/debts/"+debtor.username)
 											| View

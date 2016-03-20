@@ -52,6 +52,7 @@
     "mv": "^2.1.1",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
+    "paypal-rest-sdk": "^1.6.8",
     "pg-promise": "^3.2.1",
     "pretty-date": "^0.2.0",
     "require-dot-file": "^0.4.0",

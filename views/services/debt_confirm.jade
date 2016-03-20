@@ -1,0 +1,15 @@
+- var title = 'Confirm Payment'
+
+doctype html
+html
+	head
+		include ../head.jade
+	body
+		div(class='ui container')
+			include ../header.jade
+			include ../menu.jade
+			h2(class="ui header")= title
+			p Please check and then confirm your payment.
+			p
+				a(href="/services/debt/pay/execute?PayerID="+payerId class="ui primary button") Confirm
+				a(href="/services/debt/pay/cancel" class="ui basic button") Cancel

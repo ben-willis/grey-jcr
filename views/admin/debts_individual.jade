@@ -8,22 +8,34 @@ html
 		div(class='ui container')
 			include ./header.jade
 			include ./menu.jade
-			h2= debts[0].user_name
-			div(class="ui vertical segment")
-				h3 Debts
-				table(class="ui fixed table")
-					thead
-						tr
-							th Name
-							th Message
-							th Amount
-							th Actions
-					tbody
-						each debt in debts
+			h2= debtor.name
+			div(class="ui vertically padded grid")
+				div(class="ten wide column")
+					h3 Debt History
+					table(class="ui fixed table")
+						thead
 							tr
-								td= debt.name
-								td= debt.message
-								td= debt.amount
-								td
-									a(class="ui button" href="/admin/debts/"+debt.username)
-										| View
+								th Name
+								th Message
+								th Timestamp
+								th Amount
+						tbody
+							each debt in debts
+								tr
+									td= debt.name
+									td= debt.message
+									td
+									td= "£"+(debt.amount/100).toFixed(2)
+				div(class="six wide column")
+					h3 Alter Debt
+					form(class="ui form" method="POST" action="/admin/debts/"+debtor.username)
+						div(class="field")
+							label Name
+							input(type="text" name="name")
+						div(class="field")
+							label Message
+							textarea(rows=2 name="message")
+						div(Class="field")
+							label Amount
+							input(type="text" name="amount")
+						button(class="ui submit button" type="submit") Add
