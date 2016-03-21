@@ -17,7 +17,7 @@ html
 				each ticket in tickets
 					div(class="ui vertical segment")
 						h3= ticket.name
-						if (ticket.username != null)
+						if (ticket.bookings != null)
 							a(class="ui button" href="/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug+"/"+ticket.id+"/booking") Your Booking
 						if (ticket.close_sales < (new Date()))
 							p Booking is now closed.

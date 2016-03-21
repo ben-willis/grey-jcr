@@ -5,6 +5,9 @@ var upload = multer({dest: __dirname+'/../tmp'});
 var mv = require('mv');
 var mime = require('mime');
 var treeize   = require('treeize');
+var paypal = require('paypal-rest-sdk');
+
+require('dotenv').config();
 
 router.use(function (req, res, next) {
 	if (req.isAuthenticated()) {
@@ -44,7 +47,7 @@ router.post('/user/:username/update', upload.single('avatar'), function (req, re
 	}
 	mv(req.file.path, __dirname+'/../public/images/avatars/'+req.params.username+'.png', function (err) {
 		if (err) return next(err);
-		res.redirect(303, '/services/user/'+req.params.username);
+		res.redirect(303, '/services/user/'+req.params.username+'?success');
 	});
 });
 
@@ -63,7 +66,7 @@ router.get('/feedback', function (req, res, next) {
 router.post('/feedback', function (req, res, next) {
 	req.db.none('INSERT INTO feedback(title, message, author, exec, anonymous) VALUES ($1, $2, $3, $4, $5)', [req.body.title, req.body.message, req.user.username, false, (req.body.anonymous=='on')])
 		.then(function () {
-			res.redirect(303, '/services/feedback')
+			res.redirect(303, '/services/feedback?success')
 		})
 		.catch(function (err) {
 			next(err);
@@ -85,7 +88,7 @@ router.get('/feedback/:feedbackid', function (req, res, next) {
 router.post('/feedback/:feedbackid', function (req, res, next) {
 	req.db.none('INSERT INTO feedback(title, message, author, exec, parentid) VALUES ($1, $2, $3, $4, $5)', ['reply', req.body.message, req.user.username, false, req.params.feedbackid])
 		.then(function () {
-			res.redirect(303, '/services/feedback/'+req.params.feedbackid)
+			res.redirect(303, '/services/feedback/'+req.params.feedbackid+'?success')
 		})
 		.catch(function (err) {
 			next(err);
@@ -117,33 +120,32 @@ router.get('/elections', function (req, res, next) {
 
 /* GET the vote in elections page */
 router.get('/elections/:electionid', function (req, res, next) {
+	var voted = false;
 	req.db.one('SELECT id, title, status FROM elections WHERE elections.id=$1', [req.params.electionid])
 		.then(function (election) {
+			// If the election isn't open throw an error
 			if (election.status != 2) {
 				err = new Error('Election is not open for voting');
 				err.status=400;
-				next(err);
-			} else {
-				var voted = false;
-				req.db.one('SELECT COUNT(id) FROM election_votes WHERE username=$1 AND electionid=$2', [req.user.username, req.params.electionid])
-					.then(function (voteCount) {
-						if (voteCount.count == 0) {
-							return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid WHERE election_nominations.electionid=$1 ORDER BY election_positions.id', [req.params.electionid]);
-						} else {
-							voted = true;
-							return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id", election_votes.value AS "positions:nominations:value" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid LEFT JOIN election_votes ON election_votes.nominationid=election_nominations.id WHERE election_nominations.electionid=$1 AND election_votes.username=$2 ORDER BY election_positions.id', [req.params.electionid, req.user.username]);
-						}
-					})
-					.then(function (nominations) {
-						var positionsTree = new treeize();
-						positionsTree.grow(nominations);
-						election.positions = positionsTree.getData();
-						res.render('services/elections_vote', {election: election, voted: voted});
-					})
-					.catch( function (err) {
-						next(err);
-					});
+				throw err;
 			}
+			// If it is work out if they've voted
+			return req.db.one('SELECT COUNT(id) FROM election_votes WHERE username=$1 AND electionid=$2', [req.user.username, req.params.electionid])
+		})
+		.then(function (voteCount) {
+			if (voteCount.count == 0) {
+				return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid WHERE election_nominations.electionid=$1 ORDER BY election_positions.id', [req.params.electionid]);
+			} else {
+				voted = true;
+				return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id", election_votes.value AS "positions:nominations:value" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid LEFT JOIN election_votes ON election_votes.nominationid=election_nominations.id WHERE election_nominations.electionid=$1 AND election_votes.username=$2 ORDER BY election_positions.id', [req.params.electionid, req.user.username]);
+			}
+		})
+		// And send them the details on who's running
+		.then(function (nominations) {
+			var positionsTree = new treeize();
+			positionsTree.grow(nominations);
+			election.positions = positionsTree.getData();
+			res.render('services/elections_vote', {election: election, voted: voted});
 		})
 		.catch(function (err) {
 			next(err);
@@ -152,12 +154,13 @@ router.get('/elections/:electionid', function (req, res, next) {
 
 /* POST a vote */
 router.post('/elections/:electionid', function (req, res, next) {
+	// Check whether the've voted
 	req.db.one('SELECT COUNT(id) FROM election_votes WHERE username=$1 AND electionid=$2', [req.user.username, req.params.electionid])
 		.then(function (voteCount) {
 			if (voteCount.count != 0) {
 				err = new Error("You have already voted in this election");
 				err.status(400);
-				return err;
+				throw err;
 			}
 			var query = "INSERT INTO election_votes(username, electionid, nominationid, value) VALUES ";
 			for (candidate in req.body.candidates) {
@@ -183,6 +186,103 @@ router.post('/elections/:electionid', function (req, res, next) {
 		.catch( function (err) {
 			next(err);
 		})
+});
+
+// Configure Paypal
+paypal.configure({
+	'mode': process.env.PAYPAL_MODE,
+	'client_id': process.env.PAYPAL_CLIENT_ID,
+	'client_secret': process.env.PAYPAL_CLIENT_SECRET
+});
+
+/* GET the debts page */
+router.get('/debt', function (req, res, next) {
+	req.db.manyOrNone('SELECT name, message, amount, (SELECT SUM(amount) FROM debts WHERE username=$1) AS total FROM debts WHERE username=$1 ORDER by timestamp DESC',[req.user.username])
+		.then(function (debts) {
+			res.render('services/debt', {debts: debts});
+		})
+		.catch(function (err) {
+			next(err);
+		});
+});
+
+/* GET pay a debt */
+router.get('/debt/pay', function (req, res, next){
+	req.db.one('SELECT SUM(amount) AS amount FROM debts WHERE username=$1 LIMIT 1', [req.user.username])
+		.then(function (debt) {
+			console.log(debt)
+			var payment = {
+				"intent": "sale",
+				"payer": {
+					"payment_method": "paypal"
+				},
+				"redirect_urls": {
+					"return_url": "http://grey.ben-willis.co.uk/services/debt/pay/confirm",
+					"cancel_url": "http://grey.ben-willis.co.uk/services/debt/pay/cancel"
+				},
+				"transactions": [{
+					"amount": {
+			  			"total": (debt.amount/100).toFixed(2),
+			  			"currency": "GBP"
+					},
+					"description": "Clear Debt to Grey JCR",
+					"item_list": {
+						"items": [
+							{
+								"quantity": "1",
+								"name": "Clear Debt",
+								"price": (debt.amount/100).toFixed(2),
+								"currency": "GBP"
+							}
+						]
+					}
+				}]
+			};
+			paypal.payment.create(payment, function (err, payment) {
+				console.log(payment);
+				if (err) throw err;
+				req.session.paymentId = payment.id;
+			    for(var i=0; i < payment.links.length; i++) {
+					if (payment.links[i].method === 'REDIRECT') {
+						return res.redirect(303, payment.links[i].href);
+					}
+				}
+			});
+		})
+		.catch(function (err) {
+			next(err);
+		})
+})
+
+/* GET the confirmation page */
+router.get('/debt/pay/confirm', function (req, res, next) {
+	res.render('services/debt_confirm', {"payerId": req.query.PayerID});
+});
+
+/* GET execute the payment */
+router.get('/debt/pay/execute', function (req, res, next) {
+	var paymentId = req.session.paymentId;
+  	var PayerID = req.query.PayerID;
+
+	paypal.payment.execute(paymentId, { 'payer_id': PayerID }, function (err, payment) {
+	    if (err) return next(err);
+	    var amount = (-1)*Math.floor(parseFloat(payment.transactions[0].amount.total)*100);
+	   	var paymentid = payment.transactions[0].related_resources[0].sale.id;
+	   	delete req.session.paymentId;
+	    req.db.none('INSERT INTO debts (name, message, amount, username) VALUES ($1, $2, $3, $4)', ['PayPal Payment', 'Payment ID: '+paymentid, amount, req.user.username])
+	    	.then(function(){
+	    		res.redirect(303, '/services/debt');
+	    	})
+	    	.catch(function (err) {
+	    		next(err);
+	    	})
+  	});
+});
+
+
+/* GET the cancel page */
+router.get('/debt/pay/cancel', function (req, res, next) {
+	res.render('services/debt_cancel', {"payerId": req.query.PayerID});
 });
 
 module.exports = router;

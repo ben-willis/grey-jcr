@@ -14,7 +14,10 @@ html
 				form(class="ui form" method="POST" action="/events/"+eventid+"/"+ticket.id+"/book")
 					- for(i=0; i<ticket.max_booking; i++)
 						div(class=(i<ticket.min_booking)?"required field":"field")
-							label= "Username "+(i+1)
+							if (ticket.guests)
+								label= "Username or Guest's Name "+(i+1)
+							else
+								label= "Username "+(i+1)
 							input(type="text" name="bookings[]")
 					button(class="ui submit button" type="submit") Book
 

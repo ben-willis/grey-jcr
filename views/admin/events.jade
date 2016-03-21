@@ -54,12 +54,16 @@ html
 								td= event.name
 								td= event.timestamp
 								td
-									a(class="ui button" href="/admin/events/"+event.id+"/edit")
-										i(class="edit icon")
-										| Edit
-									a(class="ui negative button" href="/admin/events/"+event.id+"/delete") 
-										i(class="remove icon")
-										| Delete
+									div(class="ui buttons")
+										a(class="ui button" href="/admin/events/"+event.id+"/bookings.csv")
+											i(class="download icon")
+											| Bookings
+										a(class="ui button" href="/admin/events/"+event.id+"/edit")
+											i(class="edit icon")
+											| Edit
+										a(class="ui negative button" href="/admin/events/"+event.id+"/delete") 
+											i(class="remove icon")
+											| Delete
 
 		script.
 			CKEDITOR.replace( 'editor1' );

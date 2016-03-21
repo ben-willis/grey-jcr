@@ -40,11 +40,10 @@ router.get('/search/', function (req, res, next) {
 					});
 				};
 			}
-			if (req.isAuthenticated()) {
-				return req.db.manyOrNone("SELECT name, username FROM users WHERE LOWER(name) LIKE LOWER($1)", [query]);
-			} else {
-				res.json(data);
+			if (!req.isAuthenticated()) {
+				return res.json(data);
 			}
+			return req.db.manyOrNone("SELECT name, username FROM users WHERE LOWER(name) LIKE LOWER($1)", [query]);			
 		})
 		.then(function (users) {
 			if(users.length != 0) {
@@ -61,10 +60,10 @@ router.get('/search/', function (req, res, next) {
 					});
 				};
 			}
-			res.json(data);
+			return res.json(data);
 		})
 		.catch( function (err) {
-			res.json(err);
+			return res.json(err);
 		})
 });
 
@@ -74,9 +73,9 @@ router.get('/events/:year/:month', function (req, res, next) {
 			if (!position.description) {
 				position.description = "No Description"
 			}
-			res.json(position);
+			return res.json(position);
 		}).catch(function (err) {
-			res.json(err);
+			return res.json(err);
 		});
 });
 
@@ -86,9 +85,9 @@ router.get('/positions/:id', function (req, res, next) {
 			if (!position.description) {
 				position.description = "No Description"
 			}
-			res.json(position);
+			return res.json(position);
 		}).catch(function (err) {
-			res.json(err);
+			return res.json(err);
 		});
 });
 
@@ -96,18 +95,18 @@ router.get('/users', function (req, res, next) {
 	var query = '%'+req.query.q+'%';
 	req.db.manyOrNone('SELECT * FROM users WHERE LOWER(username) LIKE LOWER($1) OR LOWER(name) LIKE LOWER($1)', query)
 		.then(function (users) {
-			res.json({success: true, users: users});
+			return res.json({success: true, users: users});
 		}).catch(function (err) {
-			res.json(err);
+			return res.json(err);
 		});
 });
 
 router.get('/users/:username', function (req, res, next) {
 	req.db.one("SELECT * FROM users WHERE username='"+req.params.username+"'")
 		.then(function (user) {
-			res.json(user);
+			return res.json(user);
 		}).catch(function (err) {
-			res.json(err);
+			return res.json(err);
 		});
 });
 
@@ -144,7 +143,7 @@ router.get('/files/:directoryid', function (req, res, next) {
 			res.json({"current": current,"directories": directories, "files": files});
 		})
 		.catch(function (err) {
-			next(err);
+			res.json(err);
 		});
 });
 

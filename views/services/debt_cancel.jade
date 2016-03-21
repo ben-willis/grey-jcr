@@ -1,0 +1,14 @@
+- var title = 'Payment Cancelled'
+
+doctype html
+html
+	head
+		include ../head.jade
+	body
+		div(class='ui container')
+			include ../header.jade
+			include ../menu.jade
+			h2(class="ui header")= title
+			p The Payment was cancelled.
+			p
+				a(href="/services/debt/" class="ui basic button") Back

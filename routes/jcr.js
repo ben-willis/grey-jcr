@@ -22,7 +22,6 @@ router.get('/', function (req, res, next) {
 
 /* GET blog page. */
 router.get('/blog', function (req, res, next) {
-	// Get all the jcr officers positions
 	req.db.manyOrNone('SELECT *, blog.title AS title, blog.slug AS slug, positions.title AS position_title, positions.slug AS position_slug FROM blog LEFT JOIN users ON blog.author=users.username LEFT JOIN positions ON blog.positionid=positions.id')
 		.then(function (posts) {
 			res.render('jcr/blog', { posts: posts});
@@ -31,7 +30,7 @@ router.get('/blog', function (req, res, next) {
 		});
 });
 
-/* GET blog for a position page. */
+/* GET profile for a position page. */
 router.get('/blog/:position', function (req, res, next) {
 	var posts;
 	req.db.manyOrNone("SELECT *, blog.title AS title, blog.slug AS slug, positions.title AS position_title, positions.slug AS positions_slug FROM blog LEFT JOIN users ON blog.author=users.username LEFT JOIN positions ON blog.positionid=positions.id WHERE positions.slug=$1", [req.params.position])

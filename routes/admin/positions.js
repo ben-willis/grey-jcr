@@ -37,7 +37,7 @@ router.post('/new', function (req, res, next) {
 		if (req.body.level == "4") {
 			return req.db.none("INSERT INTO file_directories(name, parent, owner) VALUES ($1, $2, $3)", [req.body.title, 0, result.id]);
 		}
-		return res.redirect('/admin/positions');
+		return;
 	}).then(function () {
 		return res.redirect('/admin/positions');
 	}).catch(function (err) {

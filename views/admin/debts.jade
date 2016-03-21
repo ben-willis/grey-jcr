@@ -1,0 +1,52 @@
+- var title = 'Debts'
+
+doctype html
+html
+	head
+		include ./head.jade
+	body
+		div(class='ui container')
+			include ./header.jade
+			include ./menu.jade
+			h2= title
+			div(class="ui vertically padded grid")
+				div(class="eleven wide column")
+					h3 Top Debtors
+					table(class="ui fixed table")
+						thead
+							tr
+								th Name (username)
+								th Email
+								th Amount
+								th Actions
+						tbody
+							each debtor in debtors
+								tr
+									td= debtor.name+" ("+debtor.username+")"
+									td= debtor.email
+									td= "£"+(debtor.amount/100).toFixed(2)
+									td
+										a(class="ui button" href="/admin/debts/"+debtor.username)
+											| View
+				div(class="five wide wide column")
+					h3 Find Debtors
+					div(class="ui fluid search field")
+						div(class="ui fluid input")
+							input(type="text" name="username" class="prompt" placeholder="Find a user...")
+						div(class="results")
+
+					script.
+						$('.ui.search').search({
+							apiSettings: {
+								url: '/api/users/?q={query}'
+							},
+							fields: {
+								results: 'users',
+								title: 'username',
+								description : 'name'
+							},
+							onSelect: function (result, response) {
+								window.location.href = "/admin/debts/"+result.username;
+								return false;
+							}
+						});
