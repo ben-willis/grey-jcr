@@ -5,6 +5,7 @@ var multer = require('multer');
 var upload = multer({dest: __dirname+'/../../tmp'});
 var mv = require('mv');
 var mime = require('mime');
+var csv = require('csv');
 
 /* GET events page. */
 router.get('/', function (req, res, next) {
@@ -94,7 +95,33 @@ router.get('/:eventid/delete', function (req, res, next) {
 		.catch(function (err) {
 			next(err);
 		})
-})
+});
+
+/* GET an events bookings */
+router.get('/:eventid/bookings.csv', function (req, res, next){
+	req.db.many('SELECT tickets.name AS ticket_name, users.name, users.email, bookings.guest_name FROM bookings LEFT JOIN tickets ON tickets.id=bookings.ticketid LEFT JOIN users ON bookings.username=users.username WHERE bookings.eventid=$1', [req.params.eventid])
+		.then(function (bookings){
+			var columns = {
+				ticket_name: 'Ticket',
+				name: 'Name',
+				email: 'Email'
+			}
+			for (var i = 0; i < bookings.length; i++) {
+				if (!bookings[i].name) {
+					bookings[i].name = bookings[i].guest_name;
+				}
+				delete bookings[i].guest_name;
+			};
+			csv.stringify(bookings, {header: true, columns: columns}, function (err, output) {
+				if (err) throw err;
+				res.set('Content-Type', 'text/csv');
+				res.status(200).send(output);
+			})
+		})
+		.catch(function (err){
+			next(err);
+		});
+});
 
 function slugify(text)
 {

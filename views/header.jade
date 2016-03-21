@@ -4,8 +4,8 @@ div(class="ui grid")
 			img(src="/images/coat-of-arms.png")
 			div(class="content") Grey
 				div(class="sub header") JCR
-	div(class="ten wide column")
-		div(class="ui stackable text menu")
+	div(class="ten wide right aligned column")
+		div(class="ui stackable compact text menu")
 			if user
 				if user.level >= 4
 					a(class="item" href="/admin") Admin
@@ -16,12 +16,12 @@ div(class="ui grid")
 					a(class="item" ) Room Booking
 					a(class="item" ) Menus
 			if !user
-				div(class="right item")
+				div(class="item")
 					a(class='ui primary button' href='/login')
 						i(class='sign in icon')
 						| Log in
 			else
-				div(class='ui right dropdown link item' )
+				div(class='ui dropdown link item' )
 					img(class="ui avatar image" src="/api/users/"+user.username+"/avatar")
 					div(class="text")= user.name + ' ('+user.username+')'
 					i(class="dropdown icon")
@@ -33,7 +33,7 @@ div(class="ui grid")
 							i(class='sign out icon')
 							| Log Out
 
-		div(class="ui secondary menu"): div(class="right menu")
+		div(class="ui secondary compact menu")
 			div(class="item")
 				a(class="ui icon facebook button" href="https://www.facebook.com/greycollegejcr/"): i(class="facebook icon")
 			div(class="item")
@@ -42,4 +42,4 @@ div(class="ui grid")
 				a(class="ui icon youtube button" href="https://www.youtube.com/channel/UCmZ_ll7dit6Ulys-ts5FjVA"): i(class="youtube icon")
 
 script.
-	$('.ui.right.dropdown.dropdown').dropdown({action: 'hide'});
+	$('.ui.dropdown').dropdown({action: 'hide'});

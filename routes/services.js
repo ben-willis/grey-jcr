@@ -47,7 +47,7 @@ router.post('/user/:username/update', upload.single('avatar'), function (req, re
 	}
 	mv(req.file.path, __dirname+'/../public/images/avatars/'+req.params.username+'.png', function (err) {
 		if (err) return next(err);
-		res.redirect(303, '/services/user/'+req.params.username);
+		res.redirect(303, '/services/user/'+req.params.username+'?success');
 	});
 });
 
@@ -66,7 +66,7 @@ router.get('/feedback', function (req, res, next) {
 router.post('/feedback', function (req, res, next) {
 	req.db.none('INSERT INTO feedback(title, message, author, exec, anonymous) VALUES ($1, $2, $3, $4, $5)', [req.body.title, req.body.message, req.user.username, false, (req.body.anonymous=='on')])
 		.then(function () {
-			res.redirect(303, '/services/feedback')
+			res.redirect(303, '/services/feedback?success')
 		})
 		.catch(function (err) {
 			next(err);
@@ -88,7 +88,7 @@ router.get('/feedback/:feedbackid', function (req, res, next) {
 router.post('/feedback/:feedbackid', function (req, res, next) {
 	req.db.none('INSERT INTO feedback(title, message, author, exec, parentid) VALUES ($1, $2, $3, $4, $5)', ['reply', req.body.message, req.user.username, false, req.params.feedbackid])
 		.then(function () {
-			res.redirect(303, '/services/feedback/'+req.params.feedbackid)
+			res.redirect(303, '/services/feedback/'+req.params.feedbackid+'?success')
 		})
 		.catch(function (err) {
 			next(err);
@@ -120,33 +120,32 @@ router.get('/elections', function (req, res, next) {
 
 /* GET the vote in elections page */
 router.get('/elections/:electionid', function (req, res, next) {
+	var voted = false;
 	req.db.one('SELECT id, title, status FROM elections WHERE elections.id=$1', [req.params.electionid])
 		.then(function (election) {
+			// If the election isn't open throw an error
 			if (election.status != 2) {
 				err = new Error('Election is not open for voting');
 				err.status=400;
-				next(err);
-			} else {
-				var voted = false;
-				req.db.one('SELECT COUNT(id) FROM election_votes WHERE username=$1 AND electionid=$2', [req.user.username, req.params.electionid])
-					.then(function (voteCount) {
-						if (voteCount.count == 0) {
-							return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid WHERE election_nominations.electionid=$1 ORDER BY election_positions.id', [req.params.electionid]);
-						} else {
-							voted = true;
-							return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id", election_votes.value AS "positions:nominations:value" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid LEFT JOIN election_votes ON election_votes.nominationid=election_nominations.id WHERE election_nominations.electionid=$1 AND election_votes.username=$2 ORDER BY election_positions.id', [req.params.electionid, req.user.username]);
-						}
-					})
-					.then(function (nominations) {
-						var positionsTree = new treeize();
-						positionsTree.grow(nominations);
-						election.positions = positionsTree.getData();
-						res.render('services/elections_vote', {election: election, voted: voted});
-					})
-					.catch( function (err) {
-						next(err);
-					});
+				throw err;
 			}
+			// If it is work out if they've voted
+			return req.db.one('SELECT COUNT(id) FROM election_votes WHERE username=$1 AND electionid=$2', [req.user.username, req.params.electionid])
+		})
+		.then(function (voteCount) {
+			if (voteCount.count == 0) {
+				return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid WHERE election_nominations.electionid=$1 ORDER BY election_positions.id', [req.params.electionid]);
+			} else {
+				voted = true;
+				return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id", election_votes.value AS "positions:nominations:value" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid LEFT JOIN election_votes ON election_votes.nominationid=election_nominations.id WHERE election_nominations.electionid=$1 AND election_votes.username=$2 ORDER BY election_positions.id', [req.params.electionid, req.user.username]);
+			}
+		})
+		// And send them the details on who's running
+		.then(function (nominations) {
+			var positionsTree = new treeize();
+			positionsTree.grow(nominations);
+			election.positions = positionsTree.getData();
+			res.render('services/elections_vote', {election: election, voted: voted});
 		})
 		.catch(function (err) {
 			next(err);
@@ -155,12 +154,13 @@ router.get('/elections/:electionid', function (req, res, next) {
 
 /* POST a vote */
 router.post('/elections/:electionid', function (req, res, next) {
+	// Check whether the've voted
 	req.db.one('SELECT COUNT(id) FROM election_votes WHERE username=$1 AND electionid=$2', [req.user.username, req.params.electionid])
 		.then(function (voteCount) {
 			if (voteCount.count != 0) {
 				err = new Error("You have already voted in this election");
 				err.status(400);
-				return err;
+				throw err;
 			}
 			var query = "INSERT INTO election_votes(username, electionid, nominationid, value) VALUES ";
 			for (candidate in req.body.candidates) {
@@ -240,7 +240,7 @@ router.get('/debt/pay', function (req, res, next){
 			};
 			paypal.payment.create(payment, function (err, payment) {
 				console.log(payment);
-				if (err) return next(err);
+				if (err) throw err;
 				req.session.paymentId = payment.id;
 			    for(var i=0; i < payment.links.length; i++) {
 					if (payment.links[i].method === 'REDIRECT') {
