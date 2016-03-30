@@ -16,7 +16,15 @@ div(class='ui stackable red inverted menu')
 		script.
 			$('.ui.search').search({
 				apiSettings: {
-					url: '/api/search?q={query}'
+					url: '/api/search?q={query}',
+					onResponse: function(response) {
+						$.each(response.results, function (key, value) {
+							console.log(response)
+							response.results[key].results.splice(5)
+							console.log(response)
+						})
+						return response;
+					}
 				},
-				type: 'category'
+				type: 'category',
 			});

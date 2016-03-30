@@ -44,8 +44,7 @@ router.get('/:eventid/:ticketid/book', function (req, res, next) {
 
 /* POST a booking */
 router.post('/:eventid/:ticketid/book', function (req, res, next) {
-	req.body.bookings;
-	bookings = [];
+	var bookings = [];
 	for (var i = 0; i < req.body.bookings.length; i++) {
 		if (req.body.bookings[i] != "") {
 			bookings.push(req.body.bookings[i]);
@@ -57,41 +56,52 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 	    var ticketname;
 	    var ticketprice;
 	    var allow_guests;
+	    var debtors = [];
 	    return this.sequence(function (index, data, delay) {
 			switch (index) {
 				// Check they haven't already booked on
 				case 0:
-					var query = 'SELECT id FROM bookings WHERE ticketid=$1 AND (';
+					var query = 'SELECT users.username, users.name, bookings.id, (SELECT SUM(amount) FROM debts WHERE username=users.username) AS debt FROM users LEFT JOIN bookings ON users.username=bookings.username WHERE (bookings.ticketid=$1 OR bookings.ticketid IS NULL) AND (';
 					var values = [req.params.ticketid];
 					for (i = 0; i<bookings.length; i++) {
 						if (i!=0) {
 							query += ' OR ';
 						}
-						query += 'username=$'+(i+2);
+						query += 'users.username=$'+(i+2);
 						values.push(bookings[i]);
 					}
 					query += ')';
 					return this.query(query, values);
 				// Check they booked the right number of places
 				case 1:
-					if (data.length > 0) {
-						err = new Error("Somebodies already booked on");
-						throw err;
-					}
-					return req.db.one("SELECT name, min_booking, max_booking, open_sales, close_sales, price, guests FROM tickets WHERE id=$1", [req.params.ticketid])
+					console.log(data);
+					for (var i = 0; i < data.length; i++) {
+						if (data[i].id != null) {
+							err = new Error(data[i].name + " is already booked on.")
+							throw err;
+						}
+						if (parseInt(data[i].debt) > 0 && ) {
+							debtors.push(data[i].name);
+						}
+					};
+					return req.db.one("SELECT name, min_booking, max_booking, open_sales, close_sales, price, guests, block_debtors FROM tickets WHERE id=$1", [req.params.ticketid])
 				// Check there are enough places
-				case 2:
-					if (validator.isInt(bookings.length, {min: data.min_booking, max: data.max_booking})) {
+				case 1:
+					if (bookings.length < data.min_booking || bookings.length > data.max_booking) {
 						err = new Error("You've either booked to many or too few!");
 						throw err;
 					}
-					if (validator.isAfter(data.open_sales) || validator.isBefore(data.close_sales)) {
+					if (new Date() < data.open_sales || new Date() > data.close_sales) {
 						err = new Error("Booking is not open at this time");
+						throw err;
+					}
+					if (data.block_debtors && debtors.length>0) {
+						err = new Error(debtors[0] + " is a debtor and debtors are blocked from booking.");
 						throw err;
 					}
 					ticketname = data.name;
 					ticketprice = data.price;
-					guests = data.guests;
+					allow_guests = data.guests;
 					return this.query('SELECT stock - (SELECT COUNT(*) FROM bookings WHERE ticketid=$1) AS remaining FROM tickets WHERE id=$1', [req.params.ticketid]);
 				// Book them on
 				case 3:
@@ -114,6 +124,7 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 					}
 					query += ' RETURNING id, username';
 					return this.query(query, values);
+				// Add their debts
 				case 4:
 					var query = 'INSERT INTO debts (name, amount, bookingid, username) VALUES '
 					var values = [ticketname, ticketprice];
@@ -134,7 +145,8 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 		});
 	})
     .then(function (data) {
-		return req.db.one('SELECT events.timestamp, events.slug FROM events events.id=$1', [req.params.eventid])
+    	console.log('test');
+		return req.db.one('SELECT events.timestamp, events.slug FROM events WHERE events.id=$1', [req.params.eventid])
 	})
 	.then(function (event) {
 		res.redirect(303, "/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug+"/"+req.params.ticketid+"/booking?success")

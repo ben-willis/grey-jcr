@@ -210,7 +210,6 @@ router.get('/debt', function (req, res, next) {
 router.get('/debt/pay', function (req, res, next){
 	req.db.one('SELECT SUM(amount) AS amount FROM debts WHERE username=$1 LIMIT 1', [req.user.username])
 		.then(function (debt) {
-			console.log(debt)
 			var payment = {
 				"intent": "sale",
 				"payer": {
@@ -239,8 +238,8 @@ router.get('/debt/pay', function (req, res, next){
 				}]
 			};
 			paypal.payment.create(payment, function (err, payment) {
-				console.log(payment);
-				if (err) throw err;
+				console.log(err);
+				if (err) return next(err);
 				req.session.paymentId = payment.id;
 			    for(var i=0; i < payment.links.length; i++) {
 					if (payment.links[i].method === 'REDIRECT') {

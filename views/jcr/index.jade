@@ -24,36 +24,28 @@ html
 			div(class="ui vertical segment" id="exec")
 				h3(class="ui header") The Executive Committee
 				p The Core Executive, that is the Executive Officers, meet weekly to discuss policy, issues facing Students at Grey, ideas for improvements and to update each other during Officer’s reports. The Core Executive also discuss feedback sent in using the <a href="/services/feedback">Feedback System</a> in order to react to relevant issues as they arise. These are open to all JCR Members, if you want to sit in on an Executive meeting, you can!
-				div(class="ui six doubling cards")
+				div(class="ui six doubling link cards")
 					each position in exec
-						div(class="card")
+						a(class="card" href="/jcr/blog/"+position.slug)
 							div(class="image")
 								img(src="/api/users/"+position.username+"/avatar")
 							div(class="content")
 								div(class="header")= position.title
 								div(class="meta")=position.name
-							div(class="extra content")
-								a(href="/jcr/blog/"+position.slug)
-									i(class="user icon")
-									| Profile
 
 			div(class="ui vertical segment" id="officers")
 				h3(class="ui header") JCR Officers
-				div(class="ui six doubling cards")
+				div(class="ui six doubling link cards")
 					each position in officers
-						div(class="card")
+						div(class="card" data-position=position.id)
 							div(class="image")
 								img(src="/api/users/"+position.username+"/avatar")
 							div(class="content")
 								div(class="header")= position.title
 								div(class="meta")=position.name
-							div(class="extra content")
-								a(class="description link", data-position=position.id)
-									i(class="file text icon")
-									| About
 
 			div(class="ui vertical segment" id="hlms")
-			 h3(class="ui header") Honorary Life Memberships
+				h3(class="ui header") Honorary Life Memberships
 				p Honorary Life Memberships (or HLMs) are the highest accolade that you can receive for services to Grey JCR. Students in their final year who have made an exceptional contribution to the JCR may be awarded the HLM, with a maximum of eight students receiving the award in any one year. Receiving an HLM grants you access to all the privileges of any JCR member (excluding voting rights). HLMs are often awarded to students by the JCR President during the Phoenix Ball at the end of the year, however can be awarded throughout the year, and to staff members.
 
 		div(class="ui modal")
@@ -66,7 +58,7 @@ html
 				div(class="ui ok button") Done
 
 		script.
-			$(".description.link").click(function (e) {
+			$("#officers .card").click(function (e) {
 				e.preventDefault();
 				positionid = $(this).attr('data-position');
 				$.get('/api/positions/'+positionid, function (data) {

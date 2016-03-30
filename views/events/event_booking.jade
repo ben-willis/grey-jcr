@@ -70,8 +70,8 @@ html
 									tr 
 										th(class="right aligned") Total
 										th= "£"+(total/100).toFixed(2)
-
-							p= "Notes: "+booking.notes
+							if (booking.notes)
+								p= "Notes: "+booking.notes
 
 			script.
 				$('.ui.accordion').accordion();
