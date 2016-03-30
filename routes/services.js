@@ -64,9 +64,9 @@ router.get('/feedback', function (req, res, next) {
 
 /* POST a new piece of feedback */
 router.post('/feedback', function (req, res, next) {
-	req.db.none('INSERT INTO feedback(title, message, author, exec, anonymous) VALUES ($1, $2, $3, $4, $5)', [req.body.title, req.body.message, req.user.username, false, (req.body.anonymous=='on')])
-		.then(function () {
-			res.redirect(303, '/services/feedback?success')
+	req.db.one('INSERT INTO feedback(title, message, author, exec, anonymous) VALUES ($1, $2, $3, $4, $5) RETURNING id', [req.body.title, req.body.message, req.user.username, false, (req.body.anonymous=='on')])
+		.then(function (feedback) {
+			res.redirect(303, '/services/feedback/'+feedback.id+'?success')
 		})
 		.catch(function (err) {
 			next(err);
@@ -121,14 +121,16 @@ router.get('/elections', function (req, res, next) {
 /* GET the vote in elections page */
 router.get('/elections/:electionid', function (req, res, next) {
 	var voted = false;
+	var election;
 	req.db.one('SELECT id, title, status FROM elections WHERE elections.id=$1', [req.params.electionid])
-		.then(function (election) {
+		.then(function (data) {
 			// If the election isn't open throw an error
-			if (election.status != 2) {
+			if (data.status != 2) {
 				err = new Error('Election is not open for voting');
 				err.status=400;
 				throw err;
 			}
+			election = data;
 			// If it is work out if they've voted
 			return req.db.one('SELECT COUNT(id) FROM election_votes WHERE username=$1 AND electionid=$2', [req.user.username, req.params.electionid])
 		})
@@ -154,7 +156,7 @@ router.get('/elections/:electionid', function (req, res, next) {
 
 /* POST a vote */
 router.post('/elections/:electionid', function (req, res, next) {
-	// Check whether the've voted
+	// Check whether they've voted
 	req.db.one('SELECT COUNT(id) FROM election_votes WHERE username=$1 AND electionid=$2', [req.user.username, req.params.electionid])
 		.then(function (voteCount) {
 			if (voteCount.count != 0) {
@@ -181,7 +183,7 @@ router.post('/elections/:electionid', function (req, res, next) {
 			return req.db.none(query, [req.user.username, req.params.electionid]);
 		})
 		.then(function () {
-			res.redirect(303, '/services/elections/'+req.params.electionid);
+			res.redirect(303, '/services/elections/'+req.params.electionid+'?success');
 		})
 		.catch( function (err) {
 			next(err);

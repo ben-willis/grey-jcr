@@ -9,13 +9,25 @@ html
 			include ../header.jade
 			include ../menu.jade
 			h2(class="ui header")= title
+			if ("success" in query)
+				div(class="ui positive icon message")
+					i(class="close icon")
+					i(class="comment icon")
+					div(class="content")
+						div(class="header") Feedback sent!
+						p You will receive a response as soon as possible
+				script.
+					$('.message .close').on('click', function() {
+						$(this).closest('.message').transition('fade');
+					});
+
 			div(class="ui vertical segment")
 				h3(class="ui header")
 					img(src=(!feedback[0].anonymous) ? "/api/users/"+feedback[0].author+"/avatar" : "/api/users/anon/avatar" class="ui circular image")
 					div(class="content")
 						= feedback[0].title
 						if (feedback[0].anonymous)
-							div(class="sub header")= Anonymous
+							div(class="sub header") Anonymous
 						else
 							div(class="sub header")= feedback[0].name
 				div(class="feedback")= feedback[0].message

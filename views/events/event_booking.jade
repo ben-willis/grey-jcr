@@ -10,6 +10,18 @@ html
 			include ../menu.jade
 			h2(class="ui header")= title
 				div(class="sub header")= bookings[0].ticket_name
+			if ("success" in query)
+				div(class="ui positive icon message")
+					i(class="close icon")
+					i(class="ticket icon")
+					div(class="content")
+						div(class="header") Booking Successful!
+						p You can update the preferences for your bookings below.
+				script.
+					$('.message .close').on('click', function() {
+						$(this).closest('.message').transition('fade');
+					});
+
 			div(class="ui vertical segment"): div(class="ui styled fluid accordion")
 				each booking in bookings
 					if (booking.username)
@@ -24,7 +36,7 @@ html
 						if (new Date(booking.ticket_close) > new Date())
 							p You can update your preferences until booking closes.
 							form(class="ui form" method="POST" action="/events/"+booking.id)
-								each option in options
+								each option in booking.options
 									div(class="field")
 										label= option.name
 										select(name="choices[]" class="ui dropdown")
@@ -54,7 +66,7 @@ html
 										td= booking.ticket_name
 										td= "£"+(booking.ticket_price/100).toFixed(2)
 										- total += booking.ticket_price
-									each option in options
+									each option in booking.options
 										tr
 											- var selected = false;
 											each choice in option.choices

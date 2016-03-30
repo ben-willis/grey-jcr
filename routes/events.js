@@ -177,22 +177,22 @@ router.get('/:year/:month/:day/:slug/:ticketid/booking', function (req, res, nex
 	req.db.one("SELECT events.id, events.name FROM events WHERE date_part('year', events.timestamp)=$1 AND date_part('month', events.timestamp)=$2 AND date_part('day', events.timestamp)=$3 AND slug=$4",[req.params.year, req.params.month, req.params.day, req.params.slug])
 		.then(function (data) {
 			event = data;
-			return req.db.many('SELECT users.name AS user_name, users.username AS username, bookings.id, bookings.notes, bookings.guest_name, tickets.close_sales AS ticket_close, tickets.name AS ticket_name, tickets.price AS ticket_price, tickets.id AS ticket_id, ticket_option_choices.id AS "choices:id", ticket_option_choices.name AS "choices:name" FROM bookings LEFT JOIN tickets ON bookings.ticketid=tickets.id LEFT JOIN booking_choices ON booking_choices.bookingid=bookings.id LEFT JOIN ticket_option_choices ON ticket_option_choices.id=booking_choices.choiceid LEFT JOIN users ON bookings.username=users.username WHERE tickets.id=$1 AND (bookings.username=$2 OR bookings.booked_by=$2)', [req.params.ticketid, req.user.username]);
+			return req.db.many('SELECT bookings.id AS "id*", users.name AS user_name, users.username AS username, bookings.notes, bookings.guest_name, tickets.close_sales AS ticket_close, tickets.name AS ticket_name, tickets.price AS ticket_price, tickets.id AS ticket_id, ticket_option_choices.id AS "choices:id", ticket_option_choices.name AS "choices:name" FROM bookings LEFT JOIN tickets ON bookings.ticketid=tickets.id LEFT JOIN booking_choices ON booking_choices.bookingid=bookings.id LEFT JOIN ticket_option_choices ON ticket_option_choices.id=booking_choices.choiceid LEFT JOIN users ON bookings.username=users.username WHERE tickets.id=$1 AND (bookings.username=$2 OR bookings.booked_by=$2)', [req.params.ticketid, req.user.username]);
 		})
 		.then(function (data) {
-			var bookingTree = new treeize;
+			var bookingTree = new treeize();
 			bookingTree.grow(data);
 			bookings = bookingTree.getData();
 			return req.db.manyOrNone('SELECT ticket_options.name, ticket_options.id, ticket_option_choices.id AS "choices:id", ticket_option_choices.name AS "choices:name", ticket_option_choices.price AS "choices:price" FROM ticket_options LEFT JOIN ticket_option_choices ON ticket_option_choices.optionid=ticket_options.id WHERE ticket_options.ticketid=$1', [req.params.ticketid]);
 		})
 		.then(function (options) {
-			var optionsTree = new treeize;
+			var optionsTree = new treeize();
 			optionsTree.grow(options);
 			options = optionsTree.getData();
 			// For each booking
 			for (var i = 0; i < bookings.length; i++) {
 				// Add the options array
-				bookings[i].options = options;
+				bookings[i]['options'] = JSON.parse(JSON.stringify(options));
 				// For each option
 				for (var j = 0; j < bookings[i].options.length; j++) {
 					// For each choice
@@ -222,13 +222,15 @@ router.post('/:bookingid', function (req, res, next) {
 	var ticketid;
 	req.db.none('DELETE FROM booking_choices WHERE bookingid=$1', [req.params.bookingid])
 		.then(function () {
+			req.body.choices = req.body.choices.filter(function(choice) {return (choice!='')});
 			var query = 'INSERT INTO booking_choices(bookingid, choiceid) VALUES ';
 			var values = [req.params.bookingid];
 			for (var i = 0; i < req.body.choices.length; i++) {
 				if (i!=0) {
 					query+=', '
 				}
-				query+='($1, '+req.body.choices[i]+')'
+				query+='($1, $'+(i+2)+')'
+				values.push(req.body.choices[i]);
 			};
 			return req.db.none(query, values);
 		})
@@ -270,7 +272,7 @@ router.get('/:year/:month/:day/:slug', function (req, res, next) {
 			return req.db.manyOrNone('SELECT tickets.id, tickets.name, bookings.username AS "bookings:username", EXTRACT("EPOCH" FROM (tickets.open_sales - NOW())) AS time_to_open, tickets.close_sales FROM (tickets LEFT JOIN events_tickets ON events_tickets.ticketid=tickets.id) LEFT JOIN bookings ON bookings.ticketid=tickets.id WHERE events_tickets.eventid=$1 AND (bookings.booked_by=$2 OR bookings.booked_by IS NULL)', [data.id, req.user.username]);
 		})
 		.then(function (data) {
-			var ticketTree = new treeize;
+			var ticketTree = new treeize();
 			ticketTree.grow(data);
 			tickets = ticketTree.getData();
 			res.render('events/event', {event: event, tickets: tickets});
