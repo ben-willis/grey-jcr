@@ -52,12 +52,12 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 	};
 
 	req.db.tx(function (t) {
-	    // t = this;
-	    var ticketname;
-	    var ticketprice;
-	    var allow_guests;
-	    var debtors = [];
-	    return this.sequence(function (index, data, delay) {
+		// t = this;
+		var ticketname;
+		var ticketprice;
+		var allow_guests;
+		var debtors = [];
+		return this.sequence(function (index, data, delay) {
 			switch (index) {
 				// Check they haven't already booked on
 				case 0:
@@ -74,19 +74,18 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 					return this.query(query, values);
 				// Check they booked the right number of places
 				case 1:
-					console.log(data);
 					for (var i = 0; i < data.length; i++) {
 						if (data[i].id != null) {
 							err = new Error(data[i].name + " is already booked on.")
 							throw err;
 						}
-						if (parseInt(data[i].debt) > 0 && ) {
+						if (parseInt(data[i].debt) > 0 ) {
 							debtors.push(data[i].name);
 						}
 					};
 					return req.db.one("SELECT name, min_booking, max_booking, open_sales, close_sales, price, guests, block_debtors FROM tickets WHERE id=$1", [req.params.ticketid])
 				// Check there are enough places
-				case 1:
+				case 2:
 					if (bookings.length < data.min_booking || bookings.length > data.max_booking) {
 						err = new Error("You've either booked to many or too few!");
 						throw err;
@@ -126,34 +125,34 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 					return this.query(query, values);
 				// Add their debts
 				case 4:
-					var query = 'INSERT INTO debts (name, amount, bookingid, username) VALUES '
+					var query = 'INSERT INTO debts (name, message, amount, bookingid, username) VALUES '
 					var values = [ticketname, ticketprice];
 					for (var i = 0; i < data.length; i++) {
 						if (i!=0) {
 							query += ', '
 						}
-						query += '($1, $2, $'+(2*i + 3)+', $'+(2*i + 4)+')';
+						query += '($1, $'+(3*i + 5)+', $2, $'+(3*i + 3)+', $'+(3*i + 4)+')';
 						values.push(data[i].id);
 						if (validator.matches(bookings[i], /[A-Za-z]{4}[0-9]{2}/i || !allow_guests)) {
 							values.push(data[i].username);
 						} else {
 							values.push(req.user.username);
 						}
+						values.push('Ticket for '+bookings[i]);
 					};
 					return this.query(query, values);
 			}
 		});
 	})
-    .then(function (data) {
-    	console.log('test');
+	.then(function (data) {
 		return req.db.one('SELECT events.timestamp, events.slug FROM events WHERE events.id=$1', [req.params.eventid])
 	})
 	.then(function (event) {
 		res.redirect(303, "/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug+"/"+req.params.ticketid+"/booking?success")
 	})
-    .catch(function (err) {
-        return next(err.error);
-    });
+	.catch(function (err) {
+		return next(err.error);
+	});
 });
 
 router.get('/:eventid/:ticketid/book/result', function (req, res, next) {
