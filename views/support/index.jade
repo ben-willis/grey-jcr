@@ -9,14 +9,28 @@ html
 			- var current="support";
 			include ../menu.jade
 			h2(class="ui header")= title
-			div(class="ui vertical segment")
+			div(class="ui vertical segment" id="college")
 				h3(class="ui header") College Support
 				p Each student in college is assigned a College Mentor. This is someone who is involved in the same/similar subject as you and is well placed to advise on academic issues.
 				p The College also has a Parenting system where a fresher is paired with a student from a later year who acts as someone they can approach for help or advice about academic work, or information on what goes on in college. They are also someone you can socialise with and who can introduce you to people in other years.
 				p Subject groups are an exciting new addition to college life, giving you the means to get to know others in college studying your subject, share advice between year groups, and have a point of contact who can connect you with other students. It’s an opportunity to learn from more experienced students, for older years to share interests in their subject and help guide other students.
 				p Every subject has a point of contact called the Subject Leader, a motivated student passionate about their subject. They’ll be able to recommend modules, career paths, give essay advice, and pass on contacts between different students studying the same subject. You’ll meet you Subject Leaders in the first week of term (after Freshers’ Week) and get a chance to get to know older students doing your course and find out what it’s like after first year.
 				p The Senior Tutor, Julie Bushby (j.e.bushby@durham.ac.uk) is someone who students are able to approach for advice or help on academic or other issues. She is also someone to whom parents may address concerns about your welfare.
-			div(class="ui vertical segment")
+			
+			div(class="ui vertical segment" id="representatives")
+				h3(class="ui header") JCR Representatives
+				p Representatives Committee (Reps Comm) are elected roles in Grey that cover all people in the JCR, from minority groups, such as LGBTa and Mature students (among others) to entire year groups, such as freshers and finalists. The committee members hold events, raise awareness and provide a signposting role allowing the individuals from these groups extra support and ensuring their views are heard. Grey is committed to ensuring all members of the JCR can be involved in all parts of college, and this committee is a vital part in making sure all JCR members are welcomed and find their home in Grey.
+				div(class="ui six doubling cards")
+					each position in reps
+						div(class="card")
+							div(class="image")
+								img(src="/api/users/"+position.username+"/avatar")
+							div(class="content")
+								div(class="header")= position.title
+								div(class="meta")=position.name
+								div(class="description")=position.description
+
+			div(class="ui vertical segment" id="university")
 				h3(class="ui header") University Support
 				h4(class="ui header") Students' Union Welfare
 				p The Students' Union also has an Advice Centre, which can be found on the top floor of the union. The Advice Centre offers free, independent, confidential and impartial advice on all topics, and has particular expertise in finance/student funding and hardship issues, academic issues and subject queries, employment, and can be an initial point of contact for legal advice. They offer a representation service for academic hearings as well as in small claims court and benefit appeals should this be needed. They also lend out attack alarms. They are open between 10:00am and 4.00pm Mondays-Thursdays, and close early on Fridays at 3:30pm. Telephone (0191) 334 1775 (or 41775 from an internal phone) or email advice@dsu.org.uk.
@@ -32,17 +46,5 @@ html
 				h4(class="ui header") University Security
 				p The University Security can be contacted in the case of an emergency on (0191) 334 1229.
 
-			div(class="ui vertical segment")
-				h3(class="ui header") JCR Representatives
-				p Representatives Committee (Reps Comm) are elected roles in Grey that cover all people in the JCR, from minority groups, such as LGBTa and Mature students (among others) to entire year groups, such as freshers and finalists. The committee members hold events, raise awareness and provide a signposting role allowing the individuals from these groups extra support and ensuring their views are heard. Grey is committed to ensuring all members of the JCR can be involved in all parts of college, and this committee is a vital part in making sure all JCR members are welcomed and find their home in Grey.
-				div(class="ui six doubling cards")
-					each position in reps
-						div(class="card")
-							div(class="image")
-								img(src="/api/users/"+position.username+"/avatar")
-							div(class="content")
-								div(class="header")= position.title
-								div(class="meta")=position.name
-								div(class="description")=position.description
 
 		include ../footer.jade
