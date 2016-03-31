@@ -1,0 +1,52 @@
+- var title = 'Rooms'
+
+doctype html
+html
+	head
+		include ./head.jade
+	body
+		div(class='ui container')
+			include ./header.jade
+			include ./menu.jade
+			h2= title
+			div(class="ui vertical segment")
+				h3 Add a new room
+				form(class="ui form" method="POST" action="/admin/rooms")
+					div(class="field")
+						label Name
+						input(type="text" name="name")
+					button(class="ui submit button" type="submit")
+						i(class="write icon")
+						| Create
+					div(class="ui error message")
+
+				script.
+					$('.form').form({
+						fields: {
+							name: 'empty'
+						}
+					});
+
+			div(class="ui vertical segment")
+				h3 Manage Rooms
+
+				table(class="ui fixed table")
+					thead
+						tr
+							th Room Name
+							th Actions
+					tbody
+						each room in rooms
+							tr
+								td= room.name
+								td
+									div(class="ui buttons")
+										a(class="ui button" href="/admin/rooms/"+room.id+"/bookings")
+											i(class="calendar icon")
+											| Manage Bookings
+										div(class="ui rename button" data-roomid=room.id data-roomname=room.name)
+											i(class="edit icon")
+											| Rename
+										a(class="ui negative button" href="/admin/rooms/"+room.id+"/delete") 
+											i(class="remove icon")
+											| Delete

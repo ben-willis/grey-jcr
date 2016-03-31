@@ -8,6 +8,7 @@ var events = require('./events');
 var debts = require('./debts');
 var tickets = require('./tickets');
 var elections = require('./elections');
+var rooms = require('./rooms');
 var files = require('./files');
 
 router.use(function (req, res, next) {
@@ -36,6 +37,7 @@ router.use('/events', events);
 router.use('/debts', debts);
 router.use('/tickets', tickets);
 router.use('/elections', elections);
+router.use('/rooms', rooms);
 router.use('/files', files);
 
 

@@ -1,0 +1,94 @@
+- var title = 'Room Booking'
+
+doctype html
+html
+	head
+		include ../head.jade
+	body
+		div(class='ui container')
+			include ../header.jade
+			include ../menu.jade
+			h2= title
+			div(class="ui vertical segment")
+				div(class="ui top attached tabular menu")
+					each room in rooms
+						a(class="item" data-tab=room.id)= room.name
+
+				each room in rooms
+					div(class="ui bottom attached tab clearing segment" data-tab=room.id)
+						table(class="ui eight column definition celled table")
+							thead
+								tr
+									th
+									- var sunday = new Date(year, 0, date);
+									th= "Sunday - "+sunday.getDate()+"/"+(sunday.getMonth()+1)
+									th Monday
+									th Tuesday
+									th Wednesday
+									th Thursday
+									th Friday
+									th Saturday
+							tbody
+								if (room.bookings)
+									- room.bookings.sort(compare);
+									- for (slot=18; slot<44; slot++)
+										tr
+											td= Math.floor(slot/2) + ':' + ("0"+(slot%2 * 30)).slice(-2)
+											- for (dow=0; dow<7; dow++)
+												if (room.bookings[0] && room.bookings[0].dow == dow && room.bookings[0].slot == slot)
+													if (!room.bookings[0].started)
+														td(rowspan=room.bookings[0].duration class="negative")= room.bookings[0].name
+														- room.bookings[0].started = true;
+													if (room.bookings[0].duration == 1)
+														- room.bookings.shift()
+													else
+														- room.bookings[0].duration -= 1;
+														- room.bookings[0].slot += 1;
+														- room.bookings.sort(compare);
+												else
+													td
+								else
+									- for (slot=18; slot<44; slot++)
+										tr
+											td= Math.floor(slot/2) + ':' + ("0"+(slot%2 * 30)).slice(-2)
+											- for (dow=0; dow<7; dow++)
+												td
+
+						if (date < 7)
+							a(class="ui left floated button" href="/services/rooms/?date="+(365-7+date)+"&year="+(year-1))
+								i(class="left arrow icon")
+								| Last Week
+						else
+							a(class="ui left floated button" href="/services/rooms/?date="+(date-7)+"&year="+year)
+								i(class="left arrow icon")
+								| Last Week
+						if (date > 358)
+							a(class="ui right floated button" href="/services/rooms/?date="+(365-date)+"&year="+(year+1))
+								| Next Week
+								i(class="right arrow icon")
+						else
+							a(class="ui right floated button" href="/services/rooms/?date="+(date+7)+"&year="+year)
+								| Next Week
+								i(class="right arrow icon")
+
+
+			- function compare(a,b) {
+			-	if (a.dow < b.dow) {
+			-		return -1;
+			-	} else if (a.dow > b.dow) {
+			-		return 1;
+			-	} else if (a.slot < b.slot) {
+			-		return -1;
+			-	} else if (a.slot > b.slot) {
+			-		return 1;	
+			-	} else {
+			-		return 0;	
+			-	}
+			- }
+
+
+			script.
+				$('.menu .item').tab({
+					onVisible: function(path) {parent.location.hash = path;}
+				});
+				$('*[data-tab='+((parent.location.hash)?(parent.location.hash.substr(1)):1)+']').addClass("active");

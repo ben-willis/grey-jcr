@@ -18,6 +18,39 @@ router.use(function (req, res, next) {
 	}
 });
 
+/* GET romm booking pade */
+router.get('/rooms/', function (req, res, next) {
+	var year = (req.query && req.query.year) ? parseInt(req.query.year) : (new Date()).getFullYear()
+	// Get the date of the first day of the week
+	var curr = new Date();
+	var firstday = new Date(curr.setDate(curr.getDate() - curr.getDay()));
+	var date = (req.query && req.query.date) ? parseInt(req.query.date) : Math.floor((firstday -  new Date(year, 0, 0))/86400000);
+	console.log(date);
+	// Calculate its date number
+	req.db.many('SELECT rooms.id, rooms.name, room_bookings.name AS "bookings:name", room_bookings.start AS "bookings:start", EXTRACT(dow FROM room_bookings.start) AS "bookings:dow", (2*EXTRACT(hour FROM room_bookings.start) + EXTRACT(minute FROM room_bookings.start)/30) AS "bookings:slot", room_bookings.duration/30 AS "bookings:duration" FROM rooms LEFT JOIN room_bookings ON rooms.id=room_bookings.roomid ORDER BY EXTRACT(dow FROM room_bookings.start) ASC, (2*EXTRACT(hour FROM room_bookings.start) + EXTRACT(minute FROM room_bookings.start)/30) ASC')
+		.then(function(data) {
+			for (var i = data.length - 1; i >= 0; i--) {
+				start = new Date(data[i]["bookings:start"]);
+				if (start < new Date(year, 0, date) || start > new Date(year, 0, date+7)) {
+					delete data[i]["bookings:name"]
+					delete data[i]["bookings:start"]
+					delete data[i]["bookings:dow"]
+					delete data[i]["bookings:slot"]
+					delete data[i]["bookings:duration"]
+				}
+			};
+			var roomTree = new treeize();
+			roomTree.grow(data);
+			rooms = roomTree.getData();
+			for (var i = 0; i < rooms.length; i++) {
+				rooms[i].bookings
+			};
+			res.render('services/rooms', {rooms: rooms, year: year, date: date});
+		}).catch(function (err) {
+			next(err);
+		});
+});
+
 /* GET user page. */
 router.get('/user/:username', function (req, res, next) {
 	req.db.one("SELECT name, email, username FROM users WHERE username=$1", [req.params.username])

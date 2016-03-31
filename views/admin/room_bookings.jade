@@ -1,0 +1,64 @@
+- var title = room.name+' Bookings'
+
+doctype html
+html
+	head
+		include ./head.jade
+	body
+		div(class='ui container')
+			include ./header.jade
+			include ./menu.jade
+			h2= title
+			div(class="ui vertical segment")
+				h3 Add a new booking
+				form(class="ui form" method="POST" action="/admin/rooms/"+room.id+"/bookings")
+					div(class="field")
+						label Name
+						input(type="text" name="name")
+					div(class="field")
+						label Date
+						input(type="text" name="date" value=(new Date()).getDate() + "-"+((new Date()).getMonth() + 1)+"-"+(new Date()).getFullYear())
+					div(class="two fields")
+						div(class="field")
+							label Start Time
+							select(class="ui dropdown" name="start")
+								- for (i=18; i<43; i++)
+									option(value=Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2))= Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2)
+						div(class="field")
+							label End Time
+							select(class="ui dropdown" name="end")
+								- for (i=19; i<44; i++)
+									option(value=(i*30))= Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2)
+					button(class="ui submit button" type="submit")
+						i(class="write icon")
+						| Create
+					div(class="ui error message")
+
+				script.
+					$(".dropdown").dropdown();
+					$('.form').form({
+						fields: {
+							name: 'empty',
+							date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]'
+						}
+					});
+
+			div(class="ui vertical segment")
+				h3 Edit Upcoming Bookings
+				table(class="ui fixed table")
+					thead
+						tr
+							th Name
+							th Start
+							th Duration
+							th Actions
+					tbody
+						each booking in bookings
+							tr
+								td= booking.name
+								td= booking.start
+								td= booking.duration
+								td
+									a(class="ui negative button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/delete") 
+										i(class="remove icon")
+										| Delete
