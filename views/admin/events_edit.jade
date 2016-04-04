@@ -11,7 +11,8 @@ html
 			include ./menu.jade
 			h2 Events
 			div(class="ui vertical segment")
-				h3 Edit an event
+				h3 Edit an event - 
+					a(href="/admin/events") Back
 				form(class="ui edit form" method="POST" action="/admin/events/"+event.id+"/edit" enctype="multipart/form-data")
 					div(class="field")
 						label Name

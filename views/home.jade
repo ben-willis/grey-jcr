@@ -36,10 +36,6 @@ html
 										div(class="article description")!= post.message
 										div(class="extra")
 											a(class="right floated" href="/jcr/blog/"+post.position_slug+"/"+post.timestamp.getFullYear()+"/"+(post.timestamp.getMonth()+1)+"/"+post.slug) Read More
-						script.
-							$('.article.description').each(function(){
-								$(this).find('*:not(:first)').hide()
-							});
 						a(class="ui right floated button" href="/jcr/blog/") More News
 					div(class="six wide column")
 						h2(class="ui header") Upcoming Events
