@@ -4,7 +4,7 @@ var validator = require('validator');
 
 /* GET feedback page. */
 router.get('/', function (req, res, next) {
-	req.db.manyOrNone('SELECT feedback.id, feedback.title, feedback.timestamp, feedback.author, users.name, (SELECT COUNT(*) FROM feedback AS replies WHERE replies.parentid=feedback.id) AS no_replies FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE parentid IS NULL ORDER BY timestamp DESC')
+	req.db.manyOrNone('SELECT feedback.id, feedback.title, feedback.timestamp, feedback.author, feedback.anonymous, users.name, (SELECT COUNT(*) FROM feedback AS replies WHERE replies.parentid=feedback.id) AS no_replies FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE parentid IS NULL ORDER BY timestamp DESC')
 		.then(function (feedback) {
 			res.render('admin/feedback', {feedback: feedback});
 		})
