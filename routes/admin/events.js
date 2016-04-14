@@ -128,6 +128,9 @@ router.get('/:eventid/bookings.csv', function (req, res, next){
 			recorded = [];
 			options = [];
 			for (var i = 0; i < tickets.length; i++) {
+				if (!tickets[i].options) {
+					tickets[i].options = [];
+				}
 				for (var j = 0; j < tickets[i].options.length; j++) {
 					if (recorded.indexOf(tickets[i].options[j].id) == -1) {
 						recorded.push(tickets[i].options[j].id);
