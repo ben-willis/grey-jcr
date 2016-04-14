@@ -243,6 +243,7 @@ router.get('/debt', function (req, res, next) {
 
 /* GET pay a debt */
 router.get('/debt/pay', function (req, res, next){
+	var host = req.get('host');
 	req.db.one('SELECT SUM(amount) AS amount FROM debts WHERE username=$1 LIMIT 1', [req.user.username])
 		.then(function (debt) {
 			var payment = {
@@ -251,8 +252,8 @@ router.get('/debt/pay', function (req, res, next){
 					"payment_method": "paypal"
 				},
 				"redirect_urls": {
-					"return_url": "http://grey.ben-willis.co.uk/services/debt/pay/confirm",
-					"cancel_url": "http://grey.ben-willis.co.uk/services/debt/pay/cancel"
+					"return_url": "http://"+host+"/services/debt/pay/confirm",
+					"cancel_url": "http://"+host+"/services/debt/pay/cancel"
 				},
 				"transactions": [{
 					"amount": {
@@ -273,7 +274,6 @@ router.get('/debt/pay', function (req, res, next){
 				}]
 			};
 			paypal.payment.create(payment, function (err, payment) {
-				console.log(err);
 				if (err) return next(err);
 				req.session.paymentId = payment.id;
 			    for(var i=0; i < payment.links.length; i++) {

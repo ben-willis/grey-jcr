@@ -106,7 +106,7 @@ router.get('/:electionid/:positionid/results', function (req, res, next) {
 				// Calculate quota
 				var quota = Math.floor(validVotes/2)+1;
 				result += "<b>Round "+round+"</b><br/>";
-				result += "There "+((validVotes==1)?"is "+validVotes+" valid vote":"are "+validVotess+" valid votes")+" giving a quota of "+quota+".<br/><br/>";
+				result += "There "+((validVotes==1)?"is "+validVotes+" valid vote":"are "+validVotes+" valid votes")+" giving a quota of "+quota+".<br/><br/>";
 				// Order the nominations
 				var first = null, last = null;
 				for( nomination in nominations ) {
