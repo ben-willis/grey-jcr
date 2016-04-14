@@ -107,7 +107,7 @@ router.get('/:eventid/delete', function (req, res, next) {
 /* GET an events bookings */
 router.get('/:eventid/bookings.csv', function (req, res, next){
 	var bookings;
-	req.db.many('SELECT tickets.id AS "ticket_id", tickets.name AS ticket_name, users.name, users.email, bookings.id AS "id*", bookings.guest_name, ticket_option_choices.name AS "choices:name", ticket_option_choices.id AS "choices:id" FROM bookings LEFT JOIN tickets ON tickets.id=bookings.ticketid LEFT JOIN users ON bookings.username=users.username LEFT JOIN booking_choices ON bookings.id=booking_choices.bookingid LEFT JOIN ticket_option_choices ON ticket_option_choices.id=booking_choices.choiceid WHERE bookings.eventid=1;', [req.params.eventid])
+	req.db.many('SELECT tickets.id AS "ticket_id", tickets.name AS ticket_name, users.name, users.email, bookings.id AS "id*", bookings.guest_name, ticket_option_choices.name AS "choices:name", ticket_option_choices.id AS "choices:id" FROM bookings LEFT JOIN tickets ON tickets.id=bookings.ticketid LEFT JOIN users ON bookings.username=users.username LEFT JOIN booking_choices ON bookings.id=booking_choices.bookingid LEFT JOIN ticket_option_choices ON ticket_option_choices.id=booking_choices.choiceid WHERE bookings.eventid=$1;', [req.params.eventid])
 		.then(function (data){
 			var tree = new treeize;
 			tree.grow(data);
