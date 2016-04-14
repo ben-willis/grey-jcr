@@ -6,6 +6,7 @@ var upload = multer({dest: __dirname+'/../../tmp'});
 var mv = require('mv');
 var mime = require('mime');
 var csv = require('csv');
+var treeize   = require('treeize');
 
 /* GET events page. */
 router.get('/', function (req, res, next) {
@@ -105,18 +106,61 @@ router.get('/:eventid/delete', function (req, res, next) {
 
 /* GET an events bookings */
 router.get('/:eventid/bookings.csv', function (req, res, next){
-	req.db.many('SELECT tickets.name AS ticket_name, users.name, users.email, bookings.guest_name FROM bookings LEFT JOIN tickets ON tickets.id=bookings.ticketid LEFT JOIN users ON bookings.username=users.username WHERE bookings.eventid=$1', [req.params.eventid])
-		.then(function (bookings){
+	var bookings;
+	req.db.many('SELECT tickets.id AS "ticket_id", tickets.name AS ticket_name, users.name, users.email, bookings.id AS "id*", bookings.guest_name, ticket_option_choices.name AS "choices:name", ticket_option_choices.id AS "choices:id" FROM bookings LEFT JOIN tickets ON tickets.id=bookings.ticketid LEFT JOIN users ON bookings.username=users.username LEFT JOIN booking_choices ON bookings.id=booking_choices.bookingid LEFT JOIN ticket_option_choices ON ticket_option_choices.id=booking_choices.choiceid WHERE bookings.eventid=1;', [req.params.eventid])
+		.then(function (data){
+			var tree = new treeize;
+			tree.grow(data);
+			bookings = tree.getData();
+			return req.db.manyOrNone('SELECT tickets.id, tickets.name, ticket_options.name AS "options:name", ticket_options.id AS "options:id", ticket_option_choices.id AS "options:choices:id" FROM tickets LEFT JOIN ticket_options ON ticket_options.ticketid=tickets.id LEFT JOIN ticket_option_choices ON ticket_option_choices.optionid=ticket_options.id LEFT JOIN events_tickets ON events_tickets.ticketid=tickets.id WHERE events_tickets.eventid=$1', [req.params.eventid])
+		})
+		.then(function(data) {
+			var tree = new treeize;
+			tree.grow(data);
+			tickets = tree.getData();
+
+			// Build the Columns
 			var columns = {
 				ticket_name: 'Ticket',
 				name: 'Name',
 				email: 'Email'
 			}
+			recorded = [];
+			options = [];
+			for (var i = 0; i < tickets.length; i++) {
+				for (var j = 0; j < tickets[i].options.length; j++) {
+					if (recorded.indexOf(tickets[i].options[j].id) == -1) {
+						recorded.push(tickets[i].options[j].id);
+						options.push(tickets[i].options[j]);
+						columns["option"+tickets[i].options[j].id] = tickets[i].options[j].name
+					}
+				};
+			};
+			// For each booking
 			for (var i = 0; i < bookings.length; i++) {
+				// Make sure we have the name
 				if (!bookings[i].name) {
 					bookings[i].name = bookings[i].guest_name;
 				}
 				delete bookings[i].guest_name;
+				// For each option
+				for (var j = 0; j < options.length; j++) {
+					// For each possible choice
+					choices:
+					for (var k = 0; k < options[j].choices.length; k++) {
+						//Compare with all our choices
+						if (bookings[i].choices) {
+							for (var l = bookings[i].choices.length - 1; l >= 0; l--) {
+								if (bookings[i].choices[l].id == options[j].choices[k].id) {
+									bookings[i]["option"+options[j].id] = bookings[i].choices[l].name;
+									delete bookings[i].choices[l];
+									break choices;
+								}
+							};
+						}
+					};
+				};
+				delete bookings[i].choices;
 			};
 			csv.stringify(bookings, {header: true, columns: columns}, function (err, output) {
 				if (err) throw err;
