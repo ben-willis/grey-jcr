@@ -9,10 +9,13 @@ html
 			include ../header.jade
 			include ../menu.jade
 			h2 Update your profile
-			form(class="ui form" action="" method="POST" enctype="multipart/form-data")
-				div(class="field")
-					label Profile Picture
-					input(type="file" name="avatar")
-				button(type="submit" class="ui red submit button")
-					i(class="save icon")
-					| Save
+			div(class="ui vertical segment")
+				form(class="ui form" action="" method="POST" enctype="multipart/form-data")
+					div(class="field")
+						label Profile Picture
+						input(type="file" name="avatar")
+					button(type="submit" class="ui red submit button")
+						i(class="save icon")
+						| Save
+
+		include ../footer.jade

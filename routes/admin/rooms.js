@@ -52,10 +52,19 @@ router.get('/:roomid/bookings', function (req, res, next) {
 	req.db.one('SELECT id, name FROM rooms WHERE id=$1', [req.params.roomid])
 		.then(function (data){
 			room = data;
-			return req.db.manyOrNone('SELECT id, name, start, duration FROM room_bookings WHERE roomid=$1', [req.params.roomid])
+			return req.db.manyOrNone('SELECT id, name, start, duration, status FROM room_bookings WHERE roomid=$1 AND (start>NOW() OR status=0) ORDER BY start ASC', [req.params.roomid])
 		})
 		.then(function (bookings) {
-			res.render('admin/room_bookings', {room: room, bookings: bookings});
+			pending_bookings = [];
+			upcoming_bookings = [];
+			for (var i = 0; i < bookings.length; i++) {
+				if (bookings[i].status == 0) {
+					pending_bookings.push(bookings[i]);
+				} else {
+					upcoming_bookings.push(bookings[i]);
+				}				
+			};
+			res.render('admin/room_bookings', {room: room, pending_bookings: pending_bookings, upcoming_bookings: upcoming_bookings});
 		})
 		.catch(function (err) {
 			next(err);
@@ -66,11 +75,9 @@ router.get('/:roomid/bookings', function (req, res, next) {
 router.post('/:roomid/bookings', function (req, res, next) {
 	var date = (req.body.date).split('-');
 	var time = (req.body.start).split(':');
-	console.log(time);
 	var start = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
-	console.log(start);
 	var duration = parseInt(req.body.end) - (60*parseInt(time[0])+parseInt(time[1]));
-	req.db.one('INSERT INTO room_bookings(name, start, duration, roomid) VALUES ($1, $2, $3, $4) RETURNING start', [req.body.name, start.toLocaleString(), duration, req.params.roomid])
+	req.db.one('INSERT INTO room_bookings(name, start, duration, roomid, username, status) VALUES ($1, $2, $3, $4, $5, 1) RETURNING start', [req.body.name, start.toLocaleString(), duration, req.params.roomid, req.user.username])
 		.then(function (book) {
 			console.log(book.start)
 			res.redirect(303, '/admin/rooms/'+req.params.roomid+'/bookings')
@@ -80,11 +87,22 @@ router.post('/:roomid/bookings', function (req, res, next) {
 		});
 });
 
+/* GET an accept a booking */
+router.get('/:roomid/bookings/:bookingid/accept', function (req, res, next) {
+	req.db.none("UPDATE room_bookings SET status=1 WHERE id=$1", req.params.bookingid)
+		.then(function () {
+			res.redirect(303, '/admin/rooms/'+req.params.roomid+'/bookings?accept_success');
+		})
+		.catch(function (err) {
+			next(err);
+		})
+})
+
 /* GET a delete booking */
 router.get('/:roomid/bookings/:bookingid/delete', function (req, res, next) {
 	req.db.none("DELETE FROM room_bookings WHERE id=$1", req.params.bookingid)
 		.then(function () {
-			res.redirect(303, '/admin/rooms/'+req.params.roomid+'/bookings');
+			res.redirect(303, '/admin/rooms/'+req.params.roomid+'/bookings?delete_success');
 		})
 		.catch(function (err) {
 			next(err);

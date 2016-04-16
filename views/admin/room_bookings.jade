@@ -44,7 +44,7 @@ html
 					});
 
 			div(class="ui vertical segment")
-				h3 Edit Upcoming Bookings
+				h3 Pending Bookings
 				table(class="ui fixed table")
 					thead
 						tr
@@ -53,7 +53,30 @@ html
 							th Duration
 							th Actions
 					tbody
-						each booking in bookings
+						each booking in pending_bookings
+							tr
+								td= booking.name
+								td= booking.start
+								td= booking.duration
+								td
+									a(class="ui button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/accept") 
+										i(class="checkmark icon")
+										| Accept
+									a(class="ui negative button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/delete") 
+										i(class="remove icon")
+										| Delete
+
+			div(class="ui vertical segment")
+				h3 Upcoming Bookings
+				table(class="ui fixed table")
+					thead
+						tr
+							th Name
+							th Start
+							th Duration
+							th Actions
+					tbody
+						each booking in upcoming_bookings
 							tr
 								td= booking.name
 								td= booking.start
