@@ -26,7 +26,7 @@ router.get('/rooms/', function (req, res, next) {
 	var firstday = new Date(curr.setDate(curr.getDate() - curr.getDay()));
 	var date = (req.query && req.query.date) ? parseInt(req.query.date) : Math.floor((firstday -  new Date(year, 0, 0))/86400000);
 	// Calculate its date number
-	req.db.manyOrNone('SELECT rooms.id, rooms.name, room_bookings.name AS "bookings:name", room_bookings.status AS "bookings:status", room_bookings.start AS "bookings:start", EXTRACT(dow FROM room_bookings.start) AS "bookings:dow", (2*EXTRACT(hour FROM room_bookings.start) + EXTRACT(minute FROM room_bookings.start)/30) AS "bookings:slot", room_bookings.duration/30 AS "bookings:duration" FROM rooms LEFT JOIN room_bookings ON rooms.id=room_bookings.roomid WHERE (room_bookings.status==1 OR room_bookings.username=$1) ORDER BY EXTRACT(dow FROM room_bookings.start) ASC, (2*EXTRACT(hour FROM room_bookings.start) + EXTRACT(minute FROM room_bookings.start)/30) ASC', [req.user.username])
+	req.db.manyOrNone('SELECT rooms.id, rooms.name, room_bookings.name AS "bookings:name", room_bookings.status AS "bookings:status", room_bookings.start AS "bookings:start", EXTRACT(dow FROM room_bookings.start) AS "bookings:dow", (2*EXTRACT(hour FROM room_bookings.start) + EXTRACT(minute FROM room_bookings.start)/30) AS "bookings:slot", room_bookings.duration/30 AS "bookings:duration" FROM rooms LEFT JOIN room_bookings ON rooms.id=room_bookings.roomid WHERE (room_bookings.status=1 OR room_bookings.username=$1) ORDER BY EXTRACT(dow FROM room_bookings.start) ASC, (2*EXTRACT(hour FROM room_bookings.start) + EXTRACT(minute FROM room_bookings.start)/30) ASC', [req.user.username])
 		.then(function(data) {
 			for (var i = data.length - 1; i >= 0; i--) {
 				start = new Date(data[i]["bookings:start"]);
