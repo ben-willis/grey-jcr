@@ -168,7 +168,6 @@ router.get('/:id', function (req, res, next) {
 			var positionsTree = new treeize;
 			positionsTree.grow(data);
 			election.positions = positionsTree.getData();
-			console.log(election)
 			res.render('admin/elections_edit', {election: election});
 		})
 		.catch(function (err) {
@@ -213,7 +212,7 @@ router.get('/:electionid/:positionid/delete', function (req, res, next) {
 /* POST a new nomination */
 router.post('/:electionid/:positionid/newnomination', upload.single('manifesto'),function (req, res, next) {
 	if (req.file) {
-		var manifesto_name = slugify(req.body.name)+'-'+makeid(4)+'.pdf';
+		var manifesto_name = slugify(req.body.name)+'-'+makeid(4)+'.'+mime.extension(req.file.mimetype);
 		mv(req.file.path, __dirname+'/../../public/files/manifestos/'+manifesto_name, function (err) {
 			req.db.none('INSERT INTO election_nominations(name, electionid, positionid, manifesto) VALUES ($1, $2, $3, $4)', [req.body.name, req.params.electionid, req.params.positionid, manifesto_name])
 				.then(function () {

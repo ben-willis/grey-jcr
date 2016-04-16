@@ -38,3 +38,8 @@ jspm_packages
 
 # Redis
 dump.rbd
+
+# Files
+public/files
+public/images/avatars
+public/images/events
