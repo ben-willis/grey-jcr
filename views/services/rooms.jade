@@ -18,7 +18,7 @@ html
 
 				each room in rooms
 					div(class="ui bottom attached tab clearing segment" data-tab=room.id)
-						h3 Add a new booking
+						h3= "Request a booking for "+room.name
 						form(class="ui form" method="POST" action="/services/rooms/"+room.id)
 							div(class="field")
 								label Name
@@ -51,6 +51,7 @@ html
 								}
 							});
 
+						h3 Bookings
 						table(class="ui eight column definition celled table")
 							thead
 								tr
