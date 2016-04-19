@@ -9,6 +9,8 @@ var facilities = require('./facilities');
 var events = require('./events');
 var welfare = require('./welfare');
 var sportsandsocs = require('./sportsandsocs');
+var prospective = require('./prospective');
+var mcr = require('./mcr');
 var api = require('./api');
 
 /* GET home page. */
@@ -34,6 +36,8 @@ router.use('/facilities/', facilities);
 router.use('/events/', events);
 router.use('/welfare/', welfare);
 router.use('/sportsandsocs/', sportsandsocs);
+router.use('/prospective/', prospective);
+router.use('/mcr/', mcr);
 router.use('/api/', api);
 
 module.exports = router;
