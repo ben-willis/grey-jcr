@@ -6,6 +6,16 @@ var mv = require('mv');
 var mime = require('mime');
 var treeize   = require('treeize');
 
+router.use(function (req, res, next) {
+	if (req.user.level<5 ) {
+		err = new Error("Forbidden");
+		err.status = 403;
+		return next(err);
+	} else {
+		return next();
+	}
+});
+
 /* GET the elections page */
 router.get('/', function (req, res, next) {
 	req.db.manyOrNone('SELECT elections.id, elections.title, elections.status, election_positions.id AS "positions:id", election_positions.name AS "positions:name" FROM elections FULL JOIN election_positions ON election_positions.electionid = elections.id ORDER BY elections.id ASC')

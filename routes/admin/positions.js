@@ -2,6 +2,16 @@ var express = require('express');
 var router = express.Router();
 var validator = require('validator');
 
+router.use(function (req, res, next) {
+	if (req.user.level<5 ) {
+		err = new Error("Forbidden");
+		err.status = 403;
+		return next(err);
+	} else {
+		return next();
+	}
+});
+
 /* GET home page. */
 router.get('/', function (req, res, next) {
 	req.db.many('SELECT positions.id, positions.title, positions.level, positions.description, users.username, users.name FROM positions FULL JOIN userPositions ON userPositions.position=positions.id LEFT JOIN users ON userPositions.username=users.username ORDER BY positions.id ASC')
@@ -11,7 +21,7 @@ router.get('/', function (req, res, next) {
 			var welfare = [];
 			var reps = [];
 			for (var i = 0; i < positions.length; i++) {
-				if (positions[i].level == 4) {
+				if (positions[i].level >= 4 && positions[i].id != 1) {
 					exec.push(positions[i]);
 				} else if (positions[i].level == 3 || positions[i].id == 1) {
 					officers.push(positions[i]);
@@ -28,13 +38,13 @@ router.get('/', function (req, res, next) {
 });
 
 router.post('/new', function (req, res, next) {
-	if (validator.isNull(req.body.title) || !validator.isIn(req.body.level, ["1", "2", "3", "4"])) {
+	if (validator.isNull(req.body.title) || !validator.isIn(req.body.level, ["1", "2", "3", "4", "5"])) {
 		err = new Error("Bad Request");
 		return next(err);
 	}
 	req.db.one("INSERT INTO positions(title, level, slug) VALUES ($1, $2, $3) RETURNING id", [req.body.title, req.body.level, slugify(req.body.title)])
 		.then(function (result){
-		if (req.body.level == "4") {
+		if (req.body.level == "4" || req.body.level == "5") {
 			return req.db.none("INSERT INTO file_directories(name, parent, owner) VALUES ($1, $2, $3)", [req.body.title, 0, result.id]);
 		}
 		return;

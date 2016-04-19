@@ -8,7 +8,7 @@ router.get('/', function (req, res, next) {
 			var exec = [];
 			var officers = [];
 			for (var i = 0; i < positions.length; i++) {
-				if (positions[i].level == 4) {
+				if (positions[i].level >= 4 && positions[i].id != 1) {
 					exec.push(positions[i]);
 				} else {
 					officers.push(positions[i]);

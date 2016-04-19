@@ -2,24 +2,13 @@ div(class='ui stackable inverted menu')
 	a(class='item' href='/admin')
 		i(class="home icon")
 		| Home
-	a(class='item' href='/admin/feedback')
-		i(class="comment icon")
-		| Feedback
-	a(class='item' href='/admin/positions')
-		i(class="users icon")
-		| Positions
+	
 	a(class='item' href='/admin/events')
 		i(class="calendar icon")
 		| Events
 	a(class='item' href='/admin/tickets')
 		i(class="ticket icon")
 		| Tickets
-	a(class='item' href='/admin/debts')
-		i(class="pound icon")
-		| Debts
-	a(class='item' href='/admin/elections')
-		i(class="checkmark box icon")
-		| Elections
 	a(class='item' href='/admin/blog')
 		i(class="newspaper icon")
 		| Blog
@@ -29,3 +18,16 @@ div(class='ui stackable inverted menu')
 	a(class='item' href='/admin/rooms')
 		i(class="book icon")
 		| Room Booking
+	if (user.level > 4)
+		a(class='item' href='/admin/debts')
+			i(class="pound icon")
+			| Debts
+		a(class='item' href='/admin/elections')
+			i(class="checkmark box icon")
+			| Elections
+		a(class='item' href='/admin/feedback')
+			i(class="comment icon")
+			| Feedback
+		a(class='item' href='/admin/positions')
+			i(class="users icon")
+			| Positions

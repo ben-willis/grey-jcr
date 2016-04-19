@@ -2,6 +2,16 @@ var express = require('express');
 var router = express.Router();
 var validator = require('validator');
 
+router.use(function (req, res, next) {
+	if (req.user.level<5 ) {
+		err = new Error("Forbidden");
+		err.status = 403;
+		return next(err);
+	} else {
+		return next();
+	}
+});
+
 /* GET feedback page. */
 router.get('/', function (req, res, next) {
 	req.db.manyOrNone('SELECT feedback.id, feedback.title, feedback.timestamp, feedback.author, feedback.anonymous, users.name, (SELECT COUNT(*) FROM feedback AS replies WHERE replies.parentid=feedback.id) AS no_replies FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE parentid IS NULL ORDER BY timestamp DESC')

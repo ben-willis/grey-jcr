@@ -8,10 +8,10 @@ html
 		div(class='ui container')
 			include ./header.jade
 			include ./menu.jade
-			h2= title
+			h2(class="ui header")= title
 			div(class="ui vertically padded grid")
 				div(class="eleven wide column")
-					h3 Top Debtors
+					h3(class="ui header") Top Debtors
 					table(class="ui fixed table")
 						thead
 							tr
@@ -29,7 +29,12 @@ html
 										a(class="ui button" href="/admin/debts/"+debtor.username)
 											| View
 				div(class="five wide wide column")
-					h3 Find Debtors
+					div(class="ui center aligned basic segment")
+						div(class="ui statistic")
+							- var total=0; for(i=0; i<debtors.length;i++){total += parseInt(debtors[i].amount)}
+							div(class="value")="£"+(total/100).toFixed(2)
+							div(class="label") Total Debt
+					h3(class="ui dividing header") Find Debtors
 					div(class="ui fluid search field")
 						div(class="ui fluid input")
 							input(type="text" name="username" class="prompt" placeholder="Find a user...")
