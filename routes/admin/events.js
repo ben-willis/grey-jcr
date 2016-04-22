@@ -107,7 +107,7 @@ router.get('/:eventid/delete', function (req, res, next) {
 /* GET an events bookings */
 router.get('/:eventid/bookings.csv', function (req, res, next){
 	var bookings;
-	req.db.many('SELECT tickets.id AS "ticket_id", tickets.name AS ticket_name, users.name, users.email, bookings.id AS "id*", bookings.guest_name, ticket_option_choices.name AS "choices:name", ticket_option_choices.id AS "choices:id" FROM bookings LEFT JOIN tickets ON tickets.id=bookings.ticketid LEFT JOIN users ON bookings.username=users.username LEFT JOIN booking_choices ON bookings.id=booking_choices.bookingid LEFT JOIN ticket_option_choices ON ticket_option_choices.id=booking_choices.choiceid WHERE bookings.eventid=$1;', [req.params.eventid])
+	req.db.many('SELECT tickets.id AS "ticket_id", tickets.name AS ticket_name, users.name, users.email, bookings.notes, bookings.id AS "id*", bookings.guest_name, ticket_option_choices.name AS "choices:name", ticket_option_choices.id AS "choices:id" FROM bookings LEFT JOIN tickets ON tickets.id=bookings.ticketid LEFT JOIN users ON bookings.username=users.username LEFT JOIN booking_choices ON bookings.id=booking_choices.bookingid LEFT JOIN ticket_option_choices ON ticket_option_choices.id=booking_choices.choiceid WHERE bookings.eventid=$1;', [req.params.eventid])
 		.then(function (data){
 			var tree = new treeize;
 			tree.grow(data);
@@ -123,7 +123,8 @@ router.get('/:eventid/bookings.csv', function (req, res, next){
 			var columns = {
 				ticket_name: 'Ticket',
 				name: 'Name',
-				email: 'Email'
+				email: 'Email',
+				notes: 'Notes'
 			}
 			recorded = [];
 			options = [];
@@ -152,11 +153,15 @@ router.get('/:eventid/bookings.csv', function (req, res, next){
 					choices:
 					for (var k = 0; k < options[j].choices.length; k++) {
 						//Compare with all our choices
+						// First check we have choices
 						if (bookings[i].choices) {
+							// Then for each of our choices
 							for (var l = bookings[i].choices.length - 1; l >= 0; l--) {
+								// We compare out choice with the possible choice
 								if (bookings[i].choices[l].id == options[j].choices[k].id) {
-									bookings[i]["option"+options[j].id] = bookings[i].choices[l].name;
-									delete bookings[i].choices[l];
+									// If the match we add it and delete the choice
+									bookings[i]["option"+(options[j].id)] = bookings[i].choices[l].name;
+									bookings[i].choices.splice(l, 1);
 									break choices;
 								}
 							};

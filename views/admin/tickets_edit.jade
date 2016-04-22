@@ -22,15 +22,24 @@ html
 						div(class="field")
 							label Max Size Booking
 							input(type="text" name="max_booking" value=ticket.max_booking)
-					div(class="two fields")
+					div(class="three fields")
 						div(class="field")
 							div(class="ui checkbox")
-								input(type="checkbox" name="block_debtors" tabindex="0")
+								if (ticket.block_debtors)
+									input(type="checkbox" name="block_debtors" tabindex="0" checked)
+								else
+									input(type="checkbox" name="block_debtors" tabindex="0")
 								label Block Debtors
 						div(class="field")
 							div(class="ui checkbox")
-								input(type="checkbox" name="guests" tabindex="0")
+								if (ticket.guests)
+									input(type="checkbox" name="guests" tabindex="0" checked)
+								else
+									input(type="checkbox" name="guests" tabindex="0")
 								label Allow Guests
+						div(class="inline field")
+							label Guest Surcharge
+							input(type="text" name="guest_surcharge" value=(ticket.guest_surcharge/100).toFixed(2))
 					div(class="two fields")
 						div(class="field")
 							label Stock

@@ -303,7 +303,13 @@ router.get('/debt/pay', function (req, res, next){
 
 /* GET the confirmation page */
 router.get('/debt/pay/confirm', function (req, res, next) {
-	res.render('services/debt_confirm', {"payerId": req.query.PayerID});
+	req.db.one('SELECT SUM(amount) AS amount FROM debts WHERE username=$1 LIMIT 1', [req.user.username])
+		.then(function(debt) {
+			res.render('services/debt_confirm', {"payerId": req.query.PayerID, debt: debt});
+		})
+		.catch(function (err) {
+			next(err);
+		});
 });
 
 /* GET execute the payment */
