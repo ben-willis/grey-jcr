@@ -57,12 +57,17 @@ router.get('/:electionid/:positionid/results', function (req, res, next) {
 	req.db.one('SELECT (elections.status=0) AS closed FROM elections WHERE elections.id=$1', [req.params.electionid])
 		.then(function (election) {
 			if (!election.closed) {
-				err = new Error("Election is no closed");
-				return next(err);
+				err = new Error("Election is not closed");
+				throw err;
 			}
 			return req.db.many('SELECT election_nominations.name AS nomination_name, election_nominations.id AS nomination_id, election_votes.value, election_votes.username, election_positions.name AS position_name FROM election_votes LEFT JOIN election_nominations ON election_votes.nominationid=election_nominations.id LEFT JOIN election_positions ON election_nominations.positionid=election_positions.id WHERE election_positions.id=$1 ORDER BY election_votes.username, election_nominations.name', [req.params.positionid]);
 		})
 		.then(function (rawVotes) {
+			if (!rawVotes) {
+				err = new Error("No votes");
+				throw err;
+			}
+
 			result = "";
 			// We make our votes nicely formatted and create our nominations array
 			/*
@@ -96,7 +101,8 @@ router.get('/:electionid/:positionid/results', function (req, res, next) {
 						delete votes[currentVoter][rawVotes[i].value];
 						spoiltPreferences.push(rawVotes[i].value);
 					}
-
+				} else {
+					delete votes[currentVoter][rawVotes[i].value];
 				}
 			}
 
