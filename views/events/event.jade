@@ -17,6 +17,7 @@ html
 				each ticket in tickets
 					div(class="ui vertical segment")
 						h3= ticket.name
+						pre= JSON.stringify(ticket, null, 0)
 						if (ticket.bookings && ticket.bookings.length > 0)
 							a(class="ui button" href="/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug+"/"+ticket.id+"/booking") Your Booking
 						if (ticket.close_sales < (new Date()))

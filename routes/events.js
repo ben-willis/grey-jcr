@@ -290,12 +290,14 @@ router.get('/:year/:month/:day/:slug', function (req, res, next) {
 			var ticketTree = new treeize();
 			ticketTree.grow(data);
 			tickets = ticketTree.getData();
-			if (tickets.bookings) {
-				for (var i = tickets.bookings.length - 1; i >= 0; i--) {
-					if (tickets.bookings[i].booked_by != req.user.username) {
-						tickets.bookings.splice(i, 1);
-					}
-				};
+			for (var i = 0; i < tickets.length; i++) {
+				if (tickets[i].bookings) {
+					for (var j = tickets[i].bookings.length - 1; j >= 0; j--) {
+						if (tickets[i].bookings[j].booked_by != req.user.username) {
+							tickets[i].bookings.splice(j, 1);
+						}
+					};
+				}
 			}
 			res.render('events/event', {event: event, tickets: tickets});
 		})
