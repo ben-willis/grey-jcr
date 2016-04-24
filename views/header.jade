@@ -11,6 +11,20 @@ div(class="ui stackable grid")
 					if user.level >= 4
 						a(class="item" href="/admin") Admin
 					a(class="item" href="/services/feedback") Feedback
+						div(class="floating ui red empty label" id="feedback_label" style="display:none")
+					script.
+						function checkFeedback() {
+							$.get('/api/feedback/new', function (response) {
+								console.log(response);
+								if (response.data.length) {
+									$("#feedback_label").text(response.data.length).fadeIn();
+								} else {
+									$("#feedback_label").hide();
+								}
+							});
+						}
+						checkFeedback();
+						setInterval(checkFeedback, 30*1000);
 					a(class="item" href="/events/calendar") Calendar
 					a(class="item" href="/services/elections") Elections
 					a(class="item" href="/services/rooms") Room Booking

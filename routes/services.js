@@ -99,7 +99,7 @@ router.post('/user/:username/update', upload.single('avatar'), function (req, re
 
 /* GET feedback page */
 router.get('/feedback', function (req, res, next) {
-	req.db.manyOrNone('SELECT feedback.id, feedback.title, (SELECT COUNT(*) FROM feedback AS replies WHERE replies.parentid=feedback.id) AS no_replies, feedback.timestamp FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE author=$1 AND parentid IS NULL AND exec=false ORDER BY timestamp DESC', req.user.username)
+	req.db.manyOrNone('SELECT feedback.id, feedback.title, feedback.read_by_user, (SELECT COUNT(*) FROM feedback AS replies WHERE replies.parentid=feedback.id) AS no_replies, feedback.timestamp FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE author=$1 AND parentid IS NULL AND exec=false ORDER BY timestamp DESC', req.user.username)
 		.then(function (feedback) {
 			res.render('services/feedback', {feedback: feedback});
 		})
@@ -121,12 +121,15 @@ router.post('/feedback', function (req, res, next) {
 
 /* GET an individual feedback */
 router.get('/feedback/:feedbackid', function (req, res, next) {
-	req.db.many('SELECT feedback.id, feedback.title, feedback.message, feedback.timestamp, users.name, feedback.author, feedback.exec, feedback.anonymous FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE (author=$1 AND id=$2) OR parentid=$2 ORDER BY timestamp ASC', [req.user.username, req.params.feedbackid])
+	req.db.none('UPDATE feedback SET read_by_user=true WHERE id=$1 AND author=$2', [req.params.feedbackid, req.user.username])
+		.then(function(){
+			return req.db.many('SELECT feedback.id, feedback.title, feedback.message, feedback.timestamp, users.name, feedback.author, feedback.exec, feedback.anonymous FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE (author=$1 AND id=$2) OR parentid=$2 ORDER BY timestamp ASC', [req.user.username, req.params.feedbackid])
+		})
 		.then(function (feedback) {
-			res.render('services/feedback_view', {feedback: feedback});
+			return res.render('services/feedback_view', {feedback: feedback});
 		})
 		.catch(function (err) {
-			next(err);
+			return next(err);
 		});
 });
 

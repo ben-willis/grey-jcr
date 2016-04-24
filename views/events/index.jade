@@ -12,7 +12,7 @@ html
 			h2(class="ui header")= title
 			div(class="ui vertical segment")
 				h3(class="ui header") Upcoming Events
-				div(class="ui link four cards")
+				div(class="ui link doubling four cards")
 					each event in events
 						a(class="card" href="/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug)
 							if (event.image)

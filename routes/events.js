@@ -5,7 +5,7 @@ var treeize   = require('treeize');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	req.db.manyOrNone('SELECT name, timestamp, image, slug FROM events WHERE timestamp>NOW() ORDER BY timestamp ASC')
+	req.db.manyOrNone('SELECT name, timestamp, image, slug FROM events WHERE timestamp>NOW() ORDER BY timestamp ASC LIMIT 4')
 		.then(function (events) {
 			res.render('events/index', {events: events});
 		})
@@ -90,7 +90,7 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 				// Check there are enough places
 				case 2:
 					if (bookings.length < data.min_booking || bookings.length > data.max_booking) {
-						err = new Error("You need to book on at least "+data.min_booking+" and at most "+data.max_booking+" bookings.");
+						err = new Error("You need to book on at least "+data.min_booking+" and at most "+data.max_booking+" people.");
 						throw err;
 					}
 					if (new Date() < data.open_sales || new Date() > data.close_sales) {
@@ -105,7 +105,7 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 					ticketprice = data.price;
 					allow_guests = data.guests;
 					guest_surcharge = data.guest_surcharge;
-					return this.query('SELECT stock - (SELECT COUNT(*) FROM bookings WHERE ticketid=$1) AS remaining FROM tickets WHERE id=$1', [req.params.ticketid]);
+					return this.one('SELECT stock - (SELECT COUNT(*) FROM bookings WHERE ticketid=$1) AS remaining FROM tickets WHERE id=$1', [req.params.ticketid]);
 				// Book them on
 				case 3:
 					if (data.remaining < bookings.length) {
@@ -157,7 +157,6 @@ router.post('/:eventid/:ticketid/book', function (req, res, next) {
 		res.redirect(303, "/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug+"/"+req.params.ticketid+"/booking?success")
 	})
 	.catch(function (err) {
-		console.log(err);
 		if (err.error.code == 23503) {
 			err = new Error("One or more of the usernames entered was not recognized.")
 			err.status = 400;

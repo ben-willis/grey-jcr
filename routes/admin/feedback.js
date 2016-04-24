@@ -37,6 +37,9 @@ router.get('/:feedbackid', function (req, res, next) {
 /* POST a reply */
 router.post('/:feedbackid', function (req, res, next) {
 	req.db.none('INSERT INTO feedback(title, message, author, exec, parentid, anonymous) VALUES ($1, $2, $3, $4, $5, $6)', ['reply', req.body.message, req.user.username, true, req.params.feedbackid, false])
+		.then(function(){
+			return req.db.none('UPDATE feedback SET read_by_user=false WHERE id=$1', [req.params.feedbackid]);
+		})
 		.then(function () {
 			res.redirect(303, '/admin/feedback/'+req.params.feedbackid)
 		})
