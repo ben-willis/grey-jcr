@@ -55,7 +55,7 @@ router.get('/search/', function (req, res, next) {
 					data.results.users.results.push({
 						title: users[i].name,
 						// image: '/api/users/'+users[i].username+'/avatar',
-						url: '/services/users/'+users[i].username,
+						url: '/services/user/'+users[i].username,
 						description: users[i].username
 					});
 				};
