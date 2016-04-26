@@ -52,7 +52,6 @@ router.get('/:eventid/edit', function (req, res, next) {
 
 /* POST and update to a events */
 router.post('/:eventid/edit', upload.single('image'), function (req, res, next) {
-
 	var date = (req.body.date).split('-');
 	var time = (req.body.time).split(':');
 	var timestamp = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
@@ -60,6 +59,7 @@ router.post('/:eventid/edit', upload.single('image'), function (req, res, next) 
 	var values = [req.params.eventid];
 	var query = "DELETE FROM events_tickets WHERE eventid=$1; "
 	if (req.body.tickets) {
+		req.body.tickets = [].concat(req.body.tickets);
 		// Build tickets query
 		query += "INSERT INTO events_tickets (eventid, ticketid) VALUES ";
 		for (var i = 0; i < req.body.tickets.length; i++) {

@@ -62,7 +62,7 @@ html
 									a(class="ui button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/accept") 
 										i(class="checkmark icon")
 										| Accept
-									a(class="ui negative button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/delete") 
+									a(class="ui negative button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/delete" onclick="return confirm('Are you sure you want to delete this booking?');") 
 										i(class="remove icon")
 										| Delete
 
@@ -82,6 +82,6 @@ html
 								td= booking.start
 								td= booking.duration
 								td
-									a(class="ui negative button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/delete") 
+									a(class="ui negative button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/delete" onclick="return confirm('Are you sure you want to delete this booking?');") 
 										i(class="remove icon")
 										| Delete

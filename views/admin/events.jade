@@ -61,7 +61,7 @@ html
 										a(class="ui button" href="/admin/events/"+event.id+"/edit")
 											i(class="edit icon")
 											| Edit
-										a(class="ui negative button" href="/admin/events/"+event.id+"/delete") 
+										a(class="ui negative button" href="/admin/events/"+event.id+"/delete" onclick="return confirm('Are you sure you want to delete this event?');") 
 											i(class="remove icon")
 											| Delete
 

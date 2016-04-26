@@ -56,7 +56,7 @@ html
 									a(class="ui button" href="/admin/elections/"+election.id)
 										i(class="edit icon")
 										| Edit
-									a(class="ui negative button" href="/admin/elections/"+election.id+"/delete")
+									a(class="ui negative button" href="/admin/elections/"+election.id+"/delete" onclick="return confirm('Are you sure you want to delete this election?');")
 										i(class="remove icon")
 										| Delete
 

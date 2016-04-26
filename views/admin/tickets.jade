@@ -32,11 +32,11 @@ html
 						each ticket in tickets
 							tr
 								td= ticket.name
-								td= ticket.remaining + '/' + ticket.stock
+								td= (ticket.stock - ticket.bookings) + '/' + ticket.stock
 								td
 									a(class="ui edit button" href="/admin/tickets/"+ticket.id)
 										i(class="edit icon")
 										| Edit
-									a(class="ui negative button" href="/admin/tickets/"+ticket.id+"/delete")
+									a(class="ui negative button" href="/admin/tickets/"+ticket.id+"/delete" onclick="return confirm('Are you sure you want to delete this ticket?');")
 										i(class="remove icon")
 										| Delete

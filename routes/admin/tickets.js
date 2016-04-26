@@ -5,7 +5,7 @@ var treeize   = require('treeize');
 
 /* GET tickets page. */
 router.get('/', function (req, res, next) {
-	req.db.manyOrNone('SELECT id, name, stock, (SELECT COUNT(*) FROM bookings WHERE bookings.ticketid=tickets.id) AS remaining FROM tickets')
+	req.db.manyOrNone('SELECT id, name, stock, (SELECT COUNT(*) FROM bookings WHERE bookings.ticketid=tickets.id) AS bookings FROM tickets')
 		.then(function (tickets) {
 			res.render('admin/tickets', {tickets: tickets});
 		})
