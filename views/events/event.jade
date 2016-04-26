@@ -10,8 +10,11 @@ html
 			include ../header.jade
 			include ../menu.jade
 			h2(class="ui header")
-				= title
-				div(class="sub header")= event.timestamp.toDateString()
+				if (event.image)
+					img(class="ui image" src="/images/events/"+event.image)
+				div(class="content")
+					= event.name
+					div(class="sub header")= event.timestamp.toDateString()
 			div(class="ui vertical segment")!= event.description
 			if (user)
 				each ticket in tickets

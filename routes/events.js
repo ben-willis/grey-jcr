@@ -280,11 +280,11 @@ router.post('/:bookingid', function (req, res, next) {
 /* GET an event */
 router.get('/:year/:month/:day/:slug', function (req, res, next) {
 	var event;
-	req.db.one("SELECT events.id, events.name, slug, events.description, events.timestamp FROM events WHERE date_part('year', events.timestamp)=$1 AND date_part('month', events.timestamp)=$2 AND date_part('day', events.timestamp)=$3 AND slug=$4", [req.params.year, req.params.month, req.params.day,req.params.slug])
+	req.db.one("SELECT events.id, events.name, slug, events.description, events.timestamp, events.image FROM events WHERE date_part('year', events.timestamp)=$1 AND date_part('month', events.timestamp)=$2 AND date_part('day', events.timestamp)=$3 AND slug=$4", [req.params.year, req.params.month, req.params.day,req.params.slug])
 		.then(function (data) {
 			event = data;
 			if (!req.user) return;
-			return req.db.manyOrNone('SELECT tickets.id, tickets.name, bookings.id AS "bookings:id", bookings.booked_by AS "bookings:booked_by", EXTRACT("EPOCH" FROM (tickets.open_sales - NOW())) AS time_to_open, tickets.close_sales FROM (tickets LEFT JOIN events_tickets ON events_tickets.ticketid=tickets.id) LEFT JOIN bookings ON bookings.ticketid=tickets.id WHERE events_tickets.eventid=$1', [data.id, req.user.username]);
+			return req.db.manyOrNone('SELECT tickets.id, tickets.price, tickets.guest_surcharge, tickets.name, bookings.id AS "bookings:id", bookings.booked_by AS "bookings:booked_by", EXTRACT("EPOCH" FROM (tickets.open_sales - NOW())) AS time_to_open, tickets.close_sales FROM (tickets LEFT JOIN events_tickets ON events_tickets.ticketid=tickets.id) LEFT JOIN bookings ON bookings.ticketid=tickets.id WHERE events_tickets.eventid=$1', [data.id, req.user.username]);
 		})
 		.then(function (data) {
 			var ticketTree = new treeize();

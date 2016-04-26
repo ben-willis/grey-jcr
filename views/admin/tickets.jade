@@ -32,7 +32,7 @@ html
 						each ticket in tickets
 							tr
 								td= ticket.name
-								td= ticket.stock
+								td= ticket.remaining + '/' + ticket.stock
 								td
 									a(class="ui edit button" href="/admin/tickets/"+ticket.id)
 										i(class="edit icon")

@@ -52,34 +52,31 @@ router.get('/:eventid/edit', function (req, res, next) {
 
 /* POST and update to a events */
 router.post('/:eventid/edit', upload.single('image'), function (req, res, next) {
-	console.log(req.body);
 
 	var date = (req.body.date).split('-');
 	var time = (req.body.time).split(':');
 	var timestamp = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 
+	var values = [req.params.eventid];
+	var query = "DELETE FROM events_tickets WHERE eventid=$1; "
 	if (req.body.tickets) {
 		// Build tickets query
-		var query = "DELETE FROM events_tickets WHERE eventid=$1; INSERT INTO events_tickets (eventid, ticketid) VALUES ";
-		var values = [req.params.eventid];
+		query += "INSERT INTO events_tickets (eventid, ticketid) VALUES ";
 		for (var i = 0; i < req.body.tickets.length; i++) {
 			if (i != 0) {
 				query += ", "
 			}
-			query+= "($1, $"+(i+2)+")"
+			query += "($1, $"+(i+2)+")";
 			values.push(req.body.tickets[i]);
 		};
-	} else {
-		query = 'DELETE FROM events_tickets WHERE eventid=$1';
-		values = [req.params.eventid];
 	}
 	req.db.none(query, values)
 		.then( function (){
 			if (req.file) {
-				var image_name = makeid(5);
-				mv(req.file.path, __dirname+'/../../public/images/events/'+image_name+'.png', function (err) {
-					if (err) return next(err);
-					return req.db.none('UPDATE events SET name=$1, slug=$2, description=$3, timestamp=$4, image=$5 WHERE id=$6', [req.body.name, slugify(req.body.name), req.body.description, timestamp.toLocaleString(), image_name+'.png', req.params.eventid]);
+				var image_name = makeid(5)+'.'+mime.extension(req.file.mimetype);
+				mv(req.file.path, __dirname+'/../../public/images/events/'+image_name, function (err) {
+					if (err) throw err;
+					return req.db.none('UPDATE events SET name=$1, slug=$2, description=$3, timestamp=$4, image=$5 WHERE id=$6', [req.body.name, slugify(req.body.name), req.body.description, timestamp.toLocaleString(), image_name, req.params.eventid]);
 				});
 			} else {
 				return req.db.none('UPDATE events SET name=$1, slug=$2, description=$3, timestamp=$4 WHERE id=$5', [req.body.name, slugify(req.body.name), req.body.description, timestamp.toLocaleString(), req.params.eventid]);
@@ -89,7 +86,7 @@ router.post('/:eventid/edit', upload.single('image'), function (req, res, next) 
 			res.redirect('/admin/events/'+req.params.eventid+'/edit?success')
 		})
 		.catch(function (err) {
-			next(err);
+			return next(err);
 		});
 });
 
