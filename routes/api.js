@@ -68,12 +68,9 @@ router.get('/search/', function (req, res, next) {
 });
 
 router.get('/events/:year/:month', function (req, res, next) {
-	req.db.one("SELECT id, name, slug, description, image AS positions_slug FROM events WHERE date_part('year', blog.timestamp)=$1 AND date_part('month', blog.timestamp)=$2", req.params.id)
-		.then(function (position) {
-			if (!position.description) {
-				position.description = "No Description"
-			}
-			return res.json(position);
+	req.db.manyOrNone("SELECT id, name, slug, timestamp, description, image FROM events WHERE date_part('year', timestamp)=$1 AND date_part('month', timestamp)=$2", [req.params.year, req.params.month])
+		.then(function (events) {
+			return res.json(events);
 		}).catch(function (err) {
 			return res.json(err);
 		});

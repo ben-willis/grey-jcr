@@ -43,7 +43,7 @@ html
 										});
 									}
 								});
-						else if (ticket.stock - ticket.sold <= Math.min(ticket.stock/10,15))
+						else if (ticket.stock - ticket.sold <= Math.max(ticket.stock/10,15))
 							a(class="ui labeled button" href="/events/"+event.id+"/"+ticket.id+"/book")
 								div(class="ui primary button" )
 									i(class="ticket icon")
