@@ -293,7 +293,7 @@ router.get('/:year/:month/:day/:slug', function (req, res, next) {
 			for (var i = 0; i < tickets.length; i++) {
 				if (tickets[i].bookings) {
 					for (var j = tickets[i].bookings.length - 1; j >= 0; j--) {
-						if (tickets[i].bookings[j].booked_by != req.user.username) {
+						if (tickets[i].bookings[j].booked_by != req.user.username && tickets[i].bookings[j].user != req.user.username) {
 							tickets[i].bookings.splice(j, 1);
 						}
 					};
