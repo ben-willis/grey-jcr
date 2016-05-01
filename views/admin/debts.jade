@@ -34,6 +34,9 @@ html
 							- var total=0; for(i=0; i<debtors.length;i++){total += parseInt(debtors[i].amount)}
 							div(class="value")="£"+(total/100).toFixed(2)
 							div(class="label") Total Debt
+						a(class="ui button" href="/admin/debts/totals.csv")
+							i(class="download icon")
+							| Download All Debts
 					h3(class="ui dividing header") Find Debtors
 					div(class="ui fluid search field")
 						div(class="ui fluid input")

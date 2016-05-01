@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var validator = require('validator');
+var csv = require('csv');
 
 router.use(function (req, res, next) {
 	if (req.user.level<5 ) {
@@ -14,9 +15,30 @@ router.use(function (req, res, next) {
 
 /* GET debts page. */
 router.get('/', function (req, res, next) {
-	req.db.manyOrNone('SELECT SUM(debts.amount) AS amount, users.username, users.name, users.email FROM debts LEFT JOIN users ON debts.username=users.username GROUP BY users.username HAVING SUM(debts.amount)>0 ORDER BY SUM(amount) DESC')
+	req.db.manyOrNone('SELECT SUM(debts.amount) AS amount, users.username, users.name, users.email FROM debts LEFT JOIN users ON debts.username=users.username GROUP BY users.username HAVING SUM(debts.amount)!=0 ORDER BY SUM(amount) DESC')
 		.then(function (debtors) {
 			res.render('admin/debts', {debtors: debtors});
+		})
+		.catch(function (err) {
+			next(err);
+		});
+});
+
+/* GET debts page. */
+router.get('/totals.csv', function (req, res, next) {
+	req.db.manyOrNone('SELECT users.username, users.name, users.email, SUM(debts.amount) AS amount FROM debts LEFT JOIN users ON debts.username=users.username GROUP BY users.username HAVING SUM(debts.amount)!=0 ORDER BY SUM(debts.amount) DESC')
+		.then(function (debtors) {
+			columns = {
+				username: 'Username',
+				name: 'Name',
+				email: 'Email',
+				amount: 'Amount'
+			}
+			csv.stringify(debtors, {header: true, columns: columns}, function (err, output) {
+				if (err) throw err;
+				res.set('Content-Type', 'text/csv');
+				res.status(200).send(output);
+			})
 		})
 		.catch(function (err) {
 			next(err);

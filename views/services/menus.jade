@@ -1,0 +1,29 @@
+- var title = 'Menus'
+
+doctype html
+html
+	head
+		include ../head.jade
+	body
+		div(class='ui container')
+			include ../header.jade
+			include ../menu.jade
+			h2= "Week "+week+" "+title
+			div(Class="ui vertical segment")
+				p Here you can find this week's menu.
+			div(class="ui vertical clearing segment")
+				h3 Lunch
+				img(class="ui fluid image" src="/images/menus/w"+week+"l.png")
+				h3 Dinner
+				img(class="ui fluid image" src="/images/menus/w"+week+"d.png")
+				if (week > 1)
+					a(class="ui left floated button" href="/services/menus?week="+(week-1))
+						i(class="left arrow icon")
+						| Last Week
+				if (week < 10)
+					a(class="ui right floated button" href="/services/menus?week="+(week+1))
+						| Next Week
+						i(class="right arrow icon")
+				
+
+		include ../footer.jade

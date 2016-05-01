@@ -284,7 +284,7 @@ router.get('/:year/:month/:day/:slug', function (req, res, next) {
 		.then(function (data) {
 			event = data;
 			if (!req.user) return;
-			return req.db.manyOrNone('SELECT tickets.id, tickets.price, tickets.guest_surcharge, tickets.name, bookings.id AS "bookings:id", bookings.booked_by AS "bookings:booked_by", EXTRACT("EPOCH" FROM (tickets.open_sales - NOW())) AS time_to_open, tickets.close_sales FROM (tickets LEFT JOIN events_tickets ON events_tickets.ticketid=tickets.id) LEFT JOIN bookings ON bookings.ticketid=tickets.id WHERE events_tickets.eventid=$1', [data.id, req.user.username]);
+			return req.db.manyOrNone('SELECT tickets.id, tickets.price, tickets.guest_surcharge, tickets.stock, (SELECT COUNT(*) FROM bookings WHERE bookings.ticketid=tickets.id) AS sold, tickets.name, bookings.id AS "bookings:id", bookings.booked_by AS "bookings:booked_by", EXTRACT("EPOCH" FROM (tickets.open_sales - NOW())) AS time_to_open, tickets.close_sales FROM (tickets LEFT JOIN events_tickets ON events_tickets.ticketid=tickets.id) LEFT JOIN bookings ON bookings.ticketid=tickets.id WHERE events_tickets.eventid=$1', [data.id, req.user.username]);
 		})
 		.then(function (data) {
 			var ticketTree = new treeize();

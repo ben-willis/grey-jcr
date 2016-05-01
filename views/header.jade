@@ -15,7 +15,6 @@ div(class="ui stackable grid")
 					script.
 						function checkFeedback() {
 							$.get('/api/feedback/new', function (response) {
-								console.log(response);
 								if (response.data.length) {
 									$("#feedback_label").text(response.data.length).fadeIn();
 								} else {
@@ -28,6 +27,7 @@ div(class="ui stackable grid")
 					a(class="item" href="/events/calendar") Calendar
 					a(class="item" href="/services/elections") Elections
 					a(class="item" href="/services/rooms") Room Booking
+					a(class="item" href="/services/menus") Menus
 
 				if !user
 					div(class="item")
