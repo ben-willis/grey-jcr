@@ -14,9 +14,19 @@ router.use(function (req, res, next) {
 
 /* GET feedback page. */
 router.get('/', function (req, res, next) {
-	req.db.manyOrNone('SELECT feedback.id, feedback.title, feedback.timestamp, feedback.author, feedback.anonymous, users.name, (SELECT COUNT(*) FROM feedback AS replies WHERE replies.parentid=feedback.id) AS no_replies FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE parentid IS NULL ORDER BY timestamp DESC')
+	req.db.manyOrNone('SELECT feedback.id, feedback.title, feedback.timestamp, feedback.author, feedback.archived, feedback.anonymous, users.name, (SELECT COUNT(*) FROM feedback AS replies WHERE replies.parentid=feedback.id) AS no_replies FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE parentid IS NULL AND archived=false ORDER BY timestamp DESC')
 		.then(function (feedback) {
-			res.render('admin/feedback', {feedback: feedback});
+			res.render('admin/feedback', {feedback: feedback, archive: false});
+		})
+		.catch(function (err) {
+			next(err);
+		});
+});
+
+router.get('/archive', function (req, res, next) {
+	req.db.manyOrNone('SELECT feedback.id, feedback.title, feedback.timestamp, feedback.author, feedback.archived, feedback.anonymous, users.name, (SELECT COUNT(*) FROM feedback AS replies WHERE replies.parentid=feedback.id) AS no_replies FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE parentid IS NULL AND archived=true ORDER BY timestamp DESC')
+		.then(function (feedback) {
+			res.render('admin/feedback', {feedback: feedback, archive: true});
 		})
 		.catch(function (err) {
 			next(err);
@@ -28,6 +38,17 @@ router.get('/:feedbackid', function (req, res, next) {
 	req.db.many('SELECT feedback.id, feedback.title, feedback.message, feedback.timestamp, feedback.exec ,users.name, feedback.author, feedback.anonymous FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE id=$1 OR parentid=$1 ORDER BY timestamp ASC', [req.params.feedbackid])
 		.then(function (feedback) {
 			res.render('admin/feedback_view', {feedback: feedback});
+		})
+		.catch(function (err) {
+			next(err);
+		});
+});
+
+/* GET an archive some feedback */
+router.get('/:feedbackid/archive', function (req, res, next) {
+	req.db.none('UPDATE feedback SET archived = NOT archived WHERE id=$1', [req.params.feedbackid])
+		.then(function (feedback) {
+			res.redirect(303, '/admin/feedback/?archive-success')
 		})
 		.catch(function (err) {
 			next(err);

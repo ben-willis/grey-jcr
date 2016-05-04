@@ -20,6 +20,12 @@ html
 					$('.message .close').on('click', function() {
 						$(this).closest('.message').transition('fade');
 					});
+			else if (feedback[0].archived)
+				div(Class="ui icon message")
+					i(class="archive icon")
+					div(class="content")
+						div(class="header") Archived Feedback
+						p This piece of feedback has been archived. If you want to bring it to the exec's attention again simple leave another reply.
 
 			div(class="ui vertical segment")
 				h3(class="ui header")

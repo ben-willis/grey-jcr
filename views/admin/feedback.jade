@@ -9,6 +9,14 @@ html
 			include ./header.jade
 			include ./menu.jade
 			h3 Feedback
+			if (!archive)
+				a(href="/admin/feedback/archive" class="ui button")
+					i(class="archive icon")
+					| Archived Feedback
+			else
+				a(href="/admin/feedback" class="ui button")
+					i(class="arrow circle left icon")
+					| Back
 			table(class="ui fixed table")
 				thead
 					tr
@@ -16,6 +24,7 @@ html
 						th Author
 						th Date
 						th Replies
+						th Actions
 				tbody
 					each post in feedback
 						tr
@@ -25,4 +34,13 @@ html
 							td= prettydate.format(new Date(post.timestamp))
 							td
 								a(class="ui label" href="/admin/feedback/"+post.id)= post.no_replies
+							td
+								if (!post.archived)
+									a(class="ui button" href="/admin/feedback/"+post.id+"/archive" onclick="return confirm('Are you sure you want to archive this?');")
+										i(class="archive icon")
+										| Archive
+								else
+									a(class="ui button" href="/admin/feedback/"+post.id+"/archive")
+										i(class="repeat icon")
+										| Restore
 			

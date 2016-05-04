@@ -49,6 +49,8 @@ html
 								td
 									if (!post.read_by_user)
 										i(class="ui red circle icon")
+									if (post.archived)
+										i(class="archive icon")
 									a(href="/services/feedback/"+post.id)= post.title
 								td= prettydate.format(new Date(post.timestamp))
 								td
