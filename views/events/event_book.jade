@@ -10,6 +10,8 @@ html
 			include ../menu.jade
 			h2(class="ui header")= title
 			p= "You must book on a minimum of "+ticket.min_booking+" people."
+			if (ticket.guests)
+				p To book a JCR member on please enter their CIS username. To book a guest on please enter their fullname.
 			div(class="ui vertical segment")
 				form(class="ui form" method="POST" action="/events/"+eventid+"/"+ticket.id+"/book")
 					- for(i=0; i<ticket.max_booking; i++)

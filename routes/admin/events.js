@@ -121,6 +121,7 @@ router.get('/:eventid/bookings.csv', function (req, res, next){
 				ticket_name: 'Ticket',
 				booked_by: 'Booked By',
 				name: 'Name',
+				guest: 'Guest',
 				email: 'Email',
 				notes: 'Notes',
 			}
@@ -141,7 +142,8 @@ router.get('/:eventid/bookings.csv', function (req, res, next){
 			// For each booking
 			for (var i = 0; i < bookings.length; i++) {
 				// Make sure we have the name
-				if (!bookings[i].name) {
+				bookings[i].guest = (!bookings[i].name);
+				if (bookings[i].guest) {
 					bookings[i].name = bookings[i].guest_name;
 				}
 				delete bookings[i].guest_name;

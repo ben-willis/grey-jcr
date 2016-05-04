@@ -66,6 +66,7 @@ html
 										td= booking.ticket_name
 										td= "£"+(booking.ticket_price/100).toFixed(2)
 										- total += booking.ticket_price
+										- total += (booking.username) ? 0 : booking.guest_surcharge
 									each option in booking.options
 										tr
 											- var selected = false;
