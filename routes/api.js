@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var fs = require('fs');
 var prettydate = require('pretty-date');
+var treeize   = require('treeize');
 
 router.get('/search/', function (req, res, next) {
 	var query = '%'+req.query.q+'%';
@@ -68,12 +69,37 @@ router.get('/search/', function (req, res, next) {
 });
 
 router.get('/events/:year/:month', function (req, res, next) {
-	req.db.one("SELECT id, name, slug, description, image AS positions_slug FROM events WHERE date_part('year', blog.timestamp)=$1 AND date_part('month', blog.timestamp)=$2", req.params.id)
-		.then(function (position) {
-			if (!position.description) {
-				position.description = "No Description"
-			}
-			return res.json(position);
+	req.db.manyOrNone("SELECT id, name, slug, timestamp, description, image FROM events WHERE date_part('year', timestamp)=$1 AND date_part('month', timestamp)=$2", [req.params.year, req.params.month])
+		.then(function (events) {
+			return res.json(events);
+		}).catch(function (err) {
+			return res.json(err);
+		});
+});
+
+router.get('/blog', function (req, res, next) {
+	var page = (req.query.page) ? parseInt(req.query.page) : 1;
+	var amount = (req.query.length) ? parseInt(req.query.length) : 10;
+	req.db.manyOrNone('SELECT (SELECT COUNT(*) FROM blog) AS total, users.name AS "data:author:name", users.username AS "data:author:username", positions.title AS "data:author:title", positions.slug AS "data:author:slug", blog.title AS "data:title", blog.slug AS "data:slug", blog.timestamp AS "data:timestamp", blog.message AS "data:message" FROM blog LEFT JOIN users ON blog.author=users.username LEFT JOIN positions ON blog.positionid=positions.id ORDER BY timestamp DESC LIMIT $1 OFFSET $2', [amount, (page-1) * amount])
+		.then(function (data) {
+			var blogTree = new treeize();
+			blogTree.grow(data);
+			var blog = blogTree.getData()[0];
+			return res.json(blog);
+		}).catch(function (err) {
+			return res.json(err);
+		});
+});
+
+router.get('/blog/:positionslug', function (req, res, next) {
+	var page = (req.query.page) ? parseInt(req.query.page) : 1;
+	var amount = (req.query.length) ? parseInt(req.query.length) : 10;
+	req.db.manyOrNone('SELECT (SELECT COUNT(*) FROM blog) AS total, users.name AS "data:author:name", users.username AS "data:author:username", positions.title AS "data:author:title", positions.slug AS "data:author:slug", blog.title AS "data:title", blog.slug AS "data:slug", blog.timestamp AS "data:timestamp", blog.message AS "data:message" FROM blog LEFT JOIN users ON blog.author=users.username LEFT JOIN positions ON blog.positionid=positions.id WHERE positions.slug=$3 ORDER BY timestamp DESC LIMIT $1 OFFSET $2', [amount, (page-1) * amount, req.params.positionslug])
+		.then(function (data) {
+			var blogTree = new treeize();
+			blogTree.grow(data);
+			var blog = blogTree.getData()[0];
+			return res.json(blog);
 		}).catch(function (err) {
 			return res.json(err);
 		});

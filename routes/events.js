@@ -18,13 +18,7 @@ router.get('/', function (req, res, next) {
 router.get('/calendar/:year?/:month?', function (req, res, next) {
 	var year = (isNaN(req.params.year)) ? (new Date()).getFullYear() : req.params.year;
 	var month = (isNaN(req.params.month)) ? (new Date()).getMonth()+1 : req.params.month;
-	req.db.manyOrNone("SELECT id, name, timestamp, slug FROM events WHERE EXTRACT(YEAR FROM timestamp)=$1 AND EXTRACT(MONTH FROM timestamp)=$2 ORDER BY timestamp ASC", [year, month])
-		.then(function (events) {
-			res.render('events/calendar', {events: events, month: month, year: year});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	res.render('events/calendar', {month: month, year: year});
 });
 
 /* GET the bookings page */

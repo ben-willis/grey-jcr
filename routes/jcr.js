@@ -22,12 +22,7 @@ router.get('/', function (req, res, next) {
 
 /* GET blog page. */
 router.get('/blog', function (req, res, next) {
-	req.db.manyOrNone('SELECT *, blog.title AS title, blog.slug AS slug, positions.title AS position_title, positions.slug AS position_slug FROM blog LEFT JOIN users ON blog.author=users.username LEFT JOIN positions ON blog.positionid=positions.id')
-		.then(function (posts) {
-			res.render('jcr/blog', { posts: posts});
-		}).catch(function (err) {
-			next(err);
-		});
+	res.render('jcr/blog')
 });
 
 /* GET profile for a position page. */
