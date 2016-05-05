@@ -91,6 +91,20 @@ router.get('/blog', function (req, res, next) {
 		});
 });
 
+router.get('/blog/:positionslug', function (req, res, next) {
+	var page = (req.query.page) ? parseInt(req.query.page) : 1;
+	var amount = (req.query.length) ? parseInt(req.query.length) : 10;
+	req.db.manyOrNone('SELECT (SELECT COUNT(*) FROM blog) AS total, users.name AS "data:author:name", users.username AS "data:author:username", positions.title AS "data:author:title", positions.slug AS "data:author:slug", blog.title AS "data:title", blog.slug AS "data:slug", blog.timestamp AS "data:timestamp", blog.message AS "data:message" FROM blog LEFT JOIN users ON blog.author=users.username LEFT JOIN positions ON blog.positionid=positions.id WHERE positions.slug=$3 ORDER BY timestamp DESC LIMIT $1 OFFSET $2', [amount, (page-1) * amount, req.params.positionslug])
+		.then(function (data) {
+			var blogTree = new treeize();
+			blogTree.grow(data);
+			var blog = blogTree.getData()[0];
+			return res.json(blog);
+		}).catch(function (err) {
+			return res.json(err);
+		});
+});
+
 router.get('/positions/:id', function (req, res, next) {
 	req.db.one("SELECT title, description FROM positions WHERE id=$1", req.params.id)
 		.then(function (position) {

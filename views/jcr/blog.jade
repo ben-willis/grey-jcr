@@ -16,19 +16,6 @@ html
 				
 				div(class="ui pagination menu")
 					a(class="item" v-for="n in pages" v-bind:class="{'active': (n+1 == page)}" v-on:click.stop="setPage(n+1)") {{ n+1 }}
-				//- div(class="ui divided items")
-				//- 	div(class="item")
-				//- 		div(class="content")
-				//- 			- post.timestamp = new Date(post.timestamp);
-				//- 			a(class="header" href="/jcr/blog/"+post.position_slug+"/"+post.timestamp.getFullYear()+"/"+(post.timestamp.getMonth()+1)+"/"+post.slug)= post.title
-				//- 			div(class="meta")
-				//- 				span(class="author")
-				//- 					i(class="ui user icon")
-				//- 					= post.name + " ("+post.position_title+")"
-				//- 				span(class="timestamp")
-				//- 					i(class="ui clock icon")
-				//- 					= prettydate.format(post.timestamp)
-				//- 			div(class="article description")!= post.message
 		include ../footer.jade
 
 		script.
