@@ -13,6 +13,9 @@ html
 				h2= title
 				div(class="ui divided items")
 					blog-post(class="item" v-for="post in posts", :title="post.title", :slug="post.slug", :content="post.message", :timestamp="post.timestamp", :author="post.author")
+				
+				div(class="ui pagination menu")
+					a(class="item" v-for="n in pages" v-bind:class="{'active': (n+1 == page)}" v-on:click.stop="setPage(n+1)") {{ n+1 }}
 				//- div(class="ui divided items")
 				//- 	div(class="item")
 				//- 		div(class="content")
@@ -33,7 +36,6 @@ html
 				props: ['title', 'slug', 'content', 'timestamp', 'author'],
 				computed: {
 					permalink: function() {
-						console.log(this.timestamp.getFullYear());
 						return "/jcr/blog/"+this.author.slug+"/"+this.timestamp.getFullYear()+"/"+(this.timestamp.getMonth()+1)+"/"+this.slug
 					}
 				},
@@ -45,8 +47,11 @@ html
 				data: {
 					total: 0,
 					posts: [],
-					limit: 5,
+					limit: 8,
 					page: 1
+				},
+				computed:{
+					pages: function() {return Math.ceil(this.total/this.limit)}
 				},
 				methods: {
 					fetchPosts: function() {
@@ -60,6 +65,9 @@ html
 							self.posts = response.data;
 						}, 'json');
 					},
+					setPage: function (page) {
+						this.page = page;
+					}
 				},
 				created: function() {
 					this.fetchPosts();
