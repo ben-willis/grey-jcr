@@ -53,11 +53,16 @@ html
 						);
 					}
 				},
-				template: '<div class="cell"><div class="ui sub header" v-if="currentMonth">{{ day }}</div><event v-for="event in events" :event-name="event.name"></event></div>',
+				template: '<div class="cell"><div class="ui sub header" v-if="currentMonth">{{ day }}</div><event v-for="event in events" :event-name="event.name" :timestamp="event.timestamp" :slug="event.slug"></event></div>',
 				components: {
 					'event': {
-						props: ['eventName'],
-						template: '<a class="ui label">{{ eventName }}</a>'
+						props: ['eventName', 'timestamp', 'slug'],
+						computed: {
+							permalink: function () {
+								return '/events/'+this.timestamp.getFullYear()+'/'+(this.timestamp.getMonth()+1)+'/'+this.timestamp.getDate()+'/'+this.slug
+							}
+						},
+						template: '<a class="ui label" :href="permalink">{{ eventName }}</a>'
 					}
 				}
 			});
