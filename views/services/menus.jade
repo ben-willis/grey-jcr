@@ -8,14 +8,15 @@ html
 		div(class='ui container')
 			include ../header.jade
 			include ../menu.jade
+			- var currWeek = ((week-1)%3)+1
 			h2= "Week "+week+" "+title
 			div(Class="ui vertical segment")
 				p Here you can find this week's menu.
 			div(class="ui vertical clearing segment")
 				h3 Lunch
-				img(class="ui fluid image" src="/images/menus/w"+week+"l.png")
+				img(class="ui fluid image" src="/images/menus/w"+currWeek+"l.png")
 				h3 Dinner
-				img(class="ui fluid image" src="/images/menus/w"+week+"d.png")
+				img(class="ui fluid image" src="/images/menus/w"+currWeek+"d.png")
 				if (week > 1)
 					a(class="ui left floated button" href="/services/menus?week="+(week-1))
 						i(class="left arrow icon")
