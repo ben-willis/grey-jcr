@@ -12,23 +12,23 @@ html
 			div(class="ui vertical segment" id="blog")
 				h2= title
 				div(class="ui divided items")
-					blog-post(class="item" v-for="post in posts", :title="post.title", :slug="post.slug", :content="post.message", :timestamp="post.timestamp", :author="post.author")
-				
+					div(class="item" v-for="post in posts")
+						div(class="content")
+							a(class="header" v-bind:href='"/jcr/blog/"+post.author.slug+"/"+post.timestamp.getFullYear()+"/"+(post.timestamp.getMonth()+1)+"/"+post.slug') {{post.title}}
+							div(class="meta")
+								span(class="author")
+									i(class="ui user icon")
+									{{ post.author.name }} ({{ post.author.title }})
+								span(class="timestamp")
+									i(class="ui clock icon")
+									{{ post.timestamp }}
+							div(class="article description"){{{ post.content }}}
+					
 				div(class="ui pagination menu")
-					a(class="item" v-for="n in pages" v-bind:class="{'active': (n+1 == page)}" v-on:click.stop="setPage(n+1)") {{ n+1 }}
+					a(class="item" v-for="n in pages"  v-bind:class="{'active': (n+1 == page)}" v-on:click.stop="setPage(n+1)") {{ n+1 }}
 		include ../footer.jade
 
 		script.
-			Vue.component('blog-post', {
-				props: ['title', 'slug', 'content', 'timestamp', 'author'],
-				computed: {
-					permalink: function() {
-						return "/jcr/blog/"+this.author.slug+"/"+this.timestamp.getFullYear()+"/"+(this.timestamp.getMonth()+1)+"/"+this.slug
-					}
-				},
-				template: '<div class="item"><div class="content"><a class="header" v-bind:href="permalink">{{ title }}</a><div class="meta"><span class="author"><i class="ui user icon"></i>{{ author.name }} ({{ author.title }})</span><span class="timestamp"><i class="ui clock icon"></i>{{ timestamp }}</span></div><div class="article description">{{{ content }}}</div></div></div>'
-			});
-
 			var blog = new Vue({
 				el: "#blog",
 				data: {
@@ -43,7 +43,6 @@ html
 				methods: {
 					fetchPosts: function() {
 						var self = this;
-						$("#calendar").addClass('loading');
 						$.get('/api/blog?page='+self.page+'&length='+self.limit, function(response) {
 							self.total = response.total;
 							for (i = 0; i < response.data.length; i++ ){

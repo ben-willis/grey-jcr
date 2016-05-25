@@ -22,7 +22,7 @@ router.get('/', function (req, res, next) {
 
 /* GET blog page. */
 router.get('/blog', function (req, res, next) {
-	res.render('jcr/blog')
+	res.render('jcr/blog');
 });
 
 /* GET profile for a position page. */

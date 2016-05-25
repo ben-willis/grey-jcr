@@ -99,13 +99,7 @@ router.post('/user/:username/update', upload.single('avatar'), function (req, re
 
 /* GET feedback page */
 router.get('/feedback', function (req, res, next) {
-	req.db.manyOrNone('SELECT feedback.id, feedback.title, feedback.archived, feedback.read_by_user, (SELECT COUNT(*) FROM feedback AS replies WHERE replies.parentid=feedback.id) AS no_replies, feedback.timestamp FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE author=$1 AND parentid IS NULL AND exec=false ORDER BY timestamp DESC', req.user.username)
-		.then(function (feedback) {
-			res.render('services/feedback', {feedback: feedback});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	res.render('services/feedback');
 });
 
 /* POST a new piece of feedback */

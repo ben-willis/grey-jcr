@@ -173,20 +173,8 @@ router.get('/files/:directoryid', function (req, res, next) {
 		});
 });
 
-router.get('/feedback/new', function (req, res, next) {
-	if (!req.isAuthenticated()) {
-		err = new Error("Unauthenticated");
-		err.status = 401;
-		return res.json(err);
-	}
-	req.db.manyOrNone("SELECT feedback.id, feedback.title FROM feedback WHERE read_by_user=false AND parentid IS NULL AND exec=false AND author=$1", [req.user.username])
-		.then(function(feedback) {
-			res.json({data: feedback});
-		})
-		.catch(function(err) {
-			res.json(err);
-		})
-});
+var feedback = require('./api/feedback');
+router.use('/feedback', feedback);
 
 // var https = require('https');
 
