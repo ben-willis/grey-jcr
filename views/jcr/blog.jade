@@ -22,7 +22,7 @@ html
 								span(class="timestamp")
 									i(class="ui clock icon")
 									{{ post.timestamp }}
-							div(class="article description"){{{ post.content }}}
+							div(class="article description") {{{ post.message }}}
 					
 				div(class="ui pagination menu")
 					a(class="item" v-for="n in pages"  v-bind:class="{'active': (n+1 == page)}" v-on:click.stop="setPage(n+1)") {{ n+1 }}
