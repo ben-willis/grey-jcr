@@ -173,8 +173,9 @@ router.get('/files/:directoryid', function (req, res, next) {
 		});
 });
 
-var feedback = require('./api/feedback');
+var feedback = require('./api/feedback')
 router.use('/feedback', feedback);
+router.use('/poll', require('./api/poll'));
 
 // var https = require('https');
 
