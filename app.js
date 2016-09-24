@@ -35,7 +35,6 @@ var db = pgp({
   password: process.env.DB_PASSWORD
 });
 
-var db_new = require('./helpers/db');
 var User = require('./models/user');
 
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -99,6 +98,7 @@ passport.use(new LocalStrategy( function (username, password, done) {
                 return User.create(username);
             })
             .then(function(user) {
+                console.log(user);
                 done(null, user)
             })
             .catch(function(err) {

@@ -242,71 +242,70 @@ paypal.configure({
 
 /* GET the debts page */
 router.get('/debt', function (req, res, next) {
-	req.db.manyOrNone('SELECT name, message, amount, (SELECT SUM(amount) FROM debts WHERE username=$1) AS total FROM debts WHERE username=$1 ORDER by timestamp DESC',[req.user.username])
-		.then(function (debts) {
-			res.render('services/debt', {debts: debts});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	Promise.all([
+		req.user.getDebt(),
+		req.user.getDebts()
+	]).then(function (data) {
+		res.render('services/debt', {debts: data[1], total_debt: data[0]});
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* GET pay a debt */
 router.get('/debt/pay', function (req, res, next){
 	var host = req.get('host');
-	req.db.one('SELECT SUM(amount) AS amount FROM debts WHERE username=$1 LIMIT 1', [req.user.username])
-		.then(function (debt) {
-			var payment = {
-				"intent": "sale",
-				"payer": {
-					"payment_method": "paypal"
+	req.user.getDebt().then(function (debt) {
+		var payment = {
+			"intent": "sale",
+			"payer": {
+				"payment_method": "paypal"
+			},
+			"redirect_urls": {
+				"return_url": "http://"+host+"/services/debt/pay/confirm",
+				"cancel_url": "http://"+host+"/services/debt/pay/cancel"
+			},
+			"transactions": [{
+				"amount": {
+		  			"total": (debt/100).toFixed(2),
+		  			"currency": "GBP"
 				},
-				"redirect_urls": {
-					"return_url": "http://"+host+"/services/debt/pay/confirm",
-					"cancel_url": "http://"+host+"/services/debt/pay/cancel"
-				},
-				"transactions": [{
-					"amount": {
-			  			"total": (debt.amount/100).toFixed(2),
-			  			"currency": "GBP"
-					},
-					"description": "Clear Debt to Grey JCR",
-					"item_list": {
-						"items": [
-							{
-								"quantity": "1",
-								"name": "Clear Debt",
-								"price": (debt.amount/100).toFixed(2),
-								"currency": "GBP"
-							}
-						]
-					}
-				}]
-			};
-			paypal.payment.create(payment, function (err, payment) {
-				if (err) return next(err);
-				req.session.paymentId = payment.id;
-			    for(var i=0; i < payment.links.length; i++) {
-					if (payment.links[i].method === 'REDIRECT') {
-						return res.redirect(303, payment.links[i].href);
-					}
+				"description": "Clear Debt to Grey JCR",
+				"item_list": {
+					"items": [
+						{
+							"quantity": "1",
+							"name": "Clear Debt",
+							"price": (debt/100).toFixed(2),
+							"currency": "GBP"
+						}
+					]
 				}
-			});
-		})
-		.catch(function (err) {
-			next(err);
-		})
+			}]
+		};
+		paypal.payment.create(payment, function (err, payment) {
+			if (err) return next(err);
+			req.session.paymentId = payment.id;
+		    for(var i=0; i < payment.links.length; i++) {
+				if (payment.links[i].method === 'REDIRECT') {
+					return res.redirect(303, payment.links[i].href);
+				}
+			}
+		});
+	})
+	.catch(function (err) {
+		next(err);
+	})
 })
 
 /* GET the confirmation page */
 router.get('/debt/pay/confirm', function (req, res, next) {
-	req.db.one('SELECT SUM(amount) AS amount FROM debts WHERE username=$1 LIMIT 1', [req.user.username])
-		.then(function(debt) {
-			res.render('services/debt_confirm', {"payerId": req.query.PayerID, debt: debt});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	req.user.getDebt().then(function(debt) {
+		res.render('services/debt_confirm', {"payerId": req.query.PayerID, debt_amount: debt});
+	})
+	.catch(function (err) {
+		next(err);
+	});
 });
 
 /* GET execute the payment */
@@ -319,13 +318,16 @@ router.get('/debt/pay/execute', function (req, res, next) {
 	    var amount = (-1)*Math.floor(parseFloat(payment.transactions[0].amount.total)*100);
 	   	var paymentid = payment.transactions[0].related_resources[0].sale.id;
 	   	delete req.session.paymentId;
-	    req.db.none('INSERT INTO debts (name, message, amount, username) VALUES ($1, $2, $3, $4)', ['PayPal Payment', 'Payment ID: '+paymentid, amount, req.user.username])
-	    	.then(function(){
-	    		res.redirect(303, '/services/debt');
-	    	})
-	    	.catch(function (err) {
-	    		next(err);
-	    	})
+		req.user.addDebt({
+			name: 'PayPal Payment',
+			message: 'Payment ID: '+paymentid,
+			amount: amount,
+			username: req.user.username
+		}).then(function(){
+	    	res.redirect(303, '/services/debt');
+	    }).catch(function (err) {
+	    	next(err);
+	    })
   	});
 });
 
@@ -337,7 +339,7 @@ router.get('/debt/pay/cancel', function (req, res, next) {
 
 /* GET the menus page */
 router.get('/menus', function (req, res, next){
-	start = new Date(2016, 4-1, 25);
+	start = new Date(2016, 10-1, 3);
 	now = new Date();
 	week = 7*24*60*60*1000;
 	currWeek = (req.query.week) ? parseInt(req.query.week) : Math.floor((now-start)/week) + 1;

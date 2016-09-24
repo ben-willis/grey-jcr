@@ -34,12 +34,11 @@ html
 					if (debts.length == 0)
 						p £0.00
 					else
-						p= "£"+(debts[0].total/100).toFixed(2)
-					if (debts.length != 0 && debts[0].total != 0)
+						p= "£"+(total_debt/100).toFixed(2)
+					if (debts.length != 0 && total_debt.total != 0)
 						h3(class="ui header") Clear Debt
 						a(class="ui twitter button" href="/services/debt/pay")
 							i(class="paypal icon")
 							| Pay with Paypal
 
 		include ../footer.jade
-						

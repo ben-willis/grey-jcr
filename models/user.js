@@ -23,7 +23,41 @@ User.prototype.changeName = function (new_name) {
 }
 
 User.prototype.delete = function(){
-    return db('users').del().where('username', this.username)
+    return db('users').del().where('username', this.username);
+}
+
+User.prototype.getDebt = function() {
+    return db('debts')
+        .sum('amount')
+        .where('username', this.username)
+        .first()
+        .then(function(data) {
+            return data['sum("amount")'];
+        });
+}
+
+User.prototype.getDebts = function() {
+    return db('debts')
+        .select(['amount', 'name', 'message'])
+        .where('username', this.username);
+}
+
+User.prototype.addDebt = function(data) {
+    return db('debts').insert({
+        username: this.username,
+        name: data.name,
+        message: data.message,
+        amount: data.amount
+    })
+}
+
+User.prototype.payDebt = function(data) {
+    return db('debts').insert({
+        username: this.username,
+        name: data.name,
+        message: data.message,
+        amount: -data.amount
+    })
 }
 
 
@@ -36,11 +70,11 @@ User.create = function(username) {
         return db('users').insert({
             username: username,
             email: data.email,
-            name: capitalize((data.firstnames.split(',')[0] +' '+ data.surname).toLowerCase())
+            name: capitalize.words((data.firstnames.split(',')[0] +' '+ data.surname).toLowerCase())
         }).returning(['username','email', 'name']);
 
     }).then(function(data) {
-        return new User(data)
+        return new User(data[0])
     });
 }
 
@@ -52,7 +86,7 @@ User.fetch_details = function(username) {
 
         request(options, function(err, response, body) {
             if (response.statusCode == 400) {
-                throw newError(400, "Username not found on University Database")
+                reject(newError(400, "Username not found on University Database"));
             } else {
                 resolve(JSON.parse(body));
             }
@@ -61,10 +95,25 @@ User.fetch_details = function(username) {
 }
 
 User.findByUsername = function (username) {
-    return db('users').first().where('username', username).then(function(data) {
-        if (!data) throw newError(400, "Username not found in local database");
-        return new User(data)
-    });
+    return db('users')
+        .first()
+        .where({'username': username})
+        .then(function(data) {
+            if (!data) throw newError(400, "Username not found in local database");
+            return new User(data)
+        });
+}
+
+User.search = function(query) {
+    return db('users')
+        .select(["name", "email", "username"])
+        .whereRaw("LOWER(name) LIKE '%' || LOWER(?) || '%' ", query)
+        .orWhereRaw("LOWER(username) LIKE '%' || LOWER(?) || '%' ", query)
+        .then(function(results) {
+            return results.map(function(data) {
+                return new User(data);
+            })
+        });
 }
 
 User.authorize = function(username, password) {
@@ -78,7 +127,7 @@ User.authorize = function(username, password) {
 
         request(options, function(err, response, body) {
             if (response.statusCode == 401) {
-                newError(401);
+                reject(newError(401));
             } else {
                 resolve();
             }
