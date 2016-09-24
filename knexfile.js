@@ -4,10 +4,10 @@ module.exports = {
 
   testing: {
     client: 'sqlite3',
-    debug: true,
     connection: {
-        filename: './tests/db.sqlite3'
-    }
+        filename: './test_db.sqlite3'
+    },
+    useNullAsDefault: true
   },
 
   development: {
