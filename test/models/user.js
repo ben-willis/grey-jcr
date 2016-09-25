@@ -201,4 +201,6 @@ describe('User Object', function() {
             done();
         })
     });
+
+    it("should find all blog posts by itself");
 })

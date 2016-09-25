@@ -161,5 +161,7 @@ describe('Position Object', function() {
         }).catch(function(err) {
             done(err);
         });
-    })
+    });
+
+    it("should find all blog posts from itself");
 })
