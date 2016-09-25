@@ -3,8 +3,8 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "test": "./node_modules/.bin/mocha --reporter spec --recursive"
+    "start": "NODE_ENV=development node ./bin/www",
+    "test": "NODE_ENV=testing ./node_modules/.bin/mocha --reporter spec --recursive"
   },
   "dependencies": {
     "async": "^1.5.2",
@@ -66,6 +66,7 @@
     "run-sequence": "^1.1.5",
     "semantic-ui": "^2.1.8",
     "serve-favicon": "~2.3.0",
+    "slug": "^0.9.1",
     "sqlite3": "^3.1.4",
     "treeize": "^2.0.2",
     "validator": "^5.1.0",

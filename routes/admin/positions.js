@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var validator = require('validator');
+var Position = require('../../models/position');
 
 router.use(function (req, res, next) {
 	if (req.user.level<5 ) {
@@ -14,27 +15,33 @@ router.use(function (req, res, next) {
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	req.db.many('SELECT positions.id, positions.title, positions.level, positions.description, users.username, users.name FROM positions FULL JOIN userPositions ON userPositions.position=positions.id LEFT JOIN users ON userPositions.username=users.username ORDER BY positions.id ASC')
-		.then(function (positions) {
-			var exec = [];
-			var officers = [];
-			var welfare = [];
-			var reps = [];
-			for (var i = 0; i < positions.length; i++) {
-				if (positions[i].level >= 4 && positions[i].id != 1) {
-					exec.push(positions[i]);
-				} else if (positions[i].level == 3 || positions[i].id == 1) {
-					officers.push(positions[i]);
-				} else if (positions[i].level == 2) {
-					welfare.push(positions[i]);
-				} else {
-					reps.push(positions[i]);
-				}
-			};
-			res.render('admin/positions', {exec: exec, officers: officers, welfare: welfare, reps: reps});
-		}).catch(function (err) {
-			next(err);
-		});
+	Position.getAll().then(function (positions) {
+		return Promise.all(positions.map(function(position){
+			return position.getUsers().then(function(users) {
+				position.users = users;
+				return position;
+			});
+		}));
+	}).then(function(positions){
+		var exec = [];
+		var officers = [];
+		var welfare = [];
+		var reps = [];
+		for (var i = 0; i < positions.length; i++) {
+			if (positions[i].level >= 4 && positions[i].id != 1) {
+				exec.push(positions[i]);
+			} else if (positions[i].level == 3 || positions[i].id == 1) {
+				officers.push(positions[i]);
+			} else if (positions[i].level == 2) {
+				welfare.push(positions[i]);
+			} else {
+				reps.push(positions[i]);
+			}
+		};
+		res.render('admin/positions', {exec: exec, officers: officers, welfare: welfare, reps: reps});
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 router.post('/new', function (req, res, next) {
@@ -42,63 +49,65 @@ router.post('/new', function (req, res, next) {
 		err = new Error("Bad Request");
 		return next(err);
 	}
-	req.db.one("INSERT INTO positions(title, level, slug) VALUES ($1, $2, $3) RETURNING id", [req.body.title, req.body.level, slugify(req.body.title)])
-		.then(function (result){
-		if (req.body.level == "4" || req.body.level == "5") {
-			return req.db.none("INSERT INTO file_directories(name, parent, owner) VALUES ($1, $2, $3)", [req.body.title, 0, result.id]);
+	Position.create(req.body.title, parseInt(req.body.level)).then(function (position) {
+		if (position.level == 4 || position.level == 5) {
+			return req.db.none("INSERT INTO file_directories(name, parent, owner) VALUES ($1, $2, $3)", [position.title, 0, position.id]);
 		}
-		return;
-	}).then(function () {
-		return res.redirect('/admin/positions');
+		res.redirect('/admin/positions');
 	}).catch(function (err) {
 		next(err);
 	})
 });
 
-router.post('/:positionid/addUser', function (req, res, next) {
-	req.db.none("INSERT INTO userPositions(username, position) VALUES ($1, $2)", [req.body.username, req.params.positionid])
-		.then(function () {
-			res.redirect('/admin/positions');
-		}).catch(function (err) {
-			return next(err);
-		});
+router.post('/:position_id/addUser', function (req, res, next) {
+	var position_id = parseInt(req.params.position_id);
+	var username = req.body.username;
+	Position.findById(position_id).then(function(position) {
+		return position.assignUser(username);
+	}).then(function () {
+		res.redirect('/admin/positions');
+	}).catch(function (err) {
+		return next(err);
+	});
 });
 
-router.get('/:positionid/removeUser/:username', function (req, res, next) {
-	req.db.none("DELETE FROM userPositions WHERE username=$1 AND position=$2", [req.params.username, req.params.positionid])
-		.then(function () {
-			res.redirect('/admin/positions');
-		}).catch( function (err) {
-			return next(err);
-		});
+router.get('/:position_id/removeUser/:username', function (req, res, next) {
+	var position_id = parseInt(req.params.position_id);
+	var username = req.params.username;
+	Position.findById(position_id).then(function(position) {
+		return position.removeUser(username);
+	}).then(function () {
+		res.redirect('/admin/positions');
+	}).catch(function (err) {
+		return next(err);
+	});
 });
 
 /* GET edit position page. */
-router.get('/:positionid/edit', function (req, res, next) {
-	req.db.one('SELECT positions.id, positions.title, positions.description FROM positions WHERE positions.id=$1', req.params.positionid)
-		.then(function (position) {
+router.get('/:position_id/edit', function (req, res, next) {
+	Position.findById(parseInt(req.params.position_id)).then(function (position) {
 			res.render('admin/positions_edit', {position: position});
 		}).catch(function (err) {
 			next(err);
 		});
 });
 
-router.post('/:positionid/edit', function (req, res, next) {
-	req.db.none("UPDATE positions SET title=$1, description=$2, slug=$3 WHERE id=$4", [req.body.title, req.body.description, slugify(req.body.title), req.params.positionid])
-		.then(function () {
+router.post('/:position_id/edit', function (req, res, next) {
+	Position.findById(parseInt(req.params.position_id)).then(function (position) {
+			return position.setDescription(req.body.description);
+		}).then(function () {
 			res.redirect('/admin/positions');
-		})
-		.catch(function (err) {
+		}).catch(function (err) {
 			next(err);
 		})
 });
 
-router.get('/:positionid/delete', function (req, res, next) {
-	req.db.none("DELETE FROM userPositions WHERE position=$1; DELETE FROM positions WHERE id=$1;", req.params.positionid)
-		.then(function () {
+router.get('/:position_id/delete', function (req, res, next) {
+	Position.findById(parseInt(req.params.position_id)).then(function (position) {
+			return position.delete();
+		}).then(function () {
 			res.redirect('/admin/positions');
-		})
-		.catch(function (err) {
+		}).catch(function (err) {
 			next(err);
 		})
 });

@@ -1,7 +1,7 @@
 var db = require('../helpers/db');
 var request = require('request');
 var capitalize = require('capitalize');
-var newError = require('http-errors');
+var httpError = require('http-errors');
 
 /* User Object */
 
@@ -10,8 +10,6 @@ var User = function (data) {
     this.username = data.username;
     this.name = data.name;
 }
-
-User.prototype.data = {}
 
 User.prototype.changeName = function (new_name) {
     self = this;
@@ -32,6 +30,7 @@ User.prototype.getDebt = function() {
         .where('username', this.username)
         .first()
         .then(function(data) {
+            if(!data['sum("amount")']) return 0;
             return data['sum("amount")'];
         });
 }
@@ -60,12 +59,38 @@ User.prototype.payDebt = function(data) {
     })
 }
 
+User.prototype.deleteDebtById = function(debt_id) {
+    return db('debts').where({
+        id: debt_id
+    }).del();
+}
+
+User.prototype.assignPosition = function(position_id) {
+    return db('user_positions').insert({
+        username: this.username,
+        position_id: position_id
+    });
+}
+
+User.prototype.getPositions = function() {
+    return db('user_positions')
+        .where({'username': this.username})
+        .join('positions', 'user_positions.position_id', '=', 'positions.id')
+        .select('positions.id', 'positions.title', 'positions.slug', 'positions.level');
+}
+
+User.prototype.removePosition = function(position_id) {
+    return db('user_positions').where({
+        username: this.username,
+        position_id: position_id
+    }).del();
+}
 
 /* Static Methods */
 
 User.create = function(username) {
     return this.fetch_details(username).then(function(data) {
-        if (data.college != "Grey College") throw newError(400, "You must be a member of Grey College");
+        if (data.college != "Grey College") throw httpError(400, "You must be a member of Grey College");
 
         return db('users').insert({
             username: username,
@@ -86,7 +111,7 @@ User.fetch_details = function(username) {
 
         request(options, function(err, response, body) {
             if (response.statusCode == 400) {
-                reject(newError(400, "Username not found on University Database"));
+                reject(httpError(400, "Username not found on University Database"));
             } else {
                 resolve(JSON.parse(body));
             }
@@ -99,7 +124,7 @@ User.findByUsername = function (username) {
         .first()
         .where({'username': username})
         .then(function(data) {
-            if (!data) throw newError(400, "Username not found in local database");
+            if (!data) throw httpError(400, "Username not found in local database");
             return new User(data)
         });
 }
@@ -127,17 +152,13 @@ User.authorize = function(username, password) {
 
         request(options, function(err, response, body) {
             if (response.statusCode == 401) {
-                reject(newError(401));
+                reject(httpError(401));
             } else {
                 resolve();
             }
         });
     });
 
-}
-
-String.prototype.capitalizeFirstLetter = function() {
-    return this.charAt(0).toUpperCase() + this.toLowerCase().slice(1);
 }
 
 module.exports = User;

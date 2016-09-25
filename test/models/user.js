@@ -55,6 +55,8 @@ describe("Static User Methods", function() {
 
 describe('User Object', function() {
     var current_user = null;
+    var fake_debt_id = null;
+    var fake_position_id = null;
 
     beforeEach(function(done) {
         db('users').insert({
@@ -69,16 +71,30 @@ describe('User Object', function() {
                 name: "Test Debt",
                 amount: 10,
                 username: "abcd12"
-            })
-        }).then(function(){
+            }).returning("id")
+        }).then(function(debt_id){
+            fake_debt_id = debt_id[0];
+            return db('positions').insert({
+                title: "Fake Position",
+                slug: "Fake-Position",
+                level: 5
+            }).returning("id")
+        }).then(function(position_id){
+            fake_position_id = position_id[0];
             done();
         })
     });
 
     afterEach(function(done) {
         current_user = null;
+        fake_debt_id = null;
+        fake_position_id = null;
         db('users').del().then(function() {
             return db('debts').del();
+        }).then(function() {
+            return db('positions').del();
+        }).then(function() {
+            return db('user_positions').del();
         }).then(function() {
             done();
         });
@@ -111,7 +127,20 @@ describe('User Object', function() {
     });
 
     it("should pay its debt", function(done) {
-        current_user.payDebt(10).then(function() {
+        current_user.payDebt({
+            username: this.username,
+            name: "Test Payment",
+            amount: 10
+        }).then(function() {
+            return current_user.getDebt();
+        }).then(function(amount) {
+            expect(amount).to.equal(0);
+            done();
+        })
+    });
+
+    it("should delete a debt", function(done) {
+        current_user.deleteDebtById(fake_debt_id).then(function() {
             return current_user.getDebt();
         }).then(function(amount) {
             expect(amount).to.equal(0);
@@ -120,10 +149,55 @@ describe('User Object', function() {
     });
 
     it("should add to its debt", function(done) {
-        current_user.addDebt(10).then(function() {
+        current_user.addDebt({
+            username: this.username,
+            name: "Test Debt 2",
+            amount: 10
+        }).then(function() {
             return current_user.getDebt();
         }).then(function(amount) {
             expect(amount).to.equal(20);
+            done();
+        })
+    });
+
+    it("should assign itself to a position", function(done) {
+        current_user.assignPosition(fake_position_id).then(function() {
+            return db('user_positions').select({
+                username: current_user.username,
+                position_id: fake_position_id
+            })
+        }).then(function(data){
+            expect(data).to.have.length(1);
+            done();
+        })
+    });
+
+    it("should get all its positions", function(done) {
+        db('user_positions').insert({
+            username: current_user.username,
+            position_id: fake_position_id
+        }).then(function(){
+            return current_user.getPositions();
+        }).then(function(positions) {
+            expect(positions).to.have.length(1);
+            done();
+        })
+    });
+
+    it("should remove itself from a position", function(done) {
+        db('user_positions').insert({
+            username: current_user.username,
+            position_id: fake_position_id
+        }).then(function(){
+            return current_user.removePosition(fake_position_id)
+        }).then(function() {
+            return db('user_positions').select().where({
+                username: current_user.username,
+                position_id: fake_position_id
+            })
+        }).then(function(data){
+            expect(data).to.have.length(0);
             done();
         })
     });

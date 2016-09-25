@@ -98,7 +98,6 @@ passport.use(new LocalStrategy( function (username, password, done) {
                 return User.create(username);
             })
             .then(function(user) {
-                console.log(user);
                 done(null, user)
             })
             .catch(function(err) {
