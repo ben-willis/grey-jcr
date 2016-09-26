@@ -36,6 +36,7 @@ var db = pgp({
 });
 
 var User = require('./models/user');
+var Folder = require('./models/folder')
 
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -66,7 +67,16 @@ passport.deserializeUser(function (username, done) {
     User.findByUsername(username).then(function(user){
         current_user = user;
         return current_user.getPositions();
-    }).then(function (positions) {
+    }).then(function(positions) {
+        return Promise.all(
+            positions.map(function(position) {
+                return Folder.findForPosition(position.id).then(function(folder) {
+                    position.folder = folder;
+                    return position;
+                });
+            })
+        )
+    }).then(function(positions) {
         current_user.level = 0;
         for (var i = 0; i < positions.length; i++) {
             if (positions[i].level > current_user.level) {
@@ -88,17 +98,13 @@ passport.use(new LocalStrategy( function (username, password, done) {
     // authorize user
     User.authorize(username, password)
         .then(function() {
-            User.findByUsername(username)
-            .then(function(user) {
+            User.findByUsername(username).then(function(user) {
                 done(null, user)
-            })
-            .catch(function(err) {
+            }).catch(function(err) {
                 return User.create(username);
-            })
-            .then(function(user) {
+            }).then(function(user) {
                 done(null, user)
-            })
-            .catch(function(err) {
+            }).catch(function(err) {
                 done(err);
             });
         })

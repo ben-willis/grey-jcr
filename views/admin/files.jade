@@ -15,8 +15,8 @@ html
 						h3 Your Files
 						select(class="ui position dropdown")
 							each position in user.positions
-								if (position.dirid)
-									option(value=position.dirid class="item")= position.title
+								if (position.folder.id)
+									option(value=position.folder.id class="item")= position.title
 						script.
 							$('.ui.position.dropdown').dropdown();
 						div(class="ui vertical segment")
@@ -30,7 +30,7 @@ html
 
 						script.
 							var parent = 0;
-							var current = !{user.positions[0].dirid};
+							var current = !{user.positions[0].folder.id};
 							function getFiles(dirid) {
 								parent = current;
 								$('.files.table').addClass("loading");
@@ -52,7 +52,7 @@ html
 										directory += "</td>";
 										directory += "<td></td>";
 										directory += "<td>";
-										directory += "<a href='/admin/files/deletefolder/"+data.directories[i].id+"' class='ui negative small button'><i class='delete icon'></i>Delete</a>";
+										directory += "<a href='/admin/files/"+current.id+"/deletefolder/"+data.directories[i].id+"' class='ui negative small button' onclick=\"return confirm('Are you sure you want to delete this folder?');\"><i class='delete icon'></i>Delete</a>";
 										directory += "</td>"
 										directory += "</tr>";
 										$('.files.table tbody').append(directory);
@@ -68,7 +68,7 @@ html
 										file += (new Date(data.files[i].timestamp)).toDateString();
 										file += "</td>";
 										file += "<td>";
-										file += "<a href='/admin/files/deletefile/"+data.files[i].id+"' class='ui negative small button'><i class='delete icon'></i>Delete</a>";
+										file += "<a href='/admin/files/"+current.id+"/deletefile/"+data.files[i].id+"' class='ui negative small button' onclick=\"return confirm('Are you sure you want to delete this file?');\"><i class='delete icon'></i>Delete</a>";
 										file += "</td>"
 										file += "</tr>";
 										$('.files.table tbody').append(file);
@@ -92,7 +92,7 @@ html
 							div(class="field")
 								label Folder Name
 								input(type="text" name="name")
-							input(type="text" name="directory" class="curdir" hidden)
+							input(type="text" name="folder" class="curdir" hidden)
 							button(type="submit" class="ui submit button")
 								i(class="folder open icon")
 								| Create
@@ -109,7 +109,7 @@ html
 							div(class="field")
 								label File Description
 								textarea(rows="1" name="description")
-							input(type="text" name="directory" class="curdir" hidden)
+							input(type="text" name="folder" class="curdir" hidden)
 							div(Class="field")
 								label File to Upload
 								input(type="file" name="file")

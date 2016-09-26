@@ -5,6 +5,7 @@ var prettydate = require('pretty-date');
 var treeize   = require('treeize');
 
 var User = require('../models/user');
+var Folder = require('../models/folder')
 
 router.get('/search/', function (req, res, next) {
 	var query = '%'+req.query.q+'%';
@@ -128,15 +129,6 @@ router.get('/users', function (req, res, next) {
 		});
 });
 
-router.get('/users/:username', function (req, res, next) {
-	req.db.one("SELECT * FROM users WHERE username='"+req.params.username+"'")
-		.then(function (user) {
-			return res.json(user);
-		}).catch(function (err) {
-			return res.json(err);
-		});
-});
-
 router.get('/users/:username/avatar', function (req, res, next) {
 	fs.access(__dirname+'/../public/images/avatars/'+req.params.username+'.png', function (err) {
 		if (!err) {
@@ -152,26 +144,19 @@ router.get('/users/:username/avatar', function (req, res, next) {
 
 });
 
-router.get('/files/:directoryid', function (req, res, next) {
-	var current
-	var files;
-	var directories;
-	req.db.one("SELECT name, id, parent FROM file_directories WHERE id=$1", [req.params.directoryid])
-		.then(function (data){
-			current = data;
-			return req.db.manyOrNone("SELECT id, timestamp, name, path, description FROM files WHERE directoryid=$1", [req.params.directoryid])
-		})
-		.then(function (data) {
-			files = data;
-			return req.db.manyOrNone("SELECT name, id FROM file_directories WHERE parent=$1", [req.params.directoryid]);
-		})
-		.then(function (data) {
-			directories = data;
-			res.json({"current": current,"directories": directories, "files": files});
-		})
-		.catch(function (err) {
-			res.json(err);
-		});
+router.get('/files/:folder_id', function (req, res, next) {
+	var current_folder = null;
+	Folder.findById(parseInt(req.params.folder_id)).then(function(folder) {
+		current_folder = folder;
+		return Promise.all([
+			current_folder.getSubfolders(),
+			current_folder.getFiles()
+		])
+	}).then(function (data) {
+		res.json({"current": current_folder, "directories": data[0], "files": data[1]});
+	}).catch(function (err) {
+		res.json(err);
+	});
 });
 
 var feedback = require('./api/feedback')

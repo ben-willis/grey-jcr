@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var validator = require('validator');
 var Position = require('../../models/position');
+var Folder = require('../../models/folder');
 
 router.use(function (req, res, next) {
 	if (req.user.level<5 ) {
@@ -51,8 +52,10 @@ router.post('/new', function (req, res, next) {
 	}
 	Position.create(req.body.title, parseInt(req.body.level)).then(function (position) {
 		if (position.level == 4 || position.level == 5) {
-			return req.db.none("INSERT INTO file_directories(name, parent, owner) VALUES ($1, $2, $3)", [position.title, 0, position.id]);
+			return Folder.create(position.title, position.id);
 		}
+		return;
+	}).then(function(){
 		res.redirect('/admin/positions');
 	}).catch(function (err) {
 		next(err);
