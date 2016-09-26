@@ -16,21 +16,20 @@ html
 					div(class="ten wide column")
 						h2(class="ui header") Latest News
 						div(class="ui divided items")
-							each post in blog
+							each blog in blogs
 								div(class="item")
 									div(class="content")
-										- post.timestamp = new Date(post.timestamp);
-										a(class="header" href="/jcr/blog/"+post.position_slug+"/"+post.timestamp.getFullYear()+"/"+(post.timestamp.getMonth()+1)+"/"+post.slug)= post.title
+										a(class="header" href="/jcr/blog/"+blog.position.slug+"/"+blog.permalink)= blog.title
 										div(class="meta")
 											span(class="author")
 												i(class="ui user icon")
-												= post.name + " ("+post.position_title+")"
+												= blog.author.name + " ("+blog.position.title+")"
 											span(class="timestamp")
 												i(class="ui clock icon")
-												= prettydate.format(post.timestamp)
-										div(class="article description")!= post.message
+												= prettydate.format(blog.updated)
+										div(class="article description")!= blog.message
 										div(class="extra")
-											a(class="right floated" href="/jcr/blog/"+post.position_slug+"/"+post.timestamp.getFullYear()+"/"+(post.timestamp.getMonth()+1)+"/"+post.slug) Read More
+											a(class="right floated" href="/jcr/blog/"+blog.position.slug+"/"+blog.permalink) Read More
 						a(class="ui right floated button" href="/jcr/blog/") More News
 					div(class="six wide column")
 						h2(class="ui header") Upcoming Events
@@ -44,4 +43,3 @@ html
 										div(class="header")= event.name
 										div(class="meta")= event.timestamp.toDateString()
 		include ./footer.jade
-

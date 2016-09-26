@@ -45,8 +45,29 @@ describe('Static Methods', function() {
         })
     });
 
+    it("should find positions by slug", function(done) {
+        Position.findBySlug("test-position").then(function(position) {
+            expect(position.title).to.equal("Test Position");
+            done();
+        }).catch(function(err){
+            done(err);
+        })
+    });
+
     it("should get all positions", function(done) {
         Position.getAll().then(function(positions) {
+            expect(positions).to.have.length(1);
+            done();
+        }).catch(function(err){
+            done(err);
+        })
+    });
+
+    it("should get a user by level", function(done) {
+        Position.getByLevel("=", 5).then(function(positions) {
+            expect(positions).to.have.length(1);
+            return Position.getByLevel(">", 3);
+        }).then(function(positions) {
             expect(positions).to.have.length(1);
             done();
         }).catch(function(err){
@@ -163,5 +184,12 @@ describe('Position Object', function() {
         });
     });
 
-    it("should find all blog posts from itself");
+    it("should find all blog posts from itself", function(done) {
+        current_position.getBlogs().then(function(blogs) {
+            expect(blogs).to.have.length(0);
+            done();
+        }).catch(function(err) {
+            done(err);
+        });
+    });
 })

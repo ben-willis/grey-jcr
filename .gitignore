@@ -44,3 +44,6 @@ public/files
 public/images/avatars
 public/images/events
 tmp
+
+#testing database
+*.sqlite3

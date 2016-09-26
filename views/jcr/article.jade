@@ -1,4 +1,4 @@
-- var title = 'Blog - ' + post.title
+- var title = 'Blog - ' + blog.title
 
 doctype html
 html
@@ -11,14 +11,13 @@ html
 			div(class="ui vertical segment items")
 				div(class="item")
 					div(class="content")
-						- post.timestamp = new Date(post.timestamp);
-						div(class="header")= post.title
+						div(class="header")= blog.title
 						div(class="meta")
 							span(class="author")
 								i(class="ui user icon")
-								= post.name + " ("+post.position_title+")"
+								= blog.author.name + " ("+blog.position.title+")"
 							span(class="timestamp")
 								i(class="ui clock icon")
-								= prettydate.format(post.timestamp)
-						div(class="article description")!= post.message
+								= prettydate.format(blog.updated)
+						div(class="article description")!= blog.message
 		include ../footer.jade

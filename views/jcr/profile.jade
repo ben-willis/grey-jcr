@@ -52,56 +52,17 @@ html
 				div(class="eleven wide column" id="blog")
 					h3(class="ui header") Recent Posts
 					div(class="ui divided items")
-						blog-post(class="item" v-for="post in posts", :title="post.title", :slug="post.slug", :content="post.message", :timestamp="post.timestamp", :author="post.author")
-					div(class="ui pagination menu")
-						a(class="item" v-for="n in pages" v-bind:class="{'active': (n+1 == page)}" v-on:click.stop="setPage(n+1)") {{ n+1 }}
-
-		script.
-			Vue.component('blog-post', {
-				props: ['title', 'slug', 'content', 'timestamp', 'author'],
-				computed: {
-					permalink: function() {
-						return "/jcr/blog/"+this.author.slug+"/"+this.timestamp.getFullYear()+"/"+(this.timestamp.getMonth()+1)+"/"+this.slug
-					}
-				},
-				template: '<div class="item"><div class="content"><a class="header" v-bind:href="permalink">{{ title }}</a><div class="meta"><span class="author"><i class="ui user icon"></i>{{ author.name }} ({{ author.title }})</span><span class="timestamp"><i class="ui clock icon"></i>{{ timestamp }}</span></div><div class="article description">{{{ content }}}</div></div></div>'
-			});
-
-			var blog = new Vue({
-				el: "#blog",
-				data: {
-					positionSlug: '!{position.slug}',
-					total: 0,
-					posts: [],
-					limit: 8,
-					page: 1
-				},
-				computed:{
-					pages: function() {return Math.ceil(this.total/this.limit)}
-				},
-				methods: {
-					fetchPosts: function() {
-						var self = this;
-						$("#calendar").addClass('loading');
-						$.get('/api/blog/'+self.positionSlug+'?page='+self.page+'&length='+self.limit, function(response) {
-							self.total = response.total;
-							for (i = 0; i < response.data.length; i++ ){
-								response.data[i].timestamp = new Date(response.data[i].timestamp);
-							}
-							self.posts = response.data;
-						}, 'json');
-					},
-					setPage: function (page) {
-						this.page = page;
-					}
-				},
-				created: function() {
-					this.fetchPosts();
-				},
-				watch: {
-					'page': 'fetchPosts',
-					'limit': 'fetchPosts'
-				}
-			});
+						each blog in blogs
+							div(class="item")
+								div(class="content")
+									a(class="header" href=blog.permalink)= blog.title
+									div(class="meta")
+										span(class="author")
+											i(class="ui user icon")
+											| #{blog.author.name} (#{position.title})
+										span(class="timestamp")
+											i(class="ui clock icon")
+											| #{blog.updated}
+									div(class="article description")!= blog.message
 
 		include ../footer.jade

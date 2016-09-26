@@ -86,6 +86,10 @@ User.prototype.removePosition = function(position_id) {
     }).del();
 }
 
+User.prototype.getBlogs = function() {
+    return db('blogs').select().where({author: this.username})
+}
+
 /* Static Methods */
 
 User.create = function(username) {

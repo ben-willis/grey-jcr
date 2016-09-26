@@ -1,70 +1,73 @@
 var express = require('express');
 var router = express.Router();
 var validator = require('validator');
+var Blog = require('../../models/blog');
+var Position = require('../../models/position');
 
 /* GET blog page. */
 router.get('/', function (req, res, next) {
-	req.db.manyOrNone('SELECT blog.id, blog.title, blog.message, blog.timestamp, positions.title AS position FROM blog LEFT JOIN positions ON positions.id=blog.positionid WHERE blog.author=$1 ORDER BY timestamp DESC', req.user.username)
-		.then(function (posts) {
-			res.render('admin/blog', {posts: posts});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	req.user.getBlogs().then(function(blog_datas) {
+		return Promise.all( blog_datas.map(function(data){
+				return Position.findById(data.position_id).then(function(position_data){
+					blog = new Blog(data);
+					blog.position = new Position(position_data);
+					return blog;
+				})
+			})
+		)
+	}).then(function (blogs) {
+		return res.render('admin/blog', {blogs: blogs});
+	}).catch(function (err) {
+		return next(err);
+	});
 });
 
 /* POST a new blog */
 router.post('/new', function (req, res, next) {
-	req.db.none('INSERT INTO blog(title, author, positionid, message, slug) VALUES ($1, $2, $3, $4, $5)',[req.body.title, req.user.username, req.body.position, req.body.message, slugify(req.body.title)])
-		.then(function (){
-			res.redirect('/admin/blog')
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	Blog.create({
+		title: req.body.title,
+		message: req.body.message,
+		author: req.user.username,
+		position_id: parseInt(req.body.position)
+	}).then(function (){
+		return res.redirect('/admin/blog')
+	}).catch(function (err) {
+		return next(err);
+	});
 });
 
 /* GET edit blog page. */
-router.get('/:postid/edit', function (req, res, next) {
-	req.db.one('SELECT blog.id, blog.title, blog.message FROM blog WHERE blog.id=$1', req.params.postid)
-		.then(function (post) {
-			res.render('admin/blog_edit', {post: post});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+router.get('/:blog_id/edit', function (req, res, next) {
+	Blog.findById(parseInt(req.params.blog_id)).then(function (blog) {
+		return res.render('admin/blog_edit', {blog: blog});
+	}).catch(function (err) {
+		return next(err);
+	});
 });
 
 /* POST and update to a blog */
-router.post('/:postid/edit', function (req, res, next) {
-	req.db.none('UPDATE blog SET title=$1, message=$2 WHERE id=$3', [req.body.title, req.body.message, req.params.postid])
-		.then(function () {
-			res.redirect('/admin/blog')
+router.post('/:blog_id/edit', function (req, res, next) {
+	Blog.findById(parseInt(req.params.blog_id)).then(function (blog) {
+		return blog.update({
+			title: req.body.title,
+			message: req.body.message
 		})
-		.catch(function (err) {
-			next(err);
-		});
+	}).then(function () {
+		return res.redirect('/admin/blog')
+	}).catch(function (err) {
+		return next(err);
+	});
 });
 
 /* GET a delete blog post */
-router.get('/:postid/delete', function (req, res, next) {
-	req.db.none("DELETE FROM blog WHERE id=$1", req.params.postid)
-		.then(function () {
-			res.redirect('/admin/blog');
-		})
-		.catch(function (err) {
-			next(err);
-		})
+router.get('/:blog_id/delete', function (req, res, next) {
+	Blog.findById(parseInt(req.params.blog_id)).then(function (blog) {
+		return blog.delete()
+	}).then(function () {
+		return res.redirect('/admin/blog')
+	}).catch(function (err) {
+		return next(err);
+	});
 })
-
-function slugify(text)
-{
-  return text.toString().toLowerCase()
-    .replace(/\s+/g, '-')           // Replace spaces with -
-    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-    .replace(/^-+/, '')             // Trim - from start of text
-    .replace(/-+$/, '');            // Trim - from end of text
-}
 
 module.exports = router;

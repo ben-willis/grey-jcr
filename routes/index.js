@@ -1,6 +1,10 @@
 var express = require('express');
 var router = express.Router();
 
+var User = require('../models/user');
+var Position = require('../models/position');
+var Blog = require('../models/blog');
+
 var auth = require('./auth');
 var jcr = require('./jcr');
 var services = require('./services');
@@ -15,17 +19,26 @@ var api = require('./api');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	var blog;
-	req.db.manyOrNone("SELECT blog.title, blog.message, blog.timestamp, blog.slug, users.name, users.username, positions.title AS position_title, positions.slug AS position_slug FROM blog LEFT JOIN users ON blog.author=users.username LEFT JOIN positions ON blog.positionid=positions.id ORDER BY timestamp DESC LIMIT 7")
-		.then(function (posts) {
-			blog = posts;
-			return req.db.manyOrNone("SELECT events.name, events.timestamp, events.slug, events.image FROM events WHERE timestamp>NOW() ORDER BY timestamp ASC LIMIT 6");
-		}).then(function (events){
-			res.render('home', {blog: blog, events: events});
-		})
-		.catch(function (err) {
-			next(err);
-		})
+	Promise.all([
+		Blog.getAll().then(function(blogs) {
+			return Promise.all(
+				blogs.map(function(blog) {
+					return blog.getAuthor().then(function(author) {
+						blog.author = author;
+						return blog.getPosition();
+					}).then(function(position) {
+						blog.position = position;
+						return blog;
+					})
+				})
+			)
+		}),
+		req.db.manyOrNone("SELECT events.name, events.timestamp, events.slug, events.image FROM events WHERE timestamp>NOW() ORDER BY timestamp ASC LIMIT 6")
+	]).then(function (data){
+		res.render('home', {blogs: data[0], events: data[1]});
+	}).catch(function (err) {
+		next(err);
+	})
 });
 
 router.use('/', auth);

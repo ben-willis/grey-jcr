@@ -2,6 +2,7 @@ var db = require('../helpers/db');
 var httpError = require('http-errors');
 var slug = require('slug');
 
+
 /* Position Object */
 var Position = function (data) {
     this.id = data.id;
@@ -43,6 +44,11 @@ Position.prototype.getUsers = function() {
         .select('users.name', 'users.email', 'users.username');
 }
 
+Position.prototype.getBlogs = function() {
+    return db('blogs')
+        .where({'position_id': this.id});
+}
+
 /* Static Methods */
 
 Position.create = function (title, level) {
@@ -76,6 +82,27 @@ Position.findById = function (id) {
             if (!data) throw httpError(404, "Position not found");
             return new Position(data)
         });
+}
+
+Position.findBySlug = function (slug) {
+    return db('positions')
+        .where({'slug': slug})
+        .first()
+        .then(function(data) {
+            if (!data) throw httpError(404, "Position not found");
+            return new Position(data)
+        });
+}
+
+Position.getByLevel = function (sign, level) {
+    return db('positions')
+        .select()
+        .where("level", sign, level)
+        .then(function(positions) {
+            return positions.map(function(data) {
+                return new Position(data);
+            })
+        })
 }
 
 module.exports = Position;

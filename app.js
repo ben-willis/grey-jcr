@@ -62,23 +62,21 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (username, done) {
-  var current_user = null;
-  User.findByUsername(username).then(function(user){
-      current_user = user;
-      return db.manyOrNone('SELECT file_directories.id AS dirid, positions.title, positions.level, positions.id FROM (positions LEFT JOIN file_directories ON file_directories.owner=positions.id) RIGHT JOIN userPositions ON positions.id = userPositions.position WHERE userPositions.username=$1 AND (file_directories.parent=0 OR file_directories IS NULL)', username);
-    })
-    .then(function (positions) {
-      current_user.level = 0;
-      for (var i = 0; i < positions.length; i++) {
-        if (positions[i].level > current_user.level) {
-          current_user.level = positions[i].level;
-        }
-      };
-      current_user.positions = positions;
-      done(null, current_user);
-    })
-    .catch(function (err) {
-      return done(err);
+    var current_user = null;
+    User.findByUsername(username).then(function(user){
+        current_user = user;
+        return current_user.getPositions();
+    }).then(function (positions) {
+        current_user.level = 0;
+        for (var i = 0; i < positions.length; i++) {
+            if (positions[i].level > current_user.level) {
+                current_user.level = positions[i].level;
+            }
+        };
+        current_user.positions = positions;
+        done(null, current_user);
+    }).catch(function (err) {
+        return done(err);
     });
 });
 
