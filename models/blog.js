@@ -61,17 +61,17 @@ Blog.create = function(data) {
 
 Blog.findById = function(id) {
     return db('blogs').first().where({id: id}).then(function(data) {
+        console.log(data);
         if (!data) throw httpError(404, "Blog not found");
         return new Blog(data)
     })
 }
 
 Blog.findBySlugAndDate = function(slug, date) {
-    nextDate = new Date(date.getTime() + 86400000);
     return db('blogs').first().whereBetween('updated', [
-        date.getFullYear() + '-' + ("0"+(date.getMonth()+1)).slice(-2) + '-' + date.getDate(),
-        nextDate.getFullYear() + '-' + ("0"+(nextDate.getMonth()+1)).slice(-2) + '-' + nextDate.getDate()
-    ]).then(function(data) {
+        date,
+        new Date(date.getTime() + 24*60*60*1000)
+    ]).andWhere({slug: slug}).then(function(data) {
         if (!data) throw httpError(404, "Blog not found");
         return new Blog(data)
     });

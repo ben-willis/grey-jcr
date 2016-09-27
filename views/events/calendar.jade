@@ -48,18 +48,18 @@ html
 						var day = this.day;
 						return events = (this.$root.allEvents).filter(
 							function (item) {
-								return (item.timestamp.getDate() == day);
+								return (item.time.getDate() == day);
 							}
 						);
 					}
 				},
-				template: '<div class="cell"><div class="ui sub header" v-if="currentMonth">{{ day }}</div><event v-for="event in events" :event-name="event.name" :timestamp="event.timestamp" :slug="event.slug"></event></div>',
+				template: '<div class="cell"><div class="ui sub header" v-if="currentMonth">{{ day }}</div><event v-for="event in events" :event-name="event.name" :time="event.time" :slug="event.slug"></event></div>',
 				components: {
 					'event': {
-						props: ['eventName', 'timestamp', 'slug'],
+						props: ['eventName', 'time', 'slug'],
 						computed: {
 							permalink: function () {
-								return '/events/'+this.timestamp.getFullYear()+'/'+(this.timestamp.getMonth()+1)+'/'+this.timestamp.getDate()+'/'+this.slug
+								return '/events/'+this.time.getFullYear()+'/'+(this.time.getMonth()+1)+'/'+this.time.getDate()+'/'+this.slug
 							}
 						},
 						template: '<a class="ui label" :href="permalink">{{ eventName }}</a>'
@@ -97,7 +97,7 @@ html
 								self.allEvents = [];
 							} else {
 								for (var i = 0; i < events.length; i++ ){
-									events[i].timestamp = new Date(events[i].timestamp)
+									events[i].time = new Date(events[i].time)
 								}
 								self.allEvents = events;
 								$("#calendar").removeClass('loading');

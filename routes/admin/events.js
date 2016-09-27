@@ -7,40 +7,41 @@ var mv = require('mv');
 var mime = require('mime');
 var csv = require('csv');
 var treeize   = require('treeize');
+var slug = require('slug');
+
+var Event = require('../../models/event');
 
 /* GET events page. */
 router.get('/', function (req, res, next) {
-	req.db.manyOrNone('SELECT events.id, events.name, events.description, events.timestamp FROM events ORDER BY timestamp ASC')
-		.then(function (events) {
-			res.render('admin/events', {events: events});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	Promise.all([
+		Event.getFutureEvents(),
+		Event.getPastEvents()
+	]).then(function (data) {
+		res.render('admin/events', {future_events: data[0], past_events: data[1]});
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* POST a new events */
 router.post('/new', function (req, res, next) {
-	console.log(req.body);
 	var date = (req.body.date).split('-');
 	var time = (req.body.time).split(':');
-	var timestamp = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
-	req.db.one('INSERT INTO events(name, description, timestamp, slug) VALUES ($1, $2, $3, $4) RETURNING id',[req.body.name, req.body.description, timestamp.toLocaleString(), slugify(req.body.name)])
-		.then(function (event){
-			res.redirect('/admin/events/'+event.id+'/edit')
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	var time = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
+	Event.create(req.body.name, req.body.description, time, null).then(function (event){
+		res.redirect('/admin/events/'+event.id+'/edit')
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* GET edit events page. */
-router.get('/:eventid/edit', function (req, res, next) {
+router.get('/:event_id/edit', function (req, res, next) {
 	var tickets;
-	req.db.manyOrNone('SELECT id, name, (SELECT COUNT(*)>0 FROM events_tickets WHERE ticketid=tickets.id AND eventid=$1) AS selected FROM tickets ORDER BY name DESC', [req.params.eventid])
+	req.db.manyOrNone('SELECT id, name, (SELECT COUNT(*)>0 FROM events_tickets WHERE ticketid=tickets.id AND eventid=$1) AS selected FROM tickets ORDER BY name DESC', [req.params.event_id])
 		.then(function (data) {
 			tickets = data;
-			return req.db.one('SELECT events.id, events.name, events.timestamp, events.description FROM events WHERE events.id=$1', req.params.eventid)
+			return Event.findById(parseInt(req.params.event_id))
 		})
 		.then(function (event) {
 			res.render('admin/events_edit', {event: event, tickets: tickets});
@@ -50,11 +51,11 @@ router.get('/:eventid/edit', function (req, res, next) {
 		});
 });
 
-/* POST and update to a events */
+/* POST an update to an event */
 router.post('/:eventid/edit', upload.single('image'), function (req, res, next) {
 	var date = (req.body.date).split('-');
 	var time = (req.body.time).split(':');
-	var timestamp = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
+	var time = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 
 	var values = [req.params.eventid];
 	var query = "DELETE FROM events_tickets WHERE eventid=$1; "
@@ -76,10 +77,10 @@ router.post('/:eventid/edit', upload.single('image'), function (req, res, next) 
 				var image_name = makeid(5)+'.'+mime.extension(req.file.mimetype);
 				mv(req.file.path, __dirname+'/../../public/images/events/'+image_name, function (err) {
 					if (err) throw err;
-					return req.db.none('UPDATE events SET name=$1, slug=$2, description=$3, timestamp=$4, image=$5 WHERE id=$6', [req.body.name, slugify(req.body.name), req.body.description, timestamp.toLocaleString(), image_name, req.params.eventid]);
+					return req.db.none('UPDATE events SET name=$1, slug=$2, description=$3, timestamp=$4, image=$5 WHERE id=$6', [req.body.name, slug(req.body.name), req.body.description, timestamp.toLocaleString(), image_name, req.params.eventid]);
 				});
 			} else {
-				return req.db.none('UPDATE events SET name=$1, slug=$2, description=$3, timestamp=$4 WHERE id=$5', [req.body.name, slugify(req.body.name), req.body.description, timestamp.toLocaleString(), req.params.eventid]);
+				return req.db.none('UPDATE events SET name=$1, slug=$2, description=$3, timestamp=$4 WHERE id=$5', [req.body.name, slug(req.body.name), req.body.description, timestamp.toLocaleString(), req.params.eventid]);
 			}
 		})
 		.then(function () {
@@ -91,14 +92,14 @@ router.post('/:eventid/edit', upload.single('image'), function (req, res, next) 
 });
 
 /* GET a delete events event */
-router.get('/:eventid/delete', function (req, res, next) {
-	req.db.none("DELETE FROM events WHERE id=$1", req.params.eventid)
-		.then(function () {
-			res.redirect('/admin/events');
-		})
-		.catch(function (err) {
-			next(err);
-		})
+router.get('/:event_id/delete', function (req, res, next) {
+	Event.findById(req.params.event_id).then(function (event) {
+		return event.delete();
+	}).then(function(){
+		res.redirect('/admin/events');
+	}).catch(function (err) {
+		next(err);
+	})
 });
 
 /* GET an events bookings */
@@ -180,16 +181,6 @@ router.get('/:eventid/bookings.csv', function (req, res, next){
 			next(err);
 		});
 });
-
-function slugify(text)
-{
-  return text.toString().toLowerCase()
-    .replace(/\s+/g, '-')           // Replace spaces with -
-    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-    .replace(/^-+/, '')             // Trim - from start of text
-    .replace(/-+$/, '');            // Trim - from end of text
-}
 
 function makeid(n)
 {

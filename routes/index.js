@@ -4,6 +4,7 @@ var router = express.Router();
 var User = require('../models/user');
 var Position = require('../models/position');
 var Blog = require('../models/blog');
+var Event = require('../models/event');
 
 var auth = require('./auth');
 var jcr = require('./jcr');
@@ -33,9 +34,10 @@ router.get('/', function (req, res, next) {
 				})
 			)
 		}),
-		req.db.manyOrNone("SELECT events.name, events.timestamp, events.slug, events.image FROM events WHERE timestamp>NOW() ORDER BY timestamp ASC LIMIT 6")
+		Event.getFutureEvents()
 	]).then(function (data){
-		res.render('home', {blogs: data[0], events: data[1]});
+		console.log(data[1]);
+		res.render('home', {blogs: data[0], events: data[1].slice(0, 6)});
 	}).catch(function (err) {
 		next(err);
 	})

@@ -40,7 +40,7 @@ html
 					// });
 
 			div(class="ui vertical segment")
-				h3 Other Events
+				h3 Future Events
 
 				table(class="ui fixed table")
 					thead
@@ -49,10 +49,10 @@ html
 							th Time/Date
 							th Actions
 					tbody
-						each event in events
+						each event in future_events
 							tr
 								td= event.name
-								td= event.timestamp
+								td= event.time
 								td
 									div(class="ui buttons")
 										a(class="ui button" href="/admin/events/"+event.id+"/bookings.csv")

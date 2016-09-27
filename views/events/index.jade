@@ -14,13 +14,13 @@ html
 				h3(class="ui header") Upcoming Events
 				div(class="ui link doubling four cards")
 					each event in events
-						a(class="card" href="/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug)
+						a(class="card" href="/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug)
 							if (event.image)
 								div(class="image")
 									img(src="/images/events/"+event.image)
 							div(class="content")
 								div(class="header")= event.name
-								div(class="meta")= event.timestamp.toDateString()
+								div(class="meta")= event.time.toDateString()
 			div(class="ui vertical segment")
 				h3(class="ui header") Phoenix Ball
 				img(class="ui small right floated image" src="http://testing.greyjcr.com/uploads/Phoenix%20Ball.jpg")

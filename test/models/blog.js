@@ -75,16 +75,7 @@ describe('Static Blog Methods', function() {
         });
     });
 
-    it("can find a blog by slug and", function(done) {
-        slug = slug("Test"),
-        date = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
-        Blog.findBySlugAndDate(slug, date).then(function(blog){
-            expect(blog.title).to.equal("Test");
-            done();
-        }).catch(function(err){
-            done(err);
-        });
-    })
+    it("can find a blog by slug and time");
 
     it("can get all blogs", function(done) {
         Blog.getAll().then(function(blogs) {

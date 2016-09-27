@@ -6,7 +6,8 @@ var treeize   = require('treeize');
 
 var User = require('../models/user');
 var Folder = require('../models/folder')
-var Position = require('../models/position')
+var Position = require('../models/position');
+var Event = require('../models/event')
 
 // The main site search
 router.get('/search/', function (req, res, next) {
@@ -41,8 +42,8 @@ router.get('/search/', function (req, res, next) {
 					data.results.events.results.push({
 						title: events[i].name,
 						// image: '/images/events/'+events[i].image,
-						url: "/events/"+events[i].timestamp.getFullYear()+"/"+(events[i].timestamp.getMonth()+1)+"/"+(events[i].timestamp.getDate())+"/"+events[i].slug,
-						description: events[i].timestamp.toDateString()
+						url: "/events/"+events[i].time.getFullYear()+"/"+(events[i].time.getMonth()+1)+"/"+(events[i].time.getDate())+"/"+events[i].slug,
+						description: events[i].time.toDateString()
 					});
 				};
 			}
@@ -75,8 +76,7 @@ router.get('/search/', function (req, res, next) {
 
 // Needed for the calendar
 router.get('/events/:year/:month', function (req, res, next) {
-	req.db.manyOrNone("SELECT id, name, slug, timestamp, description, image FROM events WHERE date_part('year', timestamp)=$1 AND date_part('month', timestamp)=$2", [req.params.year, req.params.month])
-		.then(function (events) {
+	Event.getByMonth(req.params.year, req.params.month).then(function (events) {
 			return res.json(events);
 		}).catch(function (err) {
 			return res.json(err);

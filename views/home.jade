@@ -35,11 +35,11 @@ html
 						h2(class="ui header") Upcoming Events
 						div(class="ui divided link items")
 							each event in events
-								a(class="item" href="/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug)
+								a(class="item" href="/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug)
 									if (event.image)
 										div(class="ui tiny image")
 											img(src="/images/events/"+event.image)
 									div(class="middle aligned content")
 										div(class="header")= event.name
-										div(class="meta")= event.timestamp.toDateString()
+										div(class="meta")= event.time.toDateString()
 		include ./footer.jade

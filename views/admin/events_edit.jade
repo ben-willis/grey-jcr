@@ -26,10 +26,10 @@ html
 					div(class="two fields")
 						div(class="field")
 							label Date
-							input(type="text" name="date" value=event.timestamp.getDate() + "-"+(event.timestamp.getMonth() + 1)+"-"+event.timestamp.getFullYear())
+							input(type="text" name="date" value=event.time.getDate() + "-"+(event.time.getMonth() + 1)+"-"+event.time.getFullYear())
 						div(class="field")
 							label Time
-							input(type="text" name="time" value=("0"+event.timestamp.getHours()).slice(-2)+":"+("0"+event.timestamp.getMinutes()).slice(-2))
+							input(type="text" name="time" value=("0"+event.time.getHours()).slice(-2)+":"+("0"+event.time.getMinutes()).slice(-2))
 					div(class="field")
 						label Assign Tickets
 						select(class="ui fluid search dropdown" multiple="" name="tickets")
