@@ -18,21 +18,21 @@ html
 
 					script.
 						var parent = 0;
-						var current = !{position.dirid};
+						var current = !{folder.id};
 						function getFiles(dirId) {
 							$('.directory.list').parent().addClass("loading");
 							$('.directory.list').html("");
 							$.get('/api/files/'+dirId, function (data) {
 								$('.directory.list').parent().removeClass("loading");
 								current = data.current;
-								if (current.parent != 0) {
+								if (current.parent_id != 0) {
 									$('.directory.list').append(
-										"<a class='directory item' data-id="+current.parent+"><i class='level up icon'></i><div class='content'><div class='header'>Up a level</div></div>"
+										"<a class='directory item' data-id="+current.parent_id+"><i class='level up icon'></i><div class='content'><div class='header'>Up a level</div></div>"
 									);
 								}
-								for (i=0; i<data.directories.length; i++) {
+								for (i=0; i<data.folders.length; i++) {
 									$('.directory.list').append(
-										"<a class='directory item' data-id="+data.directories[i].id+"><i class='folder icon'></i><div class='content'><div class='header'>"+data.directories[i].name+"</div></div>"
+										"<a class='directory item' data-id="+data.folders[i].id+"><i class='folder icon'></i><div class='content'><div class='header'>"+data.folders[i].name+"</div></div>"
 									);
 								}
 								for (i=0; i<data.files.length; i++) {

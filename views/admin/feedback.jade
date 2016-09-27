@@ -26,21 +26,20 @@ html
 						th Replies
 						th Actions
 				tbody
-					each post in feedback
+					each feedback in feedbacks
 						tr
 							td
-								a(href="/admin/feedback/"+post.id)= post.title
-							td= (post.anonymous) ? 'Anonymous' : post.name
-							td= prettydate.format(new Date(post.timestamp))
+								a(href="/admin/feedback/"+feedback.id)= feedback.title
+							td= (feedback.anonymous) ? 'Anonymous' : feedback.author.name
+							td= prettydate.format(new Date(feedback.created))
 							td
-								a(class="ui label" href="/admin/feedback/"+post.id)= post.no_replies
+								a(class="ui label" href="/admin/feedback/"+feedback.id)= feedback.replies.length
 							td
-								if (!post.archived)
-									a(class="ui button" href="/admin/feedback/"+post.id+"/archive" onclick="return confirm('Are you sure you want to archive this?');")
+								a(class="ui button" href="/admin/feedback/"+feedback.id+"/toggle-archive")
+									if (!feedback.archived)
 										i(class="archive icon")
 										| Archive
-								else
-									a(class="ui button" href="/admin/feedback/"+post.id+"/archive")
+									else
 										i(class="repeat icon")
 										| Restore
 			

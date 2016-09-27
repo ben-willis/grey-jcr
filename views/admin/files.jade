@@ -39,20 +39,20 @@ html
 									$('.curdir').val(dirid);
 									$('.files.table').removeClass("loading");
 									current = data.current;
-									if (current.parent != 0) {
+									if (current.parent_id != 0) {
 										$('.files.table tbody').append(
-											"<tr><td colspan='3'><a class='directory link' data-id="+current.parent+" href='#'><i class='level up icon'></i>Up a level</a></td></tr>"
+											"<tr><td colspan='3'><a class='directory link' data-id="+current.parent_id+" href='#'><i class='level up icon'></i>Up a level</a></td></tr>"
 										);
 									}
-									for (i=0; i<data.directories.length; i++) {
+									for (i=0; i<data.folders.length; i++) {
 										var directory = "<tr>";
 										directory += "<td>";
 										directory += "<i class='folder icon'></i>";
-										directory += "<a class='directory link' data-id='"+data.directories[i].id+"' href='#'>"+data.directories[i].name+"</a>";
+										directory += "<a class='directory link' data-id='"+data.folders[i].id+"' href='#'>"+data.folders[i].name+"</a>";
 										directory += "</td>";
 										directory += "<td></td>";
 										directory += "<td>";
-										directory += "<a href='/admin/files/"+current.id+"/deletefolder/"+data.directories[i].id+"' class='ui negative small button' onclick=\"return confirm('Are you sure you want to delete this folder?');\"><i class='delete icon'></i>Delete</a>";
+										directory += "<a href='/admin/files/"+current.id+"/deletefolder/"+data.folders[i].id+"' class='ui negative small button' onclick=\"return confirm('Are you sure you want to delete this folder?');\"><i class='delete icon'></i>Delete</a>";
 										directory += "</td>"
 										directory += "</tr>";
 										$('.files.table tbody').append(directory);
@@ -65,7 +65,7 @@ html
 										file += data.files[i].name;
 										file += "</a></td>";
 										file += "<td>";
-										file += (new Date(data.files[i].timestamp)).toDateString();
+										file += (new Date(data.files[i].updated)).toDateString();
 										file += "</td>";
 										file += "<td>";
 										file += "<a href='/admin/files/"+current.id+"/deletefile/"+data.files[i].id+"' class='ui negative small button' onclick=\"return confirm('Are you sure you want to delete this file?');\"><i class='delete icon'></i>Delete</a>";

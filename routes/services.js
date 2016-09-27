@@ -6,6 +6,10 @@ var mv = require('mv');
 var mime = require('mime');
 var treeize   = require('treeize');
 var paypal = require('paypal-rest-sdk');
+var httpError = require('http-errors');
+
+var Feedback = require('../models/feedback');
+var User = require('../models/user');
 
 require('dotenv').config();
 
@@ -66,8 +70,7 @@ router.post('/rooms/:roomid/', function (req, res, next) {
 
 /* GET user page. */
 router.get('/user/:username', function (req, res, next) {
-	req.db.one("SELECT name, email, username FROM users WHERE username=$1", [req.params.username])
-		.then(function (user) {
+	User.findByUsername(req.params.username).then(function (user) {
 			res.render('services/profile', {currUser: user});
 		}).catch(function (err) {
 			next(err);
@@ -99,13 +102,25 @@ router.post('/user/:username/update', upload.single('avatar'), function (req, re
 
 /* GET feedback page */
 router.get('/feedback', function (req, res, next) {
-	res.render('services/feedback');
+	Feedback.getAllByUser(req.user.username).then(function(feedbacks) {
+		return Promise.all(
+			feedbacks.map(function(feedback) {
+				return feedback.getReplies().then(function(replies) {
+					feedback.replies = replies;
+					return feedback;
+				})
+			})
+		)
+	}).then(function(feedbacks){
+		res.render('services/feedback', {feedbacks: feedbacks});
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* POST a new piece of feedback */
 router.post('/feedback', function (req, res, next) {
-	req.db.one('INSERT INTO feedback(title, message, author, exec, anonymous) VALUES ($1, $2, $3, $4, $5) RETURNING id', [req.body.title, req.body.message, req.user.username, false, (req.body.anonymous=='on')])
-		.then(function (feedback) {
+	Feedback.create(req.body.title, req.body.message, (req.body.anonymous=='on'), req.user.username).then(function (feedback) {
 			res.redirect(303, '/services/feedback/'+feedback.id+'?success')
 		})
 		.catch(function (err) {
@@ -114,28 +129,43 @@ router.post('/feedback', function (req, res, next) {
 });
 
 /* GET an individual feedback */
-router.get('/feedback/:feedbackid', function (req, res, next) {
-	req.db.none('UPDATE feedback SET read_by_user=true WHERE id=$1 AND author=$2', [req.params.feedbackid, req.user.username])
-		.then(function(){
-			return req.db.many('SELECT feedback.id, feedback.title, feedback.archived, feedback.message, feedback.timestamp, users.name, feedback.author, feedback.exec, feedback.anonymous FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE (author=$1 AND id=$2) OR parentid=$2 ORDER BY timestamp ASC', [req.user.username, req.params.feedbackid])
-		})
-		.then(function (feedback) {
-			return res.render('services/feedback_view', {feedback: feedback});
-		})
-		.catch(function (err) {
-			return next(err);
-		});
+router.get('/feedback/:feedback_id', function (req, res, next) {
+	Feedback.findById(parseInt(req.params.feedback_id)).then(function(feedback) {
+		if (feedback.author != req.user.username) throw httpError(403);
+		return Promise.all([
+			feedback,
+			feedback.getReplies().then(function(replies) {
+				return Promise.all(
+					replies.map(function(reply) {
+						return User.findByUsername(reply.author).then(function(user) {
+							reply.author = (feedback.anonymous) ? null: user;
+							return reply;
+						})
+					})
+				)
+			}),
+			User.findByUsername(feedback.author).then(function(user) {
+				return (feedback.anonymous) ? null: user;
+			})
+		])
+	}).then(function (data) {
+		data[0].author = data[2];
+		return res.render('services/feedback_view', {feedback: data[0], replies: data[1]});
+	}).catch(function (err) {
+		return next(err);
+	});
 });
 
 /* POST a reply */
-router.post('/feedback/:feedbackid', function (req, res, next) {
-	req.db.none('INSERT INTO feedback(title, message, author, exec, parentid) VALUES ($1, $2, $3, $4, $5); UPDATE feedback SET archived=false WHERE id=$5;', ['reply', req.body.message, req.user.username, false, req.params.feedbackid])
-		.then(function () {
-			res.redirect(303, '/services/feedback/'+req.params.feedbackid+'?success')
-		})
-		.catch(function (err) {
-			next(err);
-		});
+router.post('/feedback/:feedback_id', function (req, res, next) {
+	Feedback.findById(parseInt(req.params.feedback_id)).then(function(feedback) {
+		if (feedback.author != req.user.username) throw httpError(403);
+		return feedback.addReply(req.body.message, false, req.user.username);
+	}).then(function () {
+		res.redirect(303, '/services/feedback/'+req.params.feedback_id+'?success')
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* GET the election page */

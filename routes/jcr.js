@@ -4,6 +4,7 @@ var router = express.Router();
 var User = require('../models/user');
 var Position = require('../models/position');
 var Blog = require('../models/blog');
+var Folder = require('../models/folder');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -52,10 +53,11 @@ router.get('/blog/:position_slug', function (req, res, next) {
 						})
 					})
 				)
-			})
+			}),
+			Folder.findForPosition(position.id)
 		])
 	}).then(function(data) {
-		res.render('jcr/profile', { blogs: data[1], position: data[0]});
+		res.render('jcr/profile', { blogs: data[1], position: data[0], folder: data[2]});
 	}).catch(function (err) {
 		next(err);
 	});
