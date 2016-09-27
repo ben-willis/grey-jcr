@@ -6,7 +6,9 @@ var treeize   = require('treeize');
 
 var User = require('../models/user');
 var Folder = require('../models/folder')
+var Position = require('../models/position')
 
+// The main site search
 router.get('/search/', function (req, res, next) {
 	var query = '%'+req.query.q+'%';
 	var data = {
@@ -71,6 +73,7 @@ router.get('/search/', function (req, res, next) {
 		})
 });
 
+// Needed for the calendar
 router.get('/events/:year/:month', function (req, res, next) {
 	req.db.manyOrNone("SELECT id, name, slug, timestamp, description, image FROM events WHERE date_part('year', timestamp)=$1 AND date_part('month', timestamp)=$2", [req.params.year, req.params.month])
 		.then(function (events) {
@@ -80,6 +83,16 @@ router.get('/events/:year/:month', function (req, res, next) {
 		});
 });
 
+// Needed for JCR, welfare and support page
+router.get('/positions/:position_id', function(req, res, next) {
+	Position.findById(req.params.position_id).then(function(position) {
+		res.json(position);
+	}).catch(function (err) {
+		res.json(err);
+	});
+})
+
+// Needed for adding users to positions etc
 router.get('/users', function (req, res, next) {
 	User.search(req.query.q)
 		.then(function (users) {

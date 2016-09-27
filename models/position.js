@@ -94,15 +94,31 @@ Position.findBySlug = function (slug) {
         });
 }
 
-Position.getByLevel = function (sign, level) {
-    return db('positions')
-        .select()
-        .where("level", sign, level)
-        .then(function(positions) {
-            return positions.map(function(data) {
-                return new Position(data);
-            })
+Position.getByType = function (type) {
+    promise = db('positions').select();
+    switch(type) {
+        case "exec":
+            promise = promise.where("level", ">=", 4).andWhereNot("id", "=", 1);
+            break;
+        case "admin":
+            promise = promise.where("level", "=", 5);
+            break;
+        case "officer":
+            promise = promise.where("level", "=", 3).orWhere("id", "=", 1);
+            break;
+        case "welfare":
+            promise = promise.where("level", "=", 2).orWhere("slug", "=", "Male-Welfare-Officer").orWhere("slug", "=", "Female-Welfare-Officer");
+            break;
+        case "rep":
+            promise = promise.where("level", "=", 1);
+            break;
+
+    }
+    return promise.then(function(positions) {
+        return positions.map(function(position_data) {
+            return new Position(position_data);
         })
+    });
 }
 
 module.exports = Position;

@@ -23,13 +23,14 @@ html
 				p If you have any queries, concerns or feedback for indvidual reps, please feel free to contact them. Any general queries please contact the Representatives Officer.				
 				div(class="ui six doubling link cards")
 					each position in reps
-						div(class="card")
-							div(class="image")
-								img(src="/api/users/"+position.username+"/avatar")
-							div(class="content")
-								div(class="header")= position.title
-								div(class="meta")=position.name
-								div(class="description")=position.description
+						each user in position.users
+							div(class="card")
+								div(class="image")
+									img(src="/api/users/"+user.username+"/avatar")
+								div(class="content")
+									div(class="header")= position.title
+									div(class="meta")=user.name
+									div(class="description")=position.description
 
 			div(class="ui vertical segment" id="university")
 				h3(class="ui header") University Support

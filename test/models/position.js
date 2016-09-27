@@ -63,12 +63,12 @@ describe('Static Methods', function() {
         })
     });
 
-    it("should get a user by level", function(done) {
-        Position.getByLevel("=", 5).then(function(positions) {
+    it("should get a user by type", function(done) {
+        Position.getByType("exec").then(function(positions) {
             expect(positions).to.have.length(1);
-            return Position.getByLevel(">", 3);
+            return Position.getByType("welfare");
         }).then(function(positions) {
-            expect(positions).to.have.length(1);
+            expect(positions).to.have.length(0);
             done();
         }).catch(function(err){
             done(err);

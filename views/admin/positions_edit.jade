@@ -11,7 +11,7 @@ html
 			div(class="ui vertical segment")
 				h2 Edit Position
 				form(class="ui edit form" method="POST" action="/admin/positions/"+position.id+"/edit")
-					h3 Title
+					h3= position.title
 					div(class="field")
 						label Description
 						textarea(rows="3" name="description")=position.description

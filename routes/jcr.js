@@ -8,26 +8,29 @@ var Folder = require('../models/folder');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	Position.getByLevel(">", 2).then(function(positions) {
-		return Promise.all(
-			positions.map(function(position) {
-				return position.getUsers().then(function(users) {
-					position.users = users;
-					return position;
-				});
-			})
-		)
-	}).then(function (positions) {
-			var exec = [];
-			var officers = [];
-			for (var i = 0; i < positions.length; i++) {
-				if (positions[i].level >= 4 && positions[i].id != 1) {
-					exec.push(positions[i]);
-				} else {
-					officers.push(positions[i]);
-				}
-			};
-			res.render('jcr/index', {exec: exec, officers: officers});
+	Promise.all([
+		Position.getByType("exec").then(function(exec_members) {
+			return Promise.all(
+				exec_members.map(function(exec_member) {
+					return exec_member.getUsers().then(function(users) {
+						exec_member.users = users;
+						return exec_member;
+					});
+				})
+			)
+		}),
+		Position.getByType("officer").then(function(exec_members) {
+			return Promise.all(
+				exec_members.map(function(exec_member) {
+					return exec_member.getUsers().then(function(users) {
+						exec_member.users = users;
+						return exec_member;
+					});
+				})
+			)
+		})
+	]).then(function (positions) {
+			res.render('jcr/index', {exec: positions[0], officers: positions[1]});
 		}).catch(function (err) {
 			next(err);
 		});

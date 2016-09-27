@@ -1,11 +1,21 @@
 var express = require('express');
 var router = express.Router();
 
+var Position = require('../models/position')
+
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	req.db.many("SELECT positions.title, positions.id, users.name, users.username FROM userPositions LEFT JOIN users ON userPositions.username=users.username LEFT JOIN positions ON userPositions.position=positions.id WHERE (positions.level=2 OR positions.slug='male-welfare-officer' OR positions.slug='female-welfare-officer') ORDER BY positions.level DESC")
-		.then(function (welfare) {
-			res.render('welfare/index', {welfare: welfare});
+		Position.getByType("welfare").then(function(positions) {
+			return Promise.all(
+				positions.map(function(position) {
+					return position.getUsers().then(function(users) {
+						position.users = users;
+						return position;
+					});
+				})
+			)
+		}).then(function (positions) {
+			res.render('welfare/index', {welfare: positions});
 		}).catch(function (err) {
 			next(err);
 		});

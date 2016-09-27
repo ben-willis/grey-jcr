@@ -19,12 +19,13 @@ html
 				h3(class="ui header") Who are we?
 				div(class="ui seven doubling link cards")
 					each position in welfare
-						div(class="card" data-position=position.id)
-							div(class="image")
-								img(src="/api/users/"+position.username+"/avatar")
-							div(class="content")
-								div(class="header")= position.title
-								div(class="meta")=position.name
+						each user in position.users
+							div(class="card" data-position=position.id)
+								div(class="image")
+									img(src="/api/users/"+position.username+"/avatar")
+								div(class="content")
+									div(class="header")= position.title
+									div(class="meta")=user.name
 
 			div(class="ui vertical segment")
 				h3(class="ui header") How do you find us?
