@@ -77,7 +77,7 @@ router.get('/blog/:position/:year/:month/:date/:slug', function (req, res, next)
 		blog = data[0];
 		blog.author = new User(data[1]);
 		blog.position = new Position(data[2]);
-		res.render('jcr/article', { blog: blog});
+		res.render('jcr/article', { blog: blog });
 	}).catch(function (err) {
 		next(err);
 	});

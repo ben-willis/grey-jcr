@@ -61,7 +61,6 @@ Blog.create = function(data) {
 
 Blog.findById = function(id) {
     return db('blogs').first().where({id: id}).then(function(data) {
-        console.log(data);
         if (!data) throw httpError(404, "Blog not found");
         return new Blog(data)
     })

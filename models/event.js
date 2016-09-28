@@ -13,16 +13,21 @@ var Event = function (data) {
 }
 
 Event.prototype.update = function(name, description, time, image) {
-    return db('events').where({id: this.id}).update({
+    data = {
         name: name,
+        slug: slug(name),
         description: description,
-        time: new Date(time),
-        image: image
-    }).then(function() {
+        time: new Date(time)
+    }
+    if (image)
+        data.image = image;
+    return db('events').where({id: this.id}).update(data).then(function() {
         this.name = name;
+        this.slug = slug(name);
         this.description = description;
         this.time = new Date(time);
-        this.image = image;
+        if (image)
+            this.image = image;
         return;
     });
 };
@@ -57,7 +62,6 @@ Event.findById = function (id) {
         .where({'id': id})
         .first()
         .then(function(data) {
-            console.log(data);
             if (!data) throw httpError(404, "Event not found");
             return new Event(data)
         });

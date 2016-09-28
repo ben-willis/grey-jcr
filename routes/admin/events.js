@@ -52,12 +52,12 @@ router.get('/:event_id/edit', function (req, res, next) {
 });
 
 /* POST an update to an event */
-router.post('/:eventid/edit', upload.single('image'), function (req, res, next) {
+router.post('/:event_id/edit', upload.single('image'), function (req, res, next) {
 	var date = (req.body.date).split('-');
 	var time = (req.body.time).split(':');
-	var time = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
+	var timestamp = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 
-	var values = [req.params.eventid];
+	var values = [req.params.event_id];
 	var query = "DELETE FROM events_tickets WHERE eventid=$1; "
 	if (req.body.tickets) {
 		req.body.tickets = [].concat(req.body.tickets);
@@ -71,24 +71,23 @@ router.post('/:eventid/edit', upload.single('image'), function (req, res, next) 
 			values.push(req.body.tickets[i]);
 		};
 	}
-	req.db.none(query, values)
-		.then( function (){
-			if (req.file) {
-				var image_name = makeid(5)+'.'+mime.extension(req.file.mimetype);
-				mv(req.file.path, __dirname+'/../../public/images/events/'+image_name, function (err) {
-					if (err) throw err;
-					return req.db.none('UPDATE events SET name=$1, slug=$2, description=$3, timestamp=$4, image=$5 WHERE id=$6', [req.body.name, slug(req.body.name), req.body.description, timestamp.toLocaleString(), image_name, req.params.eventid]);
-				});
-			} else {
-				return req.db.none('UPDATE events SET name=$1, slug=$2, description=$3, timestamp=$4 WHERE id=$5', [req.body.name, slug(req.body.name), req.body.description, timestamp.toLocaleString(), req.params.eventid]);
-			}
-		})
-		.then(function () {
-			res.redirect('/admin/events/'+req.params.eventid+'/edit?success')
-		})
-		.catch(function (err) {
-			return next(err);
-		});
+	req.db.none(query, values).then( function (){
+		return Event.findById(parseInt(req.params.event_id));
+	}).then(function(event) {
+		if (req.file) {
+			var image_name = makeid(5)+'.'+mime.extension(req.file.mimetype);
+			mv(req.file.path, __dirname+'/../../public/images/events/'+image_name, function (err) {
+				if (err) throw err;
+				return event.update(req.body.name, req.body.description, timestamp, image_name);
+			});
+		} else {
+			return event.update(req.body.name, req.body.description, timestamp, null);
+		}
+	}).then(function () {
+		res.redirect('/admin/events/'+req.params.event_id+'/edit?success')
+	}).catch(function (err) {
+		return next(err);
+	});
 });
 
 /* GET a delete events event */
