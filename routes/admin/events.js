@@ -10,6 +10,7 @@ var treeize   = require('treeize');
 var slug = require('slug');
 
 var Event = require('../../models/event');
+var Ticket = require('../../models/ticket');
 
 /* GET events page. */
 router.get('/', function (req, res, next) {
@@ -37,18 +38,19 @@ router.post('/new', function (req, res, next) {
 
 /* GET edit events page. */
 router.get('/:event_id/edit', function (req, res, next) {
-	var tickets;
-	req.db.manyOrNone('SELECT id, name, (SELECT COUNT(*)>0 FROM events_tickets WHERE ticketid=tickets.id AND eventid=$1) AS selected FROM tickets ORDER BY name DESC', [req.params.event_id])
-		.then(function (data) {
-			tickets = data;
-			return Event.findById(parseInt(req.params.event_id))
-		})
-		.then(function (event) {
-			res.render('admin/events_edit', {event: event, tickets: tickets});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	var event;
+	Event.findById(parseInt(req.params.event_id)).then(function (data) {
+		event = data;
+		return Promise.all([
+			event.getTickets(),
+			Ticket.getAll()
+		])
+	}).then(function (data) {
+		event.tickets = data[0]
+		res.render('admin/events_edit', {event: event, tickets: data[1]});
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* POST an update to an event */
@@ -59,21 +61,13 @@ router.post('/:event_id/edit', upload.single('image'), function (req, res, next)
 
 	var values = [req.params.event_id];
 	var query = "DELETE FROM events_tickets WHERE eventid=$1; "
-	if (req.body.tickets) {
-		req.body.tickets = [].concat(req.body.tickets);
-		// Build tickets query
-		query += "INSERT INTO events_tickets (eventid, ticketid) VALUES ";
-		for (var i = 0; i < req.body.tickets.length; i++) {
-			if (i != 0) {
-				query += ", "
-			}
-			query += "($1, $"+(i+2)+")";
-			values.push(req.body.tickets[i]);
-		};
-	}
-	req.db.none(query, values).then( function (){
-		return Event.findById(parseInt(req.params.event_id));
-	}).then(function(event) {
+	Event.findById(parseInt(req.params.event_id)).then(function(event) {
+		return Promise.all([
+			event,
+			event.setTickets([].concat(req.body.tickets))
+		])
+	}).then(function(data) {
+		event = data[0]
 		if (req.file) {
 			var image_name = makeid(5)+'.'+mime.extension(req.file.mimetype);
 			mv(req.file.path, __dirname+'/../../public/images/events/'+image_name, function (err) {

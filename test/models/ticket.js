@@ -16,7 +16,8 @@ describe('Static Ticket Methods', function() {
             open_booking: new Date(2016, 7, 1),
             close_booking: new Date(2016, 8, 1),
             price: 500,
-            guest_surcharge: 100
+            guest_surcharge: 100,
+            stock: 10
         }).returning('id').then(function(id) {
             test_ticket_id = id[0];
             done();
@@ -72,7 +73,8 @@ describe('Ticket Object', function() {
             open_booking: new Date(2016, 7, 1),
             close_booking: new Date(2016, 8, 1),
             price: 500,
-            guest_surcharge: 100
+            guest_surcharge: 100,
+            stock: 10
         }).returning('id').then(function(id) {
             test_ticket = new Ticket({
                 id: id[0],
@@ -84,7 +86,8 @@ describe('Ticket Object', function() {
                 open_booking: new Date(2016, 7, 1),
                 close_booking: new Date(2016, 8, 1),
                 price: 500,
-                guest_surcharge: 100
+                guest_surcharge: 100,
+                stock: 10
             });
             done();
         });
@@ -106,10 +109,12 @@ describe('Ticket Object', function() {
             open_booking: new Date(2016, 7, 1),
             close_booking: new Date(2016, 8, 1),
             price: 500,
-            guest_surcharge: 100
+            guest_surcharge: 100,
+            stock: 20
         }).then(function() {
             expect(this.name).to.equal("Updated Test Ticket");
             expect(this.max_booking).to.equal(8);
+            expect(this.stock).to.equal(20);
             done();
         }).catch(function(err){
             done(err);
@@ -126,4 +131,18 @@ describe('Ticket Object', function() {
             done(err);
         })
     });
+
+    it("can get associated events", function(done) {
+        db('event_tickets').insert({
+            event_id: null,
+            ticket_id: test_ticket.id
+        }).then(function(){
+            return test_ticket.getEvents();
+        }).then(function(tickets) {
+            expect(tickets).to.have.length(1);
+            done();
+        }).catch(function(err){
+            done(err);
+        });
+    })
 });

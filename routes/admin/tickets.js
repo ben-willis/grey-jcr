@@ -7,8 +7,7 @@ var Ticket = require('../../models/ticket')
 
 /* GET tickets page. */
 router.get('/', function (req, res, next) {
-	req.db.manyOrNone('SELECT id, name, stock, (SELECT COUNT(*) FROM bookings WHERE bookings.ticketid=tickets.id) AS bookings FROM tickets')
-		.then(function (tickets) {
+	Ticket.getAll().then(function (tickets) {
 			res.render('admin/tickets', {tickets: tickets});
 		})
 		.catch(function (err) {
@@ -80,13 +79,15 @@ router.post('/:ticket_id', function (req, res, next) {
 	Ticket.findById(req.params.ticket_id).then(function(ticket) {
 		return ticket.update(req.body.name, {
 			max_booking: parseInt(req.body.max_booking),
-	        min_booking: parseInt(options.min_booking),
+	        min_booking: parseInt(req.body.min_booking),
 	        allow_debtors: allow_debtors,
 	        allow_guests: allow_guests,
 	        open_booking: open_booking,
 	        close_booking: close_booking,
 	        price: price,
-	        guest_surcharge: guest_surcharge});
+	        guest_surcharge: guest_surcharge,
+			stock: Math.max(req.body.stock, 0)
+		});
 	}).then(function () {
 		res.redirect(303, '/admin/tickets')
 	}).catch(function (err) {

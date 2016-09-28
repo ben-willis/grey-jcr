@@ -123,4 +123,20 @@ describe('Event Object', function() {
             done(err);
         })
     });
+
+    it("can get associated tickets", function(done) {
+        db('event_tickets').insert({
+            event_id: test_event.id,
+            ticket_id: null
+        }).then(function(){
+            return test_event.getTickets();
+        }).then(function(tickets) {
+            expect(tickets).to.have.length(1);
+            done();
+        }).catch(function(err){
+            done(err);
+        });
+    })
+
+    it("can set associated tickets");
 });

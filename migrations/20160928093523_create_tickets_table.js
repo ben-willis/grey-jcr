@@ -11,6 +11,7 @@ exports.up = function(knex, Promise) {
         t.timestamp('close_booking').defaultTo(knex.fn.now());
         t.integer('price').defaultTo(0);
         t.integer('guest_surcharge').defaultTo(0);
+        t.integer('stock').defaultTo(0);
     });
 
 };

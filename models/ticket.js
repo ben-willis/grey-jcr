@@ -13,6 +13,7 @@ var Ticket = function (data) {
     this.close_booking = data.close_booking;
     this.price = data.price;
     this.guest_surcharge = data.guest_surcharge;
+    this.stock = data.stock;
 }
 
 Ticket.prototype.update = function(name, options) {
@@ -25,7 +26,8 @@ Ticket.prototype.update = function(name, options) {
         open_booking: options.open_booking,
         close_booking: options.close_booking,
         price: options.price,
-        guest_surcharge: options.guest_surcharge
+        guest_surcharge: options.guest_surcharge,
+        stock: options.stock
     }).then(function(id){
         this.name = name;
         this.max_booking = options.max_booking;
@@ -36,11 +38,20 @@ Ticket.prototype.update = function(name, options) {
         this.close_booking = options.close_booking;
         this.price = options.price;
         this.guest_surcharge = options.guest_surcharge;
+        this.stock = options.stock;
     })
 }
 
 Ticket.prototype.delete = function() {
     return db('tickets').where({id: this.id}).del();
+}
+
+Ticket.prototype.getEvents = function() {
+    return db('event_tickets').select('event_id').where({ticket_id: this.id}).then(function(data) {
+        return data.map(function(data) {
+            return data.event_id
+        });
+    });
 }
 
 /* Static Methods */
