@@ -3,6 +3,8 @@ var router = express.Router();
 var validator = require('validator');
 var treeize   = require('treeize');
 
+var Ticket = require('../../models/ticket')
+
 /* GET tickets page. */
 router.get('/', function (req, res, next) {
 	req.db.manyOrNone('SELECT id, name, stock, (SELECT COUNT(*) FROM bookings WHERE bookings.ticketid=tickets.id) AS bookings FROM tickets')
@@ -16,22 +18,19 @@ router.get('/', function (req, res, next) {
 
 /* POST a new ticket */
 router.post('/', function (req, res, next) {
-	req.db.one('INSERT INTO tickets(name, max_booking) VALUES ($1, $2) RETURNING id', [req.body.name, 8])
-		.then(function (ticket) {
-			res.redirect(303, '/admin/tickets/'+ticket.id)
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	Ticket.create(req.body.name).then(function (ticket) {
+		res.redirect(303, '/admin/tickets/'+ticket.id)
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* GET edit ticket page. */
-router.get('/:ticketid', function (req, res, next) {
+router.get('/:ticket_id', function (req, res, next) {
 	var ticket;
-	req.db.one('SELECT id, name, price, max_booking, min_booking, block_debtors, guests, guest_surcharge, stock, open_sales, close_sales FROM tickets WHERE id=$1',[req.params.ticketid])
-		.then(function (data) {
+	Ticket.findById(req.params.ticket_id).then(function (data) {
 			ticket = data;
-			return req.db.manyOrNone('SELECT ticket_options.name, ticket_options.id, ticket_option_choices.id AS "choices:id", ticket_option_choices.name AS "choices:name", ticket_option_choices.price AS "choices:price" FROM ticket_options LEFT JOIN ticket_option_choices ON ticket_options.id=ticket_option_choices.optionid WHERE ticketid=$1', [req.params.ticketid])
+			return req.db.manyOrNone('SELECT ticket_options.name, ticket_options.id, ticket_option_choices.id AS "choices:id", ticket_option_choices.name AS "choices:name", ticket_option_choices.price AS "choices:price" FROM ticket_options LEFT JOIN ticket_option_choices ON ticket_options.id=ticket_option_choices.optionid WHERE ticketid=$1', [req.params.ticket_id])
 		})
 		.then(function (options) {
 			var optionsTree = new treeize;
@@ -44,25 +43,25 @@ router.get('/:ticketid', function (req, res, next) {
 });
 
 /* GET delete a ticket page. */
-router.get('/:ticketid/delete', function (req, res, next) {
-	req.db.none('DELETE FROM tickets WHERE id=$1', [req.params.ticketid])
-		.then(function () {
-			res.redirect(303, '/admin/tickets');
-		})
-		.catch(function (err) {
-			next(err);
-		});
+router.get('/:ticket_id/delete', function (req, res, next) {
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.delete();
+	}).then(function () {
+		res.redirect(303, '/admin/tickets');
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* POST an editted ticket */
-router.post('/:ticketid', function (req, res, next) {
-	var date = (req.body.open_sales_date).split('-'); var time = (req.body.open_sales_time).split(':');
-	var open_sales = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
+router.post('/:ticket_id', function (req, res, next) {
+	var date = (req.body.open_booking_date).split('-'); var time = (req.body.open_booking_time).split(':');
+	var open_booking = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 
-	date = (req.body.close_sales_date).split('-'); time = (req.body.close_sales_time).split(':');
-	var close_sales = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
+	date = (req.body.close_booking_date).split('-'); time = (req.body.close_booking_time).split(':');
+	var close_booking = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 
-	if (close_sales < open_sales) {
+	if (close_booking < open_booking) {
 		err = new Error("Close of booking must be after open of booking");
 		err.status(400);
 		next(err);
@@ -71,20 +70,28 @@ router.post('/:ticketid', function (req, res, next) {
 		err.status(400);
 		next(err);
 	}
-	
-	var block_debtors = (req.body.block_debtors=='on');
-	var guests = (req.body.guests=='on');
+
+	var allow_debtors = (req.body.allow_debtors=='on');
+	var allow_guests = (req.body.allow_guests=='on');
 
 	var price = req.body.price*100;
 	var guest_surcharge = req.body.guest_surcharge*100;
 
-	req.db.none('UPDATE tickets SET name=$2, max_booking=$3, min_booking=$4, block_debtors=$5, guests=$6, guest_surcharge=$7, stock=$8, open_sales=$9, close_sales=$10, price=$11 WHERE id=$1', [req.params.ticketid, req.body.name, req.body.max_booking, req.body.min_booking, block_debtors, guests, guest_surcharge, req.body.stock, open_sales.toLocaleString(), close_sales.toLocaleString(), price])
-		.then(function () {
-			res.redirect(303, '/admin/tickets')
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.update(req.body.name, {
+			max_booking: parseInt(req.body.max_booking),
+	        min_booking: parseInt(options.min_booking),
+	        allow_debtors: allow_debtors,
+	        allow_guests: allow_guests,
+	        open_booking: open_booking,
+	        close_booking: close_booking,
+	        price: price,
+	        guest_surcharge: guest_surcharge});
+	}).then(function () {
+		res.redirect(303, '/admin/tickets')
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* POST a new option */

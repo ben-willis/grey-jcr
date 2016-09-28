@@ -26,16 +26,16 @@ html
 						div(class="field")
 							div(class="ui checkbox")
 								if (ticket.block_debtors)
-									input(type="checkbox" name="block_debtors" tabindex="0" checked)
+									input(type="checkbox" name="allow_debtors" tabindex="0" checked)
 								else
-									input(type="checkbox" name="block_debtors" tabindex="0")
-								label Block Debtors
+									input(type="checkbox" name="allow_debtors" tabindex="0")
+								label Allow Debtors
 						div(class="field")
 							div(class="ui checkbox")
 								if (ticket.guests)
-									input(type="checkbox" name="guests" tabindex="0" checked)
+									input(type="checkbox" name="allow_guests" tabindex="0" checked)
 								else
-									input(type="checkbox" name="guests" tabindex="0")
+									input(type="checkbox" name="allow_guests" tabindex="0")
 								label Allow Guests
 						div(class="inline field")
 							label Guest Surcharge
@@ -51,18 +51,18 @@ html
 						label Open Booking
 						div(class="field")
 							label Date
-							input(type="text" name="open_sales_date" value=ticket.open_sales.getDate() + "-"+(ticket.open_sales.getMonth() + 1)+"-"+ticket.open_sales.getFullYear())
+							input(type="text" name="open_booking_date" value=ticket.open_booking.getDate() + "-"+(ticket.open_booking.getMonth() + 1)+"-"+ticket.open_booking.getFullYear())
 						div(class="field")
 							label Time
-							input(type="text" name="open_sales_time" value=("0"+ticket.open_sales.getHours()).slice(-2)+":"+("0"+ticket.open_sales.getMinutes()).slice(-2))
+							input(type="text" name="open_booking_time" value=("0"+ticket.open_booking.getHours()).slice(-2)+":"+("0"+ticket.open_booking.getMinutes()).slice(-2))
 					div(class="two fields")
 						label Close Booking
 						div(class="field")
 							label Date
-							input(type="text" name="close_sales_date" value=ticket.close_sales.getDate() + "-"+(ticket.close_sales.getMonth() + 1)+"-"+ticket.close_sales.getFullYear())
+							input(type="text" name="close_booking_date" value=ticket.close_booking.getDate() + "-"+(ticket.close_booking.getMonth() + 1)+"-"+ticket.close_booking.getFullYear())
 						div(class="field")
 							label Time
-							input(type="text" name="close_sales_time" value=("0"+ticket.close_sales.getHours()).slice(-2)+":"+("0"+ticket.close_sales.getMinutes()).slice(-2))
+							input(type="text" name="close_booking_time" value=("0"+ticket.close_booking.getHours()).slice(-2)+":"+("0"+ticket.close_booking.getMinutes()).slice(-2))
 				
 					button(type="submit" class="ui submit button") 
 						i(class="save icon")
@@ -115,13 +115,12 @@ html
 						min_booking: 'integer',
 						max_booking: 'integer',
 						stock: 'integer',
-						open_sales_date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]',
-						open_sales_time: 'regExp[/([01]?[0-9]|2[0-3]):[0-5][0-9]/ig]',
-						close_sales_date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]',
-						close_sales_time: 'regExp[/([01]?[0-9]|2[0-3]):[0-5][0-9]/ig]'
+						open_booking_date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]',
+						open_booking_time: 'regExp[/([01]?[0-9]|2[0-3]):[0-5][0-9]/ig]',
+						close_booking_date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]',
+						close_booking_time: 'regExp[/([01]?[0-9]|2[0-3]):[0-5][0-9]/ig]'
 					}
 				});
-
 				$('.addoption.form').form({
 					fields: {
 						name: 'empty'
