@@ -14,6 +14,11 @@ exports.up = function(knex, Promise) {
             t.integer("folder_id").references('id').inTable('folders').onDelete('CASCADE');
             t.timestamp('updated').defaultTo(knex.fn.now());
         });
+    }).then(function() {
+        return knex('folders').insert({
+            name: 'Website Editor',
+            owner: 1
+        })
     });
 
 };

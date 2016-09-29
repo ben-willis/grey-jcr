@@ -14,6 +14,7 @@ var Ticket = function (data) {
     this.price = data.price;
     this.guest_surcharge = data.guest_surcharge;
     this.stock = data.stock;
+    this.options = [];
 }
 
 Ticket.prototype.update = function(name, options) {
@@ -54,6 +55,66 @@ Ticket.prototype.getEvents = function() {
     });
 }
 
+Ticket.prototype.getOptionsAndChoices = function() {
+    return db('ticket_options').select().where({ticket_id: this.id}).then(function(options) {
+        return Promise.all(
+            options.map(function(option) {
+                return db('ticket_option_choices').select().where({option_id: option.id}).then(function(choices) {
+                    option.choices = choices;
+                    return option;
+                })
+            })
+        )
+    })
+}
+
+Ticket.prototype.setOptionsAndChoices = function(options) {
+    // Delete all previous options and choices
+    return Promise.all(
+        this.options.map(function(ticket_option) {
+            return Promise.all([
+                db('ticket_option_choices').where({option_id: ticket_option.id}).del().then(function() {
+                    return db('ticket_options').where({id: ticket_option.id}).del();
+                })
+            ])
+        })
+    ).then(function(){
+        this_ticket_id = this.id;
+        // Create the new options and choices
+        return Promise.all(
+            options.map(function(option) {
+                option.id = null;
+                return db('ticket_options').insert({
+                    name: option.name,
+                    ticket_id: this_ticket_id
+                }).returning('id').then(function(ids){
+                    option.id = ids[0]
+                    return Promise.all(
+                        option.choices.map(function(choice) {
+                            choice.id = null;
+                            return db('ticket_option_choices').insert({
+                                option_id: option.id,
+                                name: choice.name,
+                                price: choice.price
+                            }).returning('id').then(function(ids) {
+                                choice.id = ids[0];
+                                return choice;
+                            })
+                        })
+                    ).then(function(choices) {
+                        option.choices = choices;
+                        return option;
+                    })
+
+                })
+            })
+        )
+    }.bind(this)).then(function (data) {
+        this.options = data;
+        return;
+    }.bind(this))
+}
+
 /* Static Methods */
 
 Ticket.create = function(name) {
@@ -63,8 +124,13 @@ Ticket.create = function(name) {
 }
 
 Ticket.findById = function(ticket_id) {
+    var ticket = null;
     return db('tickets').first().where({id: ticket_id}).then(function(ticket_data) {
-        return new Ticket(ticket_data);
+        ticket = new Ticket(ticket_data);
+        return ticket.getOptionsAndChoices();
+    }).then(function(ticket_options) {
+        ticket.options = ticket_options;
+        return ticket;
     })
 }
 
@@ -72,7 +138,11 @@ Ticket.getAll = function() {
     return db('tickets').select().then(function(tickets) {
         return Promise.all(
             tickets.map(function(ticket_data) {
-                return new Ticket(ticket_data);
+                ticket = new Ticket(ticket_data);
+                return ticket.getOptionsAndChoices().then(function(ticket_options) {
+                    ticket.options = ticket_options;
+                    return ticket;
+                })
             })
         )
     })

@@ -26,19 +26,12 @@ router.post('/', function (req, res, next) {
 
 /* GET edit ticket page. */
 router.get('/:ticket_id', function (req, res, next) {
-	var ticket;
-	Ticket.findById(req.params.ticket_id).then(function (data) {
-			ticket = data;
-			return req.db.manyOrNone('SELECT ticket_options.name, ticket_options.id, ticket_option_choices.id AS "choices:id", ticket_option_choices.name AS "choices:name", ticket_option_choices.price AS "choices:price" FROM ticket_options LEFT JOIN ticket_option_choices ON ticket_options.id=ticket_option_choices.optionid WHERE ticketid=$1', [req.params.ticket_id])
-		})
-		.then(function (options) {
-			var optionsTree = new treeize;
-			optionsTree.grow(options);
-			res.render('admin/tickets_edit', {ticket: ticket, options: optionsTree.getData()});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	Ticket.findById(req.params.ticket_id).then(function (ticket) {
+		console.log(ticket.options[0])
+		res.render('admin/tickets_edit', {ticket: ticket});
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* GET delete a ticket page. */
@@ -76,18 +69,30 @@ router.post('/:ticket_id', function (req, res, next) {
 	var price = req.body.price*100;
 	var guest_surcharge = req.body.guest_surcharge*100;
 
+	if (!req.body.options)
+		req.body.options = []
+	for (var i = 0; i < req.body.options.length; i++) {
+		req.body.options[i].choices = req.body.options[i].choices.filter(function(choice){ return choice != undefined });
+		for (var j = 0; j < req.body.options[i].choices.length; j++) {
+			req.body.options[i].choices[j].price = req.body.options[i].choices[j].price * 100;
+		}
+	}
+
 	Ticket.findById(req.params.ticket_id).then(function(ticket) {
-		return ticket.update(req.body.name, {
-			max_booking: parseInt(req.body.max_booking),
-	        min_booking: parseInt(req.body.min_booking),
-	        allow_debtors: allow_debtors,
-	        allow_guests: allow_guests,
-	        open_booking: open_booking,
-	        close_booking: close_booking,
-	        price: price,
-	        guest_surcharge: guest_surcharge,
-			stock: Math.max(req.body.stock, 0)
-		});
+		return Promise.all([
+			ticket.update(req.body.name, {
+				max_booking: parseInt(req.body.max_booking),
+		        min_booking: parseInt(req.body.min_booking),
+		        allow_debtors: allow_debtors,
+		        allow_guests: allow_guests,
+		        open_booking: open_booking,
+		        close_booking: close_booking,
+		        price: price,
+		        guest_surcharge: guest_surcharge,
+				stock: Math.max(req.body.stock, 0)
+			}),
+			ticket.setOptionsAndChoices(req.body.options)
+		])
 	}).then(function () {
 		res.redirect(303, '/admin/tickets')
 	}).catch(function (err) {
@@ -95,46 +100,5 @@ router.post('/:ticket_id', function (req, res, next) {
 	});
 });
 
-/* POST a new option */
-router.post('/:ticketid/addoption', function (req, res, next) {
-	req.db.none('INSERT INTO ticket_options(name, ticketid) VALUES ($1, $2)', [req.body.name, req.params.ticketid])
-		.then(function (){
-			res.redirect(303, '/admin/tickets/'+req.params.ticketid);
-		})
-		.catch(function (err) {
-			next(err);
-		})
-});
-
-/* POST an update to an option */
-router.post('/:ticketid/:optionid', function (req, res, next) {
-	req.db.none('UPDATE ticket_options SET name=$1 WHERE id=$2', [req.body.name, req.params.optionid])
-		.then(function (){
-			if (!req.body.choice) return;
-			query = 'UPDATE ticket_option_choices SET name=choices.name, price=choices.price FROM (VALUES ';
-			values = [];
-			for (var i = 0; i < req.body.choice.length; i++) {
-				if (i!=0) {
-					query += ', ';
-				}
-				query += '($'+(3*i + 1)+', $'+(3*i + 2)+', $'+(3*i + 3)+')';
-				values.push(parseInt(req.body.choice[i].id));
-				values.push(req.body.choice[i].name);
-				values.push(req.body.choice[i].price*100);
-			};
-			query += ') AS choices(id, name, price) WHERE ticket_option_choices.id=choices.id'
-			return req.db.none(query, values);
-		})
-		.then(function (){
-			if (!req.body.newchoice.name) return;
-			return req.db.none('INSERT INTO ticket_option_choices(name, price, optionid) VALUES ($1, $2, $3)',[req.body.newchoice.name, req.body.newchoice.price*100, req.params.optionid]);
-		})
-		.then(function (){
-			res.redirect(303, '/admin/tickets/'+req.params.ticketid);
-		})
-		.catch(function (err) {
-			next(err);
-		})
-});
 
 module.exports = router;

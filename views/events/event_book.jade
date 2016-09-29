@@ -13,7 +13,7 @@ html
 			if (ticket.guests)
 				p To book a JCR member on please enter their CIS username. To book a guest on please enter their fullname.
 			div(class="ui vertical segment")
-				form(class="ui form" method="POST" action="/events/"+eventid+"/"+ticket.id+"/book")
+				form(class="ui form" method="POST" action="/events/"+event_id+"/"+ticket.id+"/book")
 					- for(i=0; i<ticket.max_booking; i++)
 						div(class=(i<ticket.min_booking)?"required field":"field")
 							if (ticket.guests)

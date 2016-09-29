@@ -31,7 +31,7 @@ describe('Static Ticket Methods', function() {
         });
     })
 
-    it("can find feedback by id", function(done) {
+    it("can find ticket by id", function(done) {
         Ticket.findById(test_ticket_id).then(function(ticket){
             expect(ticket.name).to.equal("Test Ticket");
             done();
@@ -94,7 +94,11 @@ describe('Ticket Object', function() {
     });
 
     afterEach(function(done) {
-        db('tickets').del().then(function() {
+        Promise.all([
+            db('tickets').del(),
+            db('ticket_options').del(),
+            db('ticket_option_choices').del()
+        ]).then(function() {
             test_ticket = null;
             done();
         });
@@ -119,6 +123,53 @@ describe('Ticket Object', function() {
         }).catch(function(err){
             done(err);
         });
+    });
+
+    it('can get options and choices', function (done) {
+        db('ticket_options').insert({
+            ticket_id: test_ticket.id,
+            name: "Test Option"
+        }).returning('id').then(function(id){
+            return db('ticket_option_choices').insert([{
+                option_id: id[0],
+                name: "Test Option 1",
+                price: 1
+            }, {
+                option_id: id[0],
+                name: "Test Option 2",
+                price: 2
+            }]);
+        }).then(function() {
+            return test_ticket.getOptionsAndChoices();
+        }).then(function(options) {
+            expect(options).to.have.length(1);
+            expect(options[0].name).to.equal("Test Option");
+            expect(options[0].choices).to.have.length(2);
+            expect(options[0].choices[0].name).to.equal("Test Option 1");
+            done();
+        }).catch(function(err){
+            done(err);
+        })
+    })
+
+    it('can set options and choices', function(done) {
+        test_ticket.setOptionsAndChoices([{
+            name: "Fake Option 1",
+            choices: [
+                {
+                    name: "Fake Choice 1",
+                    price: 5
+                }
+            ]
+        }]).then(function() {
+            expect(test_ticket.options).to.have.length(1);
+            return db('ticket_options').select().where({ticket_id: test_ticket.id});
+        }).then(function(options){
+            expect(options).to.have.length(1);
+            done();
+        }).catch(function(err){
+            done(err);
+        })
     });
 
     it('can delete itself', function(done){

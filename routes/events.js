@@ -2,8 +2,10 @@ var express = require('express');
 var router = express.Router();
 var validator = require('validator');
 var treeize   = require('treeize');
+var httpError = require('http-errors');
 
-var Event = require('../models/event')
+var Event = require('../models/event');
+var Ticket = require('../models/ticket')
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -22,14 +24,12 @@ router.get('/calendar/:year?/:month?', function (req, res, next) {
 });
 
 /* GET the bookings page */
-router.get('/:eventid/:ticketid/book', function (req, res, next) {
-	req.db.one('SELECT * FROM tickets WHERE id=$1', [req.params.ticketid])
-		.then(function (ticket) {
-			if (ticket.open_sales > (new Date()) || ticket.close_sales < (new Date())) {
-				err = new Error("Booking is not open at this time");
-				throw err;
+router.get('/:event_id/:ticket_id/book', function (req, res, next) {
+	Ticket.findById(parseInt(req.params.ticket_id)).then(function (ticket) {
+			if (ticket.open_booking > (new Date()) || ticket.close_booking < (new Date())) {
+				throw httpError(400, "Booking is not open at this time");
 			}
-			res.render('events/event_book', {eventid: req.params.eventid, ticket: ticket});
+			res.render('events/event_book', {event_id: req.params.event_id, ticket: ticket});
 		})
 		.catch(function (err) {
 			next(err);
