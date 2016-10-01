@@ -30,8 +30,8 @@ User.prototype.getDebt = function() {
         .where('username', this.username)
         .first()
         .then(function(data) {
-            if(!data['sum("amount")']) return 0;
-            return data['sum("amount")'];
+            if(!data['sum']) return 0;
+            return parseInt(data['sum']);
         });
 }
 
@@ -63,6 +63,18 @@ User.prototype.deleteDebtById = function(debt_id) {
     return db('debts').where({
         id: debt_id
     }).del();
+}
+
+User.prototype.setDebtForBooking = function(name, message, amount, booking_id) {
+    return db('debts').del().where({booking_id: booking_id}).then(function() {
+        return db('debts').insert({
+            username: this.username,
+            name: name,
+            message: message,
+            amount: amount,
+            booking_id: booking_id
+        })
+    })
 }
 
 User.prototype.assignPosition = function(position_id) {

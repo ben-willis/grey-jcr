@@ -11,11 +11,13 @@ var User = require('../models/user');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	Event.getFutureEvents().then(function (events) {
-		res.render('events/index', {events: events.splice(0,4)});
-	}).catch(function (err) {
-		next(err);
-	});
+	Event.getFutureEvents()
+		.then(function (events) {
+			res.render('events/index', {events: events.splice(0,4)});
+		})
+		.catch(function (err) {
+			next(err);
+		});
 });
 
 /* GET calendar page. */
@@ -27,7 +29,8 @@ router.get('/calendar/:year?/:month?', function (req, res, next) {
 
 /* GET the bookings page */
 router.get('/:event_id/:ticket_id/book', function (req, res, next) {
-	Ticket.findById(parseInt(req.params.ticket_id)).then(function (ticket) {
+	Ticket.findById(parseInt(req.params.ticket_id))
+		.then(function (ticket) {
 			if (ticket.open_booking > (new Date()) || ticket.close_booking < (new Date())) {
 				throw httpError(400, "Booking is not open at this time");
 			}
@@ -40,21 +43,25 @@ router.get('/:event_id/:ticket_id/book', function (req, res, next) {
 
 /* POST a booking */
 router.post('/:event_id/:ticket_id/book', function (req, res, next) {
-	var bookings = req.body.bookings.filter(function(booking) {
-		return (booking != "");
+	var booking_names = req.body.bookings.filter(function(name) {
+		return (name != "");
 	});
 
-	bookings_manager.createBooking(parseInt(req.params.ticket_id), parseInt(req.params.event_id), req.user.username, bookings)
-		.then(function(booking_ids) {
+	var bookings = null;
+
+	bookings_manager.createBooking(parseInt(req.params.ticket_id), parseInt(req.params.event_id), req.user.username, booking_names)
+		.then(function(data) {
+			bookings = data;
 			return Ticket.findById(parseInt(req.params.ticket_id));
 		})
 		.then(function(ticket) {
 			return Promise.all(
-				bookings.map(function(name) {
-					username = (name.match(/[A-Za-z]{4}[0-9]{2}/gi)) ? name : req.user.username;
-					amount = (name.match(/[A-Za-z]{4}[0-9]{2}/gi)) ? ticket.price : ticket.price + ticket.guest_surcharge;
+				bookings.map(function(booking) {
+					username = (booking.username != null) ? booking.username : booking.booked_by;
 					return User.findByUsername(username).then(function(user){
-						return user.addDebt(ticket.name, "Ticket for "+name, amount);
+						amount = (booking.username != null) ? ticket.price : (ticket.price + ticket.guest_surcharge);
+						name = (booking.username != null) ? booking.username : booking.guestname;
+						return user.setDebtForBooking(ticket.name, "Ticket for "+name, amount, booking.id);
 					});
 				})
 			)
@@ -68,20 +75,6 @@ router.post('/:event_id/:ticket_id/book', function (req, res, next) {
 		.catch(function(err) {
 			next(err);
 		});
-});
-
-router.get('/:eventid/:ticketid/book/result', function (req, res, next) {
-	if (req.query.success != undefined) {
-		req.db.many('SELECT username FROM bookings WHERE ticketid=$1 AND booked_by=$2',[req.params.ticketid, req.user.username])
-			.then(function (bookings){
-				res.render('events/event_book_result', {bookings:bookings});
-			})
-			.catch(function (err) {
-				next(err);
-			});
-	} else {
-		res.render('events/event_book_result');
-	}
 });
 
 
@@ -102,7 +95,6 @@ router.get('/:year/:month/:day/:slug/:ticket_id/booking', function (req, res, ne
 			return Promise.all(
 				bookings.map(function(booking) {
 					return booking.getChoices().then(function(choices) {
-						console.log(choices);
 						return booking;
 					})
 				})
@@ -119,26 +111,46 @@ router.get('/:year/:month/:day/:slug/:ticket_id/booking', function (req, res, ne
 /* POST a booking update */
 router.post('/:booking_id', function (req, res, next) {
 	var booking = null;
-	Booking.findById(parseInt(req.params.booking_id)).then(function(data) {
-		booking = data;
-		return Promise.all([
-			booking.setChoices(req.body.choices),
-			booking.updateNotes(req.body.notes)
-		])
-	}).then(function(){
-		if (booking.username) {
-			return User.findByUsername(booking.username);
-		} else {
-			return User.findByUsername(booking.booked_by);
-		}
-	}).then(function(user){
-		// Here we shall set debt
-		return;
-	}).then(function() {
-		return Event.findById(parseInt(req.body.event_id));
-	}).then(function(event){
-		res.redirect(303, "/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug+"/"+booking.ticket_id+"/booking?success");
-	});
+	var ticket = null;
+	var amount = 0;
+	Booking.findById(parseInt(req.params.booking_id))
+		.then(function(data) {
+			booking = data;
+			return Promise.all([
+				booking.setChoices(req.body.choices),
+				booking.updateNotes(req.body.notes)
+			])
+		})
+		.then(function(){
+			return Ticket.findById(booking.ticket_id);
+		})
+		.then(function(data){
+			ticket = data;
+			ticket_price = (booking.username != null) ? ticket.price : ticket.price + ticket.guest_surcharge;
+			amount += ticket_price;
+			return Promise.all(
+				booking.choices.map(function(choice_id) {
+					return booking.getChoiceDetailsById(choice_id).then(function(choice) {
+						return choice.price;
+					})
+				})
+			)
+		})
+		.then(function(choice_prices){
+			amount += choice_prices.reduce((a,b) => a+b, 0);
+			username = (booking.username != null) ? booking.username : booking.booked_by;
+			return User.findByUsername(username);
+		})
+		.then(function(user){
+			name = (booking.username != null) ? booking.username : booking.guestname;
+			return user.setDebtForBooking(ticket.name, "Ticket for "+name, amount, booking.id)
+		})
+		.then(function() {
+			return Event.findById(parseInt(req.body.event_id));
+		})
+		.then(function(event){
+			res.redirect(303, "/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug+"/"+booking.ticket_id+"/booking?success");
+		});
 });
 
 /* GET an event */
@@ -186,34 +198,76 @@ bookings_manager = {
         self.processing = !(self.queue.length == 0);
         if (!self.processing) return;
 
-		booking = self.queue.shift();
+		curr_booking = self.queue.shift();
 
-		Ticket.findById(booking.ticket_id)
-			.then(self.checkBookingValid(booking))
-			.then(Booking.create(booking.ticket_id, booking.event_id, booking.booker, booking.users))
-			.then(function(booking_id) {
-	            booking.promise.resolve(booking_id);
+		Ticket.findById(curr_booking.ticket_id)
+			.then(function(){
+				return self.checkBookingValid(curr_booking)
+			})
+			.then(function(){
+				return Booking.create(curr_booking.ticket_id, curr_booking.event_id, curr_booking.booker, curr_booking.users)
+			})
+			.then(function(bookings) {
+	            return curr_booking.promise.resolve(bookings);
 			}).catch(function(err) {
-	            booking.promise.reject(err);
+	            return curr_booking.promise.reject(err);
 			}).finally(function() {
-	            self.processQueue();
+	            return self.processQueue();
 			});
 	},
     checkBookingValid(booking) {
-        return new Promise(function(resolve, reject) {
-			// Check Bookings is open
-			// Check they've booked on the right number
-			// Check for debtors/guests
-			// Check no ones already booked on
-			// Check there are enough spaces
-            setTimeout(function() {
-                if(Math.random() < 0.5) {
-                    reject("Not Valid");
-                } else {
-                    resolve();
-                }
-            }, Math.random() * 1000)
-        })
+		var ticket = null;
+		var user = null;
+		return Ticket.findById(booking.ticket_id)
+			.then(function(data) {
+				ticket = data;
+				if (ticket.open_booking > (new Date()) || ticket.close_booking < (new Date())) {
+					throw httpError(400, "Booking is closed");
+				}
+				if (booking.users.length < ticket.min_booking) {
+					throw httpError(400, "You must book on at least "+ticket.min_booking+" people")
+				}
+				if (booking.users.length < ticket.min_booking) {
+					throw httpError(400, "You can only book on up to "+ticket.max_booking+" people")
+				}
+				return;
+			})
+			.then(function(){
+				return Promise.all(
+					booking.users.map(function(name) {
+						if (name.match(/[A-Za-z]{4}[0-9]{2}/gi)) {
+							var user = null;
+							return User.findByUsername(name).then(function(data) {
+								user = data;
+								return user.getDebt();
+							}).then(function(debt){
+								if (debt > 0 && !ticket.allow_debtors) {
+									throw httpError(400, user.name+" is a debtor and debtors are blocked")
+								}
+								return Booking.getByTicketIdAndUsername(ticket.id, user.username);
+							}).then(function(bookings) {
+								if (!bookings) return;
+								for (var i = 0; i < bookings.length; i++) {
+									if (bookings[i].username == user.username) throw httpError(user.name+" is already booked on")
+								}
+							});
+						} else if (!ticket.allow_guests) {
+								throw httpError(400, "Booking is not open to guests");
+						} else {
+							return;
+						}
+					})
+				)
+			})
+			.then(function() {
+				return Booking.countByTicketId(ticket.id);
+			})
+			.then(function(bookings_so_far) {
+				if (ticket.stock - bookings_so_far < booking.users.length) {
+					throw httpError(400, "No more spaces")
+				}
+				return;
+			})
     }
 }
 

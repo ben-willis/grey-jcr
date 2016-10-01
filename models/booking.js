@@ -30,7 +30,7 @@ Booking.prototype.getChoices = function() {
 }
 
 Booking.prototype.getChoiceDetailsById = function(choice_id) {
-    return db('ticket_option_choices').select().where({id: choice_id});
+    return db('ticket_option_choices').first().where({id: choice_id});
 }
 
 Booking.prototype.setChoices = function(choices) {
@@ -53,9 +53,9 @@ Booking.prototype.setChoices = function(choices) {
 
 /* Static Methods */
 
-Booking.create = function(ticket_id, event_id, booked_by, users) {
-    Promise.all(
-        users.map(function(name) {
+Booking.create = function(ticket_id, event_id, booked_by, names) {
+    return Promise.all(
+        names.map(function(name) {
             username = (name.match(/[A-Za-z]{4}[0-9]{2}/gi)) ? name : null;
             guestname = (name.match(/[A-Za-z]{4}[0-9]{2}/gi)) ? null : name;
             return db('bookings').insert({
@@ -86,6 +86,12 @@ Booking.getByTicketIdAndUsername = function(ticket_id, username) {
         return data.map(function(booking_data) {
             return new Booking(booking_data);
         });
+    })
+}
+
+Booking.countByTicketId = function(ticket_id) {
+    return db('bookings').count().where({ticket_id: ticket_id}).first().then(function(data) {
+        return parseInt(data.count);
     })
 }
 
