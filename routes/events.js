@@ -5,7 +5,9 @@ var treeize   = require('treeize');
 var httpError = require('http-errors');
 
 var Event = require('../models/event');
-var Ticket = require('../models/ticket')
+var Ticket = require('../models/ticket');
+var Booking = require('../models/booking');
+var User = require('../models/user');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -37,127 +39,35 @@ router.get('/:event_id/:ticket_id/book', function (req, res, next) {
 });
 
 /* POST a booking */
-router.post('/:eventid/:ticketid/book', function (req, res, next) {
-	var bookings = [];
-	for (var i = 0; i < req.body.bookings.length; i++) {
-		if (req.body.bookings[i] != "") {
-			bookings.push(req.body.bookings[i]);
-		}
-	};
-
-	req.db.tx(function (t) {
-		// t = this;
-		var ticketname;
-		var ticketprice;
-		var guest_surcharge;
-		var allow_guests;
-		var debtors = [];
-		return this.sequence(function (index, data, delay) {
-			switch (index) {
-				case 0:
-					// Find all the usernames that are being booked on
-					var query = 'SELECT users.username, users.name, bookings.id, (SELECT SUM(amount) FROM debts WHERE username=users.username) AS debt FROM users LEFT JOIN bookings ON users.username=bookings.username WHERE (bookings.ticketid=$1 OR bookings.ticketid IS NULL) AND (';
-					var values = [req.params.ticketid];
-					for (i = 0; i<bookings.length; i++) {
-						if (i!=0) {
-							query += ' OR ';
-						}
-						query += 'users.username=$'+(i+2);
-						values.push(bookings[i]);
-					}
-					query += ')';
-					return this.query(query, values);
-				case 1:
-					// For each user they're trying to book on
-					for (var i = 0; i < data.length; i++) {
-						// Check that they don't already have a ticket
-						if (data[i].id != null) {
-							err = new Error(data[i].name + " is already booked on.")
-							throw err;
-						}
-						// Remember whether they're a debtor
-						if (parseInt(data[i].debt) > 0 ) {
-							debtors.push(data[i].name);
-						}
-					};
-					return req.db.one("SELECT name, min_booking, max_booking, open_sales, close_sales, price, guests, guest_surcharge, block_debtors FROM tickets WHERE id=$1", [req.params.ticketid])
-				// Check there are enough places
-				case 2:
-					if (bookings.length < data.min_booking || bookings.length > data.max_booking) {
-						err = new Error("You need to book on at least "+data.min_booking+" and at most "+data.max_booking+" people.");
-						throw err;
-					}
-					if (new Date() < data.open_sales || new Date() > data.close_sales) {
-						err = new Error("Booking is not open at this time.");
-						throw err;
-					}
-					if (data.block_debtors && debtors.length>0) {
-						err = new Error(debtors[0] + " is a debtor and debtors are blocked from booking.");
-						throw err;
-					}
-					ticketname = data.name;
-					ticketprice = data.price;
-					allow_guests = data.guests;
-					guest_surcharge = data.guest_surcharge;
-					return this.one('SELECT stock - (SELECT COUNT(*) FROM bookings WHERE ticketid=$1) AS remaining FROM tickets WHERE id=$1', [req.params.ticketid]);
-				// Book them on
-				case 3:
-					if (data.remaining < bookings.length) {
-						err = new Error("No more tickets left");
-						throw err;
-					}
-					var query = 'INSERT INTO bookings (username, booked_by, eventid, ticketid, guest_name) VALUES';
-					var values = [req.user.username, req.params.eventid, req.params.ticketid];
-					for (i = 0; i<bookings.length; i++) {
-						if (i!=0) {
-							query += ', ';
-						}
-						if (validator.matches(bookings[i], /[A-Za-z]{4}[0-9]{2}/i) || !allow_guests) {
-							query += '($'+(i+4)+', $1, $2, $3, NULL)';
-						} else {
-							query += '(NULL, $1, $2, $3, $'+(i+4)+')';
-						}
-						values.push(bookings[i]);
-					}
-					query += ' RETURNING id, username';
-					return this.query(query, values);
-				// Add their debts
-				case 4:
-					var query = 'INSERT INTO debts (name, message, amount, bookingid, username) VALUES '
-					var values = [ticketname];
-					for (var i = 0; i < data.length; i++) {
-						if (i!=0) {
-							query += ', '
-						}
-						query += '($1, $'+(4*i + 5)+', $'+(4*i + 4)+', $'+(4*i + 2)+', $'+(4*i + 3)+')';
-						values.push(data[i].id);
-						if (validator.matches(bookings[i], /[A-Za-z]{4}[0-9]{2}/i) || !allow_guests) {
-							values.push(data[i].username);
-							values.push(ticketprice);
-						} else {
-							values.push(req.user.username);
-							values.push(ticketprice + guest_surcharge);
-						}
-						values.push('Ticket for '+bookings[i]);
-					};
-					return this.query(query, values);
-			}
-		});
-	})
-	.then(function (data) {
-		return req.db.one('SELECT events.timestamp, events.slug FROM events WHERE events.id=$1', [req.params.eventid])
-	})
-	.then(function (event) {
-		res.redirect(303, "/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug+"/"+req.params.ticketid+"/booking?success")
-	})
-	.catch(function (err) {
-		if (err.error.code == 23503) {
-			err = new Error("One or more of the usernames entered was not recognized.")
-			err.status = 400;
-			return next(err);
-		}
-		return next(err.error);
+router.post('/:event_id/:ticket_id/book', function (req, res, next) {
+	var bookings = req.body.bookings.filter(function(booking) {
+		return (booking != "");
 	});
+
+	bookings_manager.createBooking(parseInt(req.params.ticket_id), parseInt(req.params.event_id), req.user.username, bookings)
+		.then(function(booking_ids) {
+			return Ticket.findById(parseInt(req.params.ticket_id));
+		})
+		.then(function(ticket) {
+			return Promise.all(
+				bookings.map(function(name) {
+					username = (name.match(/[A-Za-z]{4}[0-9]{2}/gi)) ? name : req.user.username;
+					amount = (name.match(/[A-Za-z]{4}[0-9]{2}/gi)) ? ticket.price : ticket.price + ticket.guest_surcharge;
+					return User.findByUsername(username).then(function(user){
+						return user.addDebt(ticket.name, "Ticket for "+name, amount);
+					});
+				})
+			)
+		})
+		.then(function(){
+			return Event.findById(parseInt(req.params.event_id))
+		})
+		.then(function(event) {
+			res.redirect(303, "/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug+"/"+req.params.ticket_id+"/booking?success")
+		})
+		.catch(function(err) {
+			next(err);
+		});
 });
 
 router.get('/:eventid/:ticketid/book/result', function (req, res, next) {
@@ -176,46 +86,30 @@ router.get('/:eventid/:ticketid/book/result', function (req, res, next) {
 
 
 /* GET your booking */
-router.get('/:year/:month/:day/:slug/:ticketid/booking', function (req, res, next) {
-	var bookings;
+router.get('/:year/:month/:day/:slug/:ticket_id/booking', function (req, res, next) {
+	var ticket;
 	var event;
-	req.db.one("SELECT events.id, events.name FROM events WHERE date_part('year', events.timestamp)=$1 AND date_part('month', events.timestamp)=$2 AND date_part('day', events.timestamp)=$3 AND slug=$4",[req.params.year, req.params.month, req.params.day, req.params.slug])
-		.then(function (data) {
+	Event.findBySlugAndDate(req.params.slug, new Date(req.params.year, parseInt(req.params.month)-1, req.params.day))
+		.then(function(data) {
 			event = data;
-			return req.db.many('SELECT bookings.id AS "id*", users.name AS user_name, users.username AS username, bookings.notes, bookings.guest_name, tickets.close_sales AS ticket_close, tickets.guest_surcharge, tickets.name AS ticket_name, tickets.price AS ticket_price, tickets.id AS ticket_id, ticket_option_choices.id AS "choices:id", ticket_option_choices.name AS "choices:name" FROM bookings LEFT JOIN tickets ON bookings.ticketid=tickets.id LEFT JOIN booking_choices ON booking_choices.bookingid=bookings.id LEFT JOIN ticket_option_choices ON ticket_option_choices.id=booking_choices.choiceid LEFT JOIN users ON bookings.username=users.username WHERE tickets.id=$1 AND (bookings.username=$2 OR bookings.booked_by=$2)', [req.params.ticketid, req.user.username]);
+			return Ticket.findById(parseInt(req.params.ticket_id))
 		})
-		.then(function (data) {
-			var bookingTree = new treeize();
-			bookingTree.grow(data);
-			bookings = bookingTree.getData();
-			return req.db.manyOrNone('SELECT ticket_options.name, ticket_options.id, ticket_option_choices.id AS "choices:id", ticket_option_choices.name AS "choices:name", ticket_option_choices.price AS "choices:price" FROM ticket_options LEFT JOIN ticket_option_choices ON ticket_option_choices.optionid=ticket_options.id WHERE ticket_options.ticketid=$1', [req.params.ticketid]);
+		.then(function(data) {
+			ticket = data;
+			return Booking.getByTicketIdAndUsername(parseInt(req.params.ticket_id), req.user.username);
 		})
-		.then(function (options) {
-			var optionsTree = new treeize();
-			optionsTree.grow(options);
-			options = optionsTree.getData();
-			// For each booking
-			for (var i = 0; i < bookings.length; i++) {
-				// Add the options array
-				bookings[i]['options'] = JSON.parse(JSON.stringify(options));
-				// For each option
-				for (var j = 0; j < bookings[i].options.length; j++) {
-					// For each choice
-					for (var k = 0; k < bookings[i].options[j].choices.length; k++) {
-						bookings[i].options[j].choices[k].selected = false;
-						if (bookings[i].choices){
-							// For each selected choice
-							for (var l = 0; l < bookings[i].choices.length; l++) {
-								// If they're the same
-								if (bookings[i].choices[l].id == bookings[i].options[j].choices[k].id) {
-									bookings[i].options[j].choices[k].selected = true;
-								}
-							};
-						}
-					};
-				};
-			};
-			res.render('events/event_booking', {event: event, bookings: bookings, options: options});
+		.then(function(bookings){
+			return Promise.all(
+				bookings.map(function(booking) {
+					return booking.getChoices().then(function(choices) {
+						console.log(choices);
+						return booking;
+					})
+				})
+			)
+		})
+		.then(function(bookings) {
+			res.render('events/event_booking', {event: event, ticket: ticket, bookings: bookings});
 		})
 		.catch(function (err) {
 			next(err);
@@ -223,75 +117,56 @@ router.get('/:year/:month/:day/:slug/:ticketid/booking', function (req, res, nex
 });
 
 /* POST a booking update */
-router.post('/:bookingid', function (req, res, next) {
-	var ticketid;
-	req.db.none('DELETE FROM booking_choices WHERE bookingid=$1', [req.params.bookingid])
-		.then(function () {
-			req.body.choices = req.body.choices.filter(function(choice) {return (choice!='')});
-			var query = 'INSERT INTO booking_choices(bookingid, choiceid) VALUES ';
-			var values = [req.params.bookingid];
-			for (var i = 0; i < req.body.choices.length; i++) {
-				if (i!=0) {
-					query+=', '
-				}
-				query+='($1, $'+(i+2)+')'
-				values.push(req.body.choices[i]);
-			};
-			return req.db.none(query, values);
-		})
-		.then(function (){
-			return req.db.one('UPDATE bookings SET notes=$1 WHERE bookings.id=$2 RETURNING ticketid AS id, guest_name', [req.body.notes, req.params.bookingid]);
-		})
-		.then(function (ticket){
-			console.log(ticket);
-			ticketid = ticket.id;
-			guest = (ticket.guest_name != null);
-			console.log(guest);
-			query = 'UPDATE debts SET amount=(SELECT SUM(price) FROM ticket_option_choices WHERE '
-			values = [ticket.id, req.params.bookingid];
-			for (var i = 0; i < req.body.choices.length; i++) {
-				if (i!=0) {
-					query+=' OR '
-				}
-				query += 'id=$'+(i+3);
-				values.push(req.body.choices[i]);
-			};
-			query += ') + (SELECT price FROM tickets WHERE id=$1) '+((guest)?'+ (SELECT guest_surcharge FROM tickets WHERE id=$1)':'')+' WHERE bookingid=$2';
-			console.log(query);
-			return req.db.none(query, values);
-		})
-		.then(function () {
-			return req.db.one('SELECT events.timestamp, events.slug FROM bookings LEFT JOIN events ON events.id=bookings.eventid WHERE bookings.id=$1', [req.params.bookingid])
-		})
-		.then(function(event) {
-			res.redirect(303, "/events/"+event.timestamp.getFullYear()+"/"+(event.timestamp.getMonth()+1)+"/"+(event.timestamp.getDate())+"/"+event.slug+"/"+ticketid+"/booking?success")
-		})
-		.catch(function (err) {
-			next(err);
-		})
+router.post('/:booking_id', function (req, res, next) {
+	var booking = null;
+	Booking.findById(parseInt(req.params.booking_id)).then(function(data) {
+		booking = data;
+		return Promise.all([
+			booking.setChoices(req.body.choices),
+			booking.updateNotes(req.body.notes)
+		])
+	}).then(function(){
+		if (booking.username) {
+			return User.findByUsername(booking.username);
+		} else {
+			return User.findByUsername(booking.booked_by);
+		}
+	}).then(function(user){
+		// Here we shall set debt
+		return;
+	}).then(function() {
+		return Event.findById(parseInt(req.body.event_id));
+	}).then(function(event){
+		res.redirect(303, "/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug+"/"+booking.ticket_id+"/booking?success");
+	});
 });
 
 /* GET an event */
 router.get('/:year/:month/:day/:slug', function (req, res, next) {
-	var event;
+	var event = null;
+	var tickets = [];
 	Event.findBySlugAndDate(req.params.slug, new Date(req.params.year, req.params.month-1, req.params.day)).then(function (data) {
 			event = data;
 			if (!req.user) return;
-			return req.db.manyOrNone('SELECT tickets.id, tickets.price, tickets.guest_surcharge, tickets.stock, (SELECT COUNT(*) FROM bookings WHERE bookings.ticketid=tickets.id) AS sold, tickets.name, bookings.id AS "bookings:id", bookings.booked_by AS "bookings:booked_by", EXTRACT("EPOCH" FROM (tickets.open_sales - NOW())) AS time_to_open, tickets.close_sales FROM (tickets LEFT JOIN events_tickets ON events_tickets.ticketid=tickets.id) LEFT JOIN bookings ON bookings.ticketid=tickets.id WHERE events_tickets.eventid=$1', [data.id, req.user.username]);
+			return event.getTickets();
 		})
-		.then(function (data) {
-			var ticketTree = new treeize();
-			ticketTree.grow(data);
-			tickets = ticketTree.getData();
-			for (var i = 0; i < tickets.length; i++) {
-				if (tickets[i].bookings) {
-					for (var j = tickets[i].bookings.length - 1; j >= 0; j--) {
-						if (tickets[i].bookings[j].booked_by != req.user.username && tickets[i].bookings[j].user != req.user.username) {
-							tickets[i].bookings.splice(j, 1);
-						}
-					};
-				}
-			}
+		.then(function(ticket_ids) {
+			return Promise.all(
+				ticket_ids.map(function(ticket_id) {
+					var ticket = null;
+					return Ticket.findById(ticket_id)
+						.then(function(data) {
+							ticket = data;
+							return Booking.getByTicketIdAndUsername(data.id, req.user.username);
+						})
+						.then(function(bookings) {
+							ticket.bookings = bookings;
+							return ticket
+						});
+				})
+			)
+		})
+		.then(function(tickets) {
 			res.render('events/event', {event: event, tickets: tickets});
 		})
 		.catch(function (err) {
@@ -300,3 +175,163 @@ router.get('/:year/:month/:day/:slug', function (req, res, next) {
 });
 
 module.exports = router;
+
+/* BOOKING MANAGER */
+
+bookings_manager = {
+	queue: [],
+    processing: false,
+	processQueue() {
+        self = this;
+        self.processing = !(self.queue.length == 0);
+        if (!self.processing) return;
+
+		booking = self.queue.shift();
+
+		Ticket.findById(booking.ticket_id)
+			.then(self.checkBookingValid(booking))
+			.then(Booking.create(booking.ticket_id, booking.event_id, booking.booker, booking.users))
+			.then(function(booking_id) {
+	            booking.promise.resolve(booking_id);
+			}).catch(function(err) {
+	            booking.promise.reject(err);
+			}).finally(function() {
+	            self.processQueue();
+			});
+	},
+    checkBookingValid(booking) {
+        return new Promise(function(resolve, reject) {
+			// Check Bookings is open
+			// Check they've booked on the right number
+			// Check for debtors/guests
+			// Check no ones already booked on
+			// Check there are enough spaces
+            setTimeout(function() {
+                if(Math.random() < 0.5) {
+                    reject("Not Valid");
+                } else {
+                    resolve();
+                }
+            }, Math.random() * 1000)
+        })
+    }
+}
+
+bookings_manager.createBooking = function(ticket_id, event_id, username, users) {
+	self = this;
+	return new Promise(function(resolve, reject) {
+		self.queue.push({
+			ticket_id: ticket_id,
+			event_id: event_id,
+			booker: username,
+			users: users,
+			promise: {
+				resolve: resolve,
+				reject: reject
+			}
+		});
+		if (!self.processing) {
+			self.processQueue();
+		}
+	});
+}
+
+// req.db.tx(function (t) {
+// 	// t = this;
+// 	var ticketname;
+// 	var ticketprice;
+// 	var guest_surcharge;
+// 	var allow_guests;
+// 	var debtors = [];
+// 	return this.sequence(function (index, data, delay) {
+// 		switch (index) {
+// 			case 0:
+// 				// Find all the usernames that are being booked on
+// 				var query = 'SELECT users.username, users.name, bookings.id, (SELECT SUM(amount) FROM debts WHERE username=users.username) AS debt FROM users LEFT JOIN bookings ON users.username=bookings.username WHERE (bookings.ticketid=$1 OR bookings.ticketid IS NULL) AND (';
+// 				var values = [req.params.ticketid];
+// 				for (i = 0; i<bookings.length; i++) {
+// 					if (i!=0) {
+// 						query += ' OR ';
+// 					}
+// 					query += 'users.username=$'+(i+2);
+// 					values.push(bookings[i]);
+// 				}
+// 				query += ')';
+// 				return this.query(query, values);
+// 			case 1:
+// 				// For each user they're trying to book on
+// 				for (var i = 0; i < data.length; i++) {
+// 					// Check that they don't already have a ticket
+// 					if (data[i].id != null) {
+// 						err = new Error(data[i].name + " is already booked on.")
+// 						throw err;
+// 					}
+// 					// Remember whether they're a debtor
+// 					if (parseInt(data[i].debt) > 0 ) {
+// 						debtors.push(data[i].name);
+// 					}
+// 				};
+// 				return req.db.one("SELECT name, min_booking, max_booking, open_sales, close_sales, price, guests, guest_surcharge, block_debtors FROM tickets WHERE id=$1", [req.params.ticketid])
+// 			// Check there are enough places
+// 			case 2:
+// 				if (bookings.length < data.min_booking || bookings.length > data.max_booking) {
+// 					err = new Error("You need to book on at least "+data.min_booking+" and at most "+data.max_booking+" people.");
+// 					throw err;
+// 				}
+// 				if (new Date() < data.open_sales || new Date() > data.close_sales) {
+// 					err = new Error("Booking is not open at this time.");
+// 					throw err;
+// 				}
+// 				if (data.block_debtors && debtors.length>0) {
+// 					err = new Error(debtors[0] + " is a debtor and debtors are blocked from booking.");
+// 					throw err;
+// 				}
+// 				ticketname = data.name;
+// 				ticketprice = data.price;
+// 				allow_guests = data.guests;
+// 				guest_surcharge = data.guest_surcharge;
+// 				return this.one('SELECT stock - (SELECT COUNT(*) FROM bookings WHERE ticketid=$1) AS remaining FROM tickets WHERE id=$1', [req.params.ticketid]);
+// 			// Book them on
+// 			case 3:
+// 				if (data.remaining < bookings.length) {
+// 					err = new Error("No more tickets left");
+// 					throw err;
+// 				}
+// 				var query = 'INSERT INTO bookings (username, booked_by, eventid, ticketid, guest_name) VALUES';
+// 				var values = [req.user.username, req.params.eventid, req.params.ticketid];
+// 				for (i = 0; i<bookings.length; i++) {
+// 					if (i!=0) {
+// 						query += ', ';
+// 					}
+// 					if (validator.matches(bookings[i], /[A-Za-z]{4}[0-9]{2}/i) || !allow_guests) {
+// 						query += '($'+(i+4)+', $1, $2, $3, NULL)';
+// 					} else {
+// 						query += '(NULL, $1, $2, $3, $'+(i+4)+')';
+// 					}
+// 					values.push(bookings[i]);
+// 				}
+// 				query += ' RETURNING id, username';
+// 				return this.query(query, values);
+// 			// Add their debts
+// 			case 4:
+// 				var query = 'INSERT INTO debts (name, message, amount, bookingid, username) VALUES '
+// 				var values = [ticketname];
+// 				for (var i = 0; i < data.length; i++) {
+// 					if (i!=0) {
+// 						query += ', '
+// 					}
+// 					query += '($1, $'+(4*i + 5)+', $'+(4*i + 4)+', $'+(4*i + 2)+', $'+(4*i + 3)+')';
+// 					values.push(data[i].id);
+// 					if (validator.matches(bookings[i], /[A-Za-z]{4}[0-9]{2}/i) || !allow_guests) {
+// 						values.push(data[i].username);
+// 						values.push(ticketprice);
+// 					} else {
+// 						values.push(req.user.username);
+// 						values.push(ticketprice + guest_surcharge);
+// 					}
+// 					values.push('Ticket for '+bookings[i]);
+// 				};
+// 				return this.query(query, values);
+// 		}
+// 	});
+// })

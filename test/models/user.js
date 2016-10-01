@@ -127,16 +127,13 @@ describe('User Object', function() {
     });
 
     it("should pay its debt", function(done) {
-        current_user.payDebt({
-            username: this.username,
-            name: "Test Payment",
-            amount: 10
-        }).then(function() {
-            return current_user.getDebt();
-        }).then(function(amount) {
-            expect(amount).to.equal(0);
-            done();
-        })
+        current_user.payDebt("Test Payment", "message", 10)
+            .then(function() {
+                return current_user.getDebt();
+            }).then(function(amount) {
+                expect(amount).to.equal(0);
+                done();
+            })
     });
 
     it("should delete a debt", function(done) {
@@ -149,16 +146,13 @@ describe('User Object', function() {
     });
 
     it("should add to its debt", function(done) {
-        current_user.addDebt({
-            username: this.username,
-            name: "Test Debt 2",
-            amount: 10
-        }).then(function() {
-            return current_user.getDebt();
-        }).then(function(amount) {
-            expect(amount).to.equal(20);
-            done();
-        })
+        current_user.addDebt("Test Debt 2", "Message", 10)
+            .then(function() {
+                return current_user.getDebt();
+            }).then(function(amount) {
+                expect(amount).to.equal(20);
+                done();
+            })
     });
 
     it("should assign itself to a position", function(done) {

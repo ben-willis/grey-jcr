@@ -19,6 +19,7 @@ html
 								th Message
 								th Amount
 						tbody
+							- var total_debt = 0
 							each debt in debts
 								tr
 									if (debt.name == "PayPal Payment")
@@ -29,6 +30,7 @@ html
 										td= debt.name
 									td= debt.message
 									td= ((debt.amount<0)?"-":"")+"£"+Math.abs((debt.amount/100)).toFixed(2)
+									-total_debt += debt.amount
 				div(class="six wide column")
 					h3(class="ui header") Total Debt
 					if (debts.length == 0)

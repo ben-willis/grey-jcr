@@ -47,10 +47,8 @@ Event.prototype.getTickets = function() {
 Event.prototype.setTickets = function(ticket_ids) {
     var this_event_id = this.id;
     return db('event_tickets').where({event_id: this_event_id}).del().then(function (){
-        console.log(this_event_id);
         Promise.all(
             ticket_ids.map(function(ticket_id) {
-                console.log(this_event_id);
                 return db('event_tickets').insert({
                     event_id: this_event_id,
                     ticket_id: ticket_id

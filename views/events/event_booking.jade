@@ -9,7 +9,7 @@ html
 			include ../header.jade
 			include ../menu.jade
 			h2(class="ui header")= title
-				div(class="sub header")= bookings[0].ticket_name
+				div(class="sub header")= ticket.name
 			if ("success" in query)
 				div(class="ui positive icon message")
 					i(class="close icon")
@@ -27,22 +27,22 @@ html
 					if (booking.username)
 						div(class=(booking.username==user.username)?"active title":"title")
 							i(class="dropdown icon")
-							= booking.user_name
+							= booking.username
 					else
 						div(class="title")
 							i(class="dropdown icon")
-							=booking.guest_name
+							=booking.guestname
 					div(class=(booking.username==user.username)?"active content":"content")
-						if (new Date(booking.ticket_close) > new Date())
+						if (new Date(ticket.close_booking) > new Date())
 							p You can update your preferences until booking closes.
 							form(class="ui form" method="POST" action="/events/"+booking.id)
-								each option in booking.options
+								each option in ticket.options
 									div(class="field")
 										label= option.name
 										select(name="choices[]" class="ui dropdown")
 											- var selected = false;
 											each choice in option.choices
-												if (choice.selected)
+												if (booking.choices.indexOf(choice.id) != -1)
 													- selected = true;
 													option(value=choice.id selected)= choice.name + " [£"+(choice.price/100).toFixed(2)+"]"
 												else
@@ -52,6 +52,7 @@ html
 								div(class="field")
 									label Notes (e.g. Dietary preferences)
 									textarea(name="notes" rows=3)=booking.notes
+								input(name="event_id" value=event.id hidden)
 								button(class="ui submit button" type="submit") Save
 
 						else
@@ -63,15 +64,15 @@ html
 										th Price
 								tbody
 									tr
-										td= booking.ticket_name
-										td= "£"+(booking.ticket_price/100).toFixed(2)
-										- total += booking.ticket_price
-										- total += (booking.username) ? 0 : booking.guest_surcharge
-									each option in booking.options
+										td= ticket.name
+										- total += ticket.price
+										- total += (booking.username) ? 0 : ticket.guest_surcharge
+										td= "£"+(total/100).toFixed(2)
+									each option in ticket.options
 										tr
 											- var selected = false;
 											each choice in option.choices
-												if (choice.selected)
+												if (booking.choices.indexOf(choice.id) != -1)
 													- selected = true;
 													td= option.name+": "+choice.name
 													td= "£"+(choice.price/100).toFixed(2)

@@ -41,21 +41,21 @@ User.prototype.getDebts = function() {
         .where('username', this.username);
 }
 
-User.prototype.addDebt = function(data) {
+User.prototype.addDebt = function(name, message, amount) {
     return db('debts').insert({
         username: this.username,
-        name: data.name,
-        message: data.message,
-        amount: data.amount
+        name: name,
+        message: message,
+        amount: amount
     })
 }
 
-User.prototype.payDebt = function(data) {
+User.prototype.payDebt = function(name, message, amount) {
     return db('debts').insert({
         username: this.username,
-        name: data.name,
-        message: data.message,
-        amount: -data.amount
+        name: name,
+        message: message,
+        amount: -amount
     })
 }
 

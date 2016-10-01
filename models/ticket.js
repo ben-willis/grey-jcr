@@ -70,15 +70,7 @@ Ticket.prototype.getOptionsAndChoices = function() {
 
 Ticket.prototype.setOptionsAndChoices = function(options) {
     // Delete all previous options and choices
-    return Promise.all(
-        this.options.map(function(ticket_option) {
-            return Promise.all([
-                db('ticket_option_choices').where({option_id: ticket_option.id}).del().then(function() {
-                    return db('ticket_options').where({id: ticket_option.id}).del();
-                })
-            ])
-        })
-    ).then(function(){
+    db('ticket_options').where({ticket_id: this.id}).del().then(function(){
         this_ticket_id = this.id;
         // Create the new options and choices
         return Promise.all(
