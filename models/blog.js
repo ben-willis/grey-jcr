@@ -9,14 +9,14 @@ var Blog = function (data) {
     this.slug = data.slug;
     this.message = data.message;
     this.author = data.author;
-    this.position_id = data.position_id;
+    this.role_id = data.role_id;
     this.updated = new Date(data.updated);
 
     this.permalink = this.updated.getFullYear()+"/"+(this.updated.getMonth()+1)+"/"+this.updated.getDate()+"/"+this.slug
 }
 
-Blog.prototype.getPosition = function () {
-    return db('positions').first().where({id: this.position_id});
+Blog.prototype.getRole = function () {
+    return db('roles').first().where({id: this.role_id});
 };
 
 Blog.prototype.getAuthor = function () {
@@ -46,7 +46,7 @@ Blog.create = function(data) {
         slug: slug(data.title),
         message: data.message,
         author: data.author,
-        position_id: data.position_id
+        role_id: data.role_id
     }).then(function(id) {
         return new Blog({
             id: id[0],
@@ -54,7 +54,7 @@ Blog.create = function(data) {
             slug: slug(data.title),
             message: data.message,
             author: data.author,
-            position_id: data.position_id
+            role_id: data.role_id
         })
     })
 }

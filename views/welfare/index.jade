@@ -18,13 +18,13 @@ html
 			div(class="ui vertical segment")
 				h3(class="ui header") Who are we?
 				div(class="ui seven doubling link cards")
-					each position in welfare
-						each user in position.users
-							div(class="card" data-position=position.id)
+					each role in welfare
+						each user in role.users
+							div(class="card" data-role=role.id)
 								div(class="image")
-									img(src="/api/users/"+position.username+"/avatar")
+									img(src="/api/users/"+role.username+"/avatar")
 								div(class="content")
-									div(class="header")= position.title
+									div(class="header")= role.title
 									div(class="meta")=user.name
 
 			div(class="ui vertical segment")
@@ -43,8 +43,8 @@ html
 				h3(class="ui header") Getting involved in Welfare
 				p Would you like to get involved in welfare? Whilst at Durham, there are several opportunities to get involved in welfare: be at Grey, through Nightline or Durham SU.
 				h4(class="ui header") College Welfare team
-				p The new Welfare team will be picked during the second term of the year. The Male and Female Welfare Officers will also be elected during Epiphany term and anyone who would like to run for the positions can stand for either Male or Female Welfare Officer.
-				p If you would like to apply to be on the Welfare team or run for the position as a Welfare Officer – feel free to get in touch with the current team to answer any question you might have.
+				p The new Welfare team will be picked during the second term of the year. The Male and Female Welfare Officers will also be elected during Epiphany term and anyone who would like to run for the roles can stand for either Male or Female Welfare Officer.
+				p If you would like to apply to be on the Welfare team or run for the role as a Welfare Officer – feel free to get in touch with the current team to answer any question you might have.
 				h4(class="ui header") Nightline
 				p Nightline run a training weekend during the first term and again in the second term, that aims to teach you listening skills and gives you the chance to become a Nightliner. Even if you do not want to become a volunteer for Nightline, the training weekend is really beneficial and useful for anyone to take part in.
 				p We ask that those who become member of the welfare team have been on the weekend.
@@ -61,8 +61,8 @@ html
 		script.
 			$(".card").click(function (e) {
 				e.preventDefault();
-				positionid = $(this).attr('data-position');
-				$.get('/api/positions/'+positionid, function (data) {
+				var role_id = $(this).attr('data-role');
+				$.get('/api/roles/'+role_id, function (data) {
 					$('.ui.modal .header').text(data.title);
 					$('.ui.modal .content').text(data.description);
 					$('.ui.modal').modal('show');

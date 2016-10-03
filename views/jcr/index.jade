@@ -25,25 +25,25 @@ html
 				h3(class="ui header") The Executive Committee
 				p The Core Executive, that is the Executive Officers, meet weekly to discuss policy, issues facing Students at Grey, ideas for improvements and to update each other during Officer’s reports. The Core Executive also discuss feedback sent in using the <a href="/services/feedback">Feedback System</a> in order to react to relevant issues as they arise. These are open to all JCR Members, if you want to sit in on an Executive meeting, you can!
 				div(class="ui six doubling link cards")
-					each position in exec
-						each user in position.users
-							a(class="card" href="/jcr/blog/"+position.slug)
+					each role in exec
+						each user in role.users
+							a(class="card" href="/jcr/blog/"+role.slug)
 								div(class="image")
 									img(src="/api/users/"+user.username+"/avatar")
 								div(class="content")
-									div(class="header")= position.title
+									div(class="header")= role.title
 									div(class="meta")=user.name
 
 			div(class="ui vertical segment" id="officers")
 				h3(class="ui header") JCR Officers
 				div(class="ui six doubling link cards")
-					each position in officers
-						each user in position.users
-							div(class="card" data-position=position.id)
+					each role in officers
+						each user in role.users
+							div(class="card" data-role=role.id)
 								div(class="image")
 									img(src="/api/users/"+user.username+"/avatar")
 								div(class="content")
-									div(class="header")= position.title
+									div(class="header")= role.title
 									div(class="meta")=user.name
 
 			div(class="ui vertical segment" id="hlms")
@@ -62,8 +62,8 @@ html
 		script.
 			$("#officers .card").click(function (e) {
 				e.preventDefault();
-				position_id = $(this).attr('data-position');
-				$.get('/api/positions/'+position_id, function (data) {
+				role_id = $(this).attr('data-role');
+				$.get('/api/roles/'+role_id, function (data) {
 					$('.ui.modal .header').text(data.title);
 					$('.ui.modal .content').text(data.description);
 					$('.ui.modal').modal('show');

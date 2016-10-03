@@ -5,6 +5,8 @@ var upload = multer({dest: __dirname+'/../../tmp'});
 var mv = require('mv');
 var mime = require('mime');
 var treeize   = require('treeize');
+var shortid = require('shortid');
+var slug = require('slug');
 
 router.use(function (req, res, next) {
 	if (req.user.level<5 ) {
@@ -228,7 +230,7 @@ router.get('/:electionid/:positionid/delete', function (req, res, next) {
 /* POST a new nomination */
 router.post('/:electionid/:positionid/newnomination', upload.single('manifesto'),function (req, res, next) {
 	if (req.file) {
-		var manifesto_name = slugify(req.body.name)+'-'+makeid(4)+'.'+mime.extension(req.file.mimetype);
+		var manifesto_name = slug(req.body.name)+'-'+shortid.generate()+'.'+mime.extension(req.file.mimetype);
 		mv(req.file.path, __dirname+'/../../public/files/manifestos/'+manifesto_name, function (err) {
 			req.db.none('INSERT INTO election_nominations(name, electionid, positionid, manifesto) VALUES ($1, $2, $3, $4)', [req.body.name, req.params.electionid, req.params.positionid, manifesto_name])
 				.then(function () {
@@ -259,26 +261,5 @@ router.get('/:electionid/:positionid/:nominationid/delete', function (req, res, 
 			next(err);
 		});
 });
-
-function slugify(text)
-{
-  return text.toString().toLowerCase()
-    .replace(/\s+/g, '-')           // Replace spaces with -
-    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-    .replace(/^-+/, '')             // Trim - from start of text
-    .replace(/-+$/, '');            // Trim - from end of text
-}
-
-function makeid(n)
-{
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for( var i=0; i < n; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-}
 
 module.exports = router;

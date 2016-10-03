@@ -58,7 +58,7 @@ describe("Static User Methods", function() {
 describe('User Object', function() {
     var current_user = null;
     var fake_debt_id = null;
-    var fake_position_id = null;
+    var fake_role_id = null;
 
     beforeEach(function(done) {
         db('users').insert({
@@ -76,13 +76,13 @@ describe('User Object', function() {
             }).returning("id")
         }).then(function(debt_id){
             fake_debt_id = debt_id[0];
-            return db('positions').insert({
-                title: "Fake Position",
-                slug: "Fake-Position",
+            return db('roles').insert({
+                title: "Fake Role",
+                slug: "Fake-Role",
                 level: 5
             }).returning("id")
-        }).then(function(position_id){
-            fake_position_id = position_id[0];
+        }).then(function(role_id){
+            fake_role_id = role_id[0];
             done();
         })
     });
@@ -90,13 +90,13 @@ describe('User Object', function() {
     afterEach(function(done) {
         current_user = null;
         fake_debt_id = null;
-        fake_position_id = null;
+        fake_role_id = null;
         db('users').del().then(function() {
             return db('debts').del();
         }).then(function() {
-            return db('positions').del();
+            return db('roles').del();
         }).then(function() {
-            return db('user_positions').del();
+            return db('user_roles').del();
         }).then(function() {
             done();
         });
@@ -125,7 +125,9 @@ describe('User Object', function() {
         }).then(function(debts) {
             expect(debts).to.have.length(1)
             done();
-        });
+        }).catch(function(err){
+            done(err);
+        })
     });
 
     it("should pay its debt", function(done) {
@@ -135,6 +137,8 @@ describe('User Object', function() {
             }).then(function(amount) {
                 expect(amount).to.equal(0);
                 done();
+            }).catch(function(err){
+                done(err);
             })
     });
 
@@ -144,6 +148,8 @@ describe('User Object', function() {
         }).then(function(amount) {
             expect(amount).to.equal(0);
             done();
+        }).catch(function(err){
+            done(err);
         })
     });
 
@@ -154,14 +160,16 @@ describe('User Object', function() {
             }).then(function(amount) {
                 expect(amount).to.equal(20);
                 done();
+            }).catch(function(err){
+                done(err);
             })
     });
 
-    it("should assign itself to a position", function(done) {
-        current_user.assignPosition(fake_position_id).then(function() {
-            return db('user_positions').select({
+    it("should assign itself to a role", function(done) {
+        current_user.assignRole(fake_role_id).then(function() {
+            return db('user_roles').select({
                 username: current_user.username,
-                position_id: fake_position_id
+                role_id: fake_role_id
             })
         }).then(function(data){
             expect(data).to.have.length(1);
@@ -169,28 +177,28 @@ describe('User Object', function() {
         })
     });
 
-    it("should get all its positions", function(done) {
-        db('user_positions').insert({
+    it("should get all its roles", function(done) {
+        db('user_roles').insert({
             username: current_user.username,
-            position_id: fake_position_id
+            role_id: fake_role_id
         }).then(function(){
-            return current_user.getPositions();
-        }).then(function(positions) {
-            expect(positions).to.have.length(1);
+            return current_user.getRoles();
+        }).then(function(roles) {
+            expect(roles).to.have.length(1);
             done();
         })
     });
 
-    it("should remove itself from a position", function(done) {
-        db('user_positions').insert({
+    it("should remove itself from a role", function(done) {
+        db('user_roles').insert({
             username: current_user.username,
-            position_id: fake_position_id
+            role_id: fake_role_id
         }).then(function(){
-            return current_user.removePosition(fake_position_id)
+            return current_user.removeRole(fake_role_id)
         }).then(function() {
-            return db('user_positions').select().where({
+            return db('user_roles').select().where({
                 username: current_user.username,
-                position_id: fake_position_id
+                role_id: fake_role_id
             })
         }).then(function(data){
             expect(data).to.have.length(0);
@@ -198,5 +206,5 @@ describe('User Object', function() {
         })
     });
 
-    it("should find all blog posts by itself");
+    it("should get its vote in an election");
 })

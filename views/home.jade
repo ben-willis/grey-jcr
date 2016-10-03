@@ -19,17 +19,17 @@ html
 							each blog in blogs
 								div(class="item")
 									div(class="content")
-										a(class="header" href="/jcr/blog/"+blog.position.slug+"/"+blog.permalink)= blog.title
+										a(class="header" href="/jcr/blog/"+blog.role.slug+"/"+blog.permalink)= blog.title
 										div(class="meta")
 											span(class="author")
 												i(class="ui user icon")
-												= blog.author.name + " ("+blog.position.title+")"
+												= blog.author.name + " ("+blog.role.title+")"
 											span(class="timestamp")
 												i(class="ui clock icon")
 												= prettydate.format(blog.updated)
 										div(class="article description")!= blog.message
 										div(class="extra")
-											a(class="right floated" href="/jcr/blog/"+blog.position.slug+"/"+blog.permalink) Read More
+											a(class="right floated" href="/jcr/blog/"+blog.role.slug+"/"+blog.permalink) Read More
 						a(class="ui right floated button" href="/jcr/blog/") More News
 					div(class="six wide column")
 						h2(class="ui header") Upcoming Events

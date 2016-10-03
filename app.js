@@ -66,24 +66,24 @@ passport.deserializeUser(function (username, done) {
     var current_user = null;
     User.findByUsername(username).then(function(user){
         current_user = user;
-        return current_user.getPositions();
-    }).then(function(positions) {
+        return current_user.getRoles();
+    }).then(function(roles) {
         return Promise.all(
-            positions.map(function(position) {
-                return Folder.findForPosition(position.id).then(function(folder) {
-                    position.folder = folder;
-                    return position;
+            roles.map(function(role) {
+                return Folder.findForRole(role.id).then(function(folder) {
+                    role.folder = folder;
+                    return role;
                 });
             })
         )
-    }).then(function(positions) {
+    }).then(function(roles) {
         current_user.level = 0;
-        for (var i = 0; i < positions.length; i++) {
-            if (positions[i].level > current_user.level) {
-                current_user.level = positions[i].level;
+        for (var i = 0; i < roles.length; i++) {
+            if (roles[i].level > current_user.level) {
+                current_user.level = roles[i].level;
             }
         };
-        current_user.positions = positions;
+        current_user.roles = roles;
         done(null, current_user);
     }).catch(function (err) {
         return done(err);

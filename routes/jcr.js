@@ -2,14 +2,14 @@ var express = require('express');
 var router = express.Router();
 
 var User = require('../models/user');
-var Position = require('../models/position');
+var Role = require('../models/role');
 var Blog = require('../models/blog');
 var Folder = require('../models/folder');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		Position.getByType("exec").then(function(exec_members) {
+		Role.getByType("exec").then(function(exec_members) {
 			return Promise.all(
 				exec_members.map(function(exec_member) {
 					return exec_member.getUsers().then(function(users) {
@@ -19,7 +19,7 @@ router.get('/', function (req, res, next) {
 				})
 			)
 		}),
-		Position.getByType("officer").then(function(exec_members) {
+		Role.getByType("officer").then(function(exec_members) {
 			return Promise.all(
 				exec_members.map(function(exec_member) {
 					return exec_member.getUsers().then(function(users) {
@@ -29,8 +29,8 @@ router.get('/', function (req, res, next) {
 				})
 			)
 		})
-	]).then(function (positions) {
-			res.render('jcr/index', {exec: positions[0], officers: positions[1]});
+	]).then(function (roles) {
+			res.render('jcr/index', {exec: roles[0], officers: roles[1]});
 		}).catch(function (err) {
 			next(err);
 		});
@@ -41,12 +41,12 @@ router.get('/blog', function (req, res, next) {
 	res.render('jcr/blog');
 });
 
-/* GET profile for a position page. */
-router.get('/blog/:position_slug', function (req, res, next) {
-	Position.findBySlug(req.params.position_slug).then(function(position){
+/* GET profile for a role page. */
+router.get('/blog/:role_slug', function (req, res, next) {
+	Role.findBySlug(req.params.role_slug).then(function(role){
 		return Promise.all([
-			position,
-			position.getBlogs().then(function(blogs){
+			role,
+			role.getBlogs().then(function(blogs){
 				return Promise.all(
 					blogs.map(function(blog_data){
 						blog = new Blog(blog_data);
@@ -57,26 +57,26 @@ router.get('/blog/:position_slug', function (req, res, next) {
 					})
 				)
 			}),
-			Folder.findForPosition(position.id)
+			Folder.findForRole(role.id)
 		])
 	}).then(function(data) {
-		res.render('jcr/profile', { blogs: data[1], position: data[0], folder: data[2]});
+		res.render('jcr/profile', { blogs: data[1], role: data[0], folder: data[2]});
 	}).catch(function (err) {
 		next(err);
 	});
 });
 
-router.get('/blog/:position/:year/:month/:date/:slug', function (req, res, next) {
+router.get('/blog/:role/:year/:month/:date/:slug', function (req, res, next) {
 	Blog.findBySlugAndDate(req.params.slug, new Date(req.params.year, parseInt(req.params.month)-1, req.params.date)).then(function (blog) {
 		return Promise.all([
 			blog,
 			blog.getAuthor(),
-			blog.getPosition()
+			blog.getRole()
 		])
 	}).then(function(data){
 		blog = data[0];
 		blog.author = new User(data[1]);
-		blog.position = new Position(data[2]);
+		blog.role = new Role(data[2]);
 		res.render('jcr/article', { blog: blog });
 	}).catch(function (err) {
 		next(err);

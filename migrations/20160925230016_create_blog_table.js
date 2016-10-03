@@ -6,7 +6,7 @@ exports.up = function(knex, Promise) {
             t.string('slug').notNull();
             t.text('message').nullable();
             t.timestamp('updated').defaultTo(knex.fn.now());
-            t.integer('position_id').references('id').inTable('positions').onDelete('SET NULL');
+            t.integer('role_id').references('id').inTable('roles').onDelete('SET NULL');
             t.string('author', 6).references('username').inTable('users').onDelete('SET NULL');
         });
 };

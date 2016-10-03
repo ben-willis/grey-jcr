@@ -4,7 +4,7 @@ exports.up = function(knex, Promise) {
         t.increments('id').primary();
         t.text('name').notNull();
         t.integer("parent_id").defaultTo(0);
-        t.integer("owner").references('id').inTable('positions').onDelete('CASCADE');
+        t.integer("owner").references('id').inTable('roles').onDelete('CASCADE');
     }).then(function() {
         return knex.schema.createTable('files', function(t) {
             t.increments('id').primary();

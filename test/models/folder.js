@@ -31,8 +31,8 @@ describe('Static Folder Methods', function() {
         })
     });
 
-    it("can find a folder for a position", function(done) {
-        Folder.findForPosition(1).then(function(folder) {
+    it("can find a folder for a role", function(done) {
+        Folder.findForRole(1).then(function(folder) {
             expect(folder.name).to.equal("Test Folder");
             done();
         }).catch(function(err){

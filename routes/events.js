@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var validator = require('validator');
-var treeize   = require('treeize');
 var httpError = require('http-errors');
 
 var Event = require('../models/event');

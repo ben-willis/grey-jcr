@@ -8,11 +8,11 @@ describe('Static Blog Methods', function() {
     created_blog_id = null;
 
     beforeEach(function(done) {
-        // Create fake user and position
+        // Create fake user and role
         Promise.all([
-            db('positions').insert({
-                title: "Test Position",
-                slug: "test-position",
+            db('roles').insert({
+                title: "Test Role",
+                slug: "test-role",
                 description: "test",
                 level: 5
             }).returning('id'),
@@ -28,7 +28,7 @@ describe('Static Blog Methods', function() {
                 slug: "Test",
                 message: "Test Message",
                 author: "abcd12",
-                position_id: ids[0][0]
+                role_id: ids[0][0]
             }).returning('id');
         }).then(function(id) {
             created_blog_id = id[0];
@@ -41,7 +41,7 @@ describe('Static Blog Methods', function() {
     afterEach(function(done) {
         Promise.all([
             db('blogs').del(),
-            db('positions').del(),
+            db('roles').del(),
             db('users').del()
         ]).then(function() {
             created_blog_id = null;
@@ -57,7 +57,7 @@ describe('Static Blog Methods', function() {
             slug: "Test 2",
             message: "Test 2 Message",
             author: "abcd12",
-            position_id: 1
+            role_id: 1
         }).then(function(blog) {
             expect(blog.title).to.equal("Test 2");
             done();
@@ -91,11 +91,11 @@ describe('Blog Object', function() {
     blog = null;
 
     beforeEach(function(done) {
-        // Create fake user and position
+        // Create fake user and role
         Promise.all([
-            db('positions').insert({
-                title: "Test Position",
-                slug: "test-position",
+            db('roles').insert({
+                title: "Test Role",
+                slug: "test-role",
                 description: "test",
                 level: 5
             }).returning('id'),
@@ -111,7 +111,7 @@ describe('Blog Object', function() {
                 slug: "Test",
                 message: "Test Message",
                 author: "abcd12",
-                position_id: ids[0][0]
+                role_id: ids[0][0]
             }).returning('id');
         }).then(function(id) {
             return db('blogs').first().where({id: id[0]});
@@ -126,7 +126,7 @@ describe('Blog Object', function() {
     afterEach(function(done) {
         Promise.all([
             db('blogs').del(),
-            db('positions').del(),
+            db('roles').del(),
             db('users').del()
         ]).then(function() {
             blog = null;
@@ -145,9 +145,9 @@ describe('Blog Object', function() {
         });
     });
 
-    it('can get its positions data', function(done){
-        blog.getPosition().then(function(position) {
-            expect(position.title).to.equal("Test Position");
+    it('can get its roles data', function(done){
+        blog.getRole().then(function(role) {
+            expect(role.title).to.equal("Test Role");
             done();
         }).catch(function(err){
             done(err);

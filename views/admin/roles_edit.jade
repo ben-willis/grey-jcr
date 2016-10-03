@@ -9,12 +9,12 @@ html
 			include ./header.jade
 			include ./menu.jade
 			div(class="ui vertical segment")
-				h2 Edit Position
-				form(class="ui edit form" method="POST" action="/admin/positions/"+position.id+"/edit")
-					h3= position.title
+				h2 Edit Role
+				form(class="ui edit form" method="POST" action="/admin/roles/"+role.id+"/edit")
+					h3= role.title
 					div(class="field")
 						label Description
-						textarea(rows="3" name="description")=position.description
+						textarea(rows="3" name="description")=role.description
 					button(type="submit" class="ui submit button")
 						i(class="save icon")
 						| Save

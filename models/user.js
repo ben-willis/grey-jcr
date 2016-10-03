@@ -26,12 +26,12 @@ User.prototype.delete = function(){
 
 User.prototype.getDebt = function() {
     return db('debts')
-        .sum('amount')
+        .sum('amount as total_debt')
         .where('username', this.username)
         .first()
         .then(function(data) {
-            if(!data['sum']) return 0;
-            return parseInt(data['sum']);
+            if(!data['total_debt']) return 0;
+            return parseInt(data['total_debt']);
         });
 }
 
@@ -77,24 +77,24 @@ User.prototype.setDebtForBooking = function(name, message, amount, booking_id) {
     })
 }
 
-User.prototype.assignPosition = function(position_id) {
-    return db('user_positions').insert({
+User.prototype.assignRole = function(role_id) {
+    return db('user_roles').insert({
         username: this.username,
-        position_id: position_id
+        role_id: role_id
     });
 }
 
-User.prototype.getPositions = function() {
-    return db('user_positions')
+User.prototype.getRoles = function() {
+    return db('user_roles')
         .where({'username': this.username})
-        .join('positions', 'user_positions.position_id', '=', 'positions.id')
-        .select('positions.id', 'positions.title', 'positions.slug', 'positions.level');
+        .join('roles', 'user_roles.role_id', '=', 'roles.id')
+        .select('roles.id', 'roles.title', 'roles.slug', 'roles.level');
 }
 
-User.prototype.removePosition = function(position_id) {
-    return db('user_positions').where({
+User.prototype.removeRole = function(role_id) {
+    return db('user_roles').where({
         username: this.username,
-        position_id: position_id
+        role_id: role_id
     }).del();
 }
 

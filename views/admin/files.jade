@@ -13,12 +13,12 @@ html
 				div(class="ten wide column")
 					div(class="ui vertical segment")
 						h3 Your Files
-						select(class="ui position dropdown")
-							each position in user.positions
-								if (position.folder.id)
-									option(value=position.folder.id class="item")= position.title
+						select(class="ui role dropdown")
+							each role in user.roles
+								if (role.folder.id)
+									option(value=role.folder.id class="item")= role.title
 						script.
-							$('.ui.position.dropdown').dropdown();
+							$('.ui.role.dropdown').dropdown();
 						div(class="ui vertical segment")
 							table(class="ui celled striped files table")
 								thead
@@ -30,7 +30,7 @@ html
 
 						script.
 							var parent = 0;
-							var current = !{user.positions[0].folder.id};
+							var current = !{user.roles[0].folder.id};
 							function getFiles(dirid) {
 								parent = current;
 								$('.files.table').addClass("loading");
@@ -79,7 +79,7 @@ html
 								e.preventDefault();
 								getFiles($(this).attr("data-id"));
 							});
-							$('.ui.position.dropdown').change(function(e) {
+							$('.ui.role.dropdown').change(function(e) {
 								getFiles($(this).children('select').val());
 							});
 							getFiles(current);

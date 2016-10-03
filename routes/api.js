@@ -6,7 +6,7 @@ var treeize   = require('treeize');
 
 var User = require('../models/user');
 var Folder = require('../models/folder')
-var Position = require('../models/position');
+var Role = require('../models/role');
 var Event = require('../models/event')
 
 // The main site search
@@ -15,7 +15,7 @@ router.get('/search/', function (req, res, next) {
 	var data = {
 		results: {}
 	};
-	req.db.manyOrNone("SELECT blog.id, blog.title, blog.slug, blog.timestamp, positions.slug AS position_slug FROM blog LEFT JOIN positions ON blog.positionid=positions.id WHERE LOWER(blog.title) LIKE LOWER($1) ORDER BY blog.timestamp DESC", [query])
+	req.db.manyOrNone("SELECT blog.id, blog.title, blog.slug, blog.timestamp, roles.slug AS role_slug FROM blog LEFT JOIN roles ON blog.roleid=roles.id WHERE LOWER(blog.title) LIKE LOWER($1) ORDER BY blog.timestamp DESC", [query])
 		.then(function (blogPosts) {
 			if (blogPosts.length != 0) {
 				data.results.blog = {
@@ -25,7 +25,7 @@ router.get('/search/', function (req, res, next) {
 				for (var i = 0; i < blogPosts.length; i++) {
 					data.results.blog.results.push({
 						title: blogPosts[i].title,
-						url: '/jcr/blog/'+blogPosts[i].position_slug+'/'+blogPosts[i].timestamp.getFullYear()+'/'+(blogPosts[i].timestamp.getMonth()+1)+'/'+blogPosts[i].slug,
+						url: '/jcr/blog/'+blogPosts[i].role_slug+'/'+blogPosts[i].timestamp.getFullYear()+'/'+(blogPosts[i].timestamp.getMonth()+1)+'/'+blogPosts[i].slug,
 						description: prettydate.format(blogPosts[i].timestamp)
 					});
 				};
@@ -84,15 +84,15 @@ router.get('/events/:year/:month', function (req, res, next) {
 });
 
 // Needed for JCR, welfare and support page
-router.get('/positions/:position_id', function(req, res, next) {
-	Position.findById(req.params.position_id).then(function(position) {
-		res.json(position);
+router.get('/roles/:role_id', function(req, res, next) {
+	Role.findById(req.params.role_id).then(function(role) {
+		res.json(role);
 	}).catch(function (err) {
 		res.json(err);
 	});
 })
 
-// Needed for adding users to positions etc
+// Needed for adding users to roles etc
 router.get('/users', function (req, res, next) {
 	User.search(req.query.q)
 		.then(function (users) {

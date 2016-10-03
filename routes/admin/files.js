@@ -7,6 +7,7 @@ var mv = require('mv');
 var mime = require('mime');
 var httpError = require('http-errors');
 var slug = require('slug');
+var shortid = require('shortid');
 
 var Folder = require('../../models/folder');
 
@@ -41,7 +42,7 @@ router.post('/uploadfile', upload.single('file'), function (req, res, next) {
 		current_folder = folder;
 		return new Promise(function(resolve, reject) {
 			if (!req.file) return reject(httpError(400, "No file submitted"));
-			var file_name = slug(req.body.name)+"-"+makeid(5)+"."+mime.extension(req.file.mimetype);
+			var file_name = slug(req.body.name)+"-"+shortid.generate()+"."+mime.extension(req.file.mimetype);
 			mv(req.file.path, __dirname+'/../../public/files/uploaded/'+file_name, function (err) {
 				if(err) return reject(err);
 				return resolve(file_name);
@@ -65,16 +66,5 @@ router.get('/:folder_id/deletefile/:file_id', function (req, res, next) {
 		next(err);
 	});
 });
-
-function makeid(n)
-{
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for( var i=0; i < n; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-}
 
 module.exports = router;

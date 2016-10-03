@@ -20,9 +20,9 @@ html
 						textarea(rows="5" name="message" id="editor1")
 					div(class="field")
 						label Post As
-						select(name="position")
-							each position in user.positions
-								option(value=position.id)= position.title
+						select(name="role")
+							each role in user.roles
+								option(value=role.id)= role.title
 					button(type="submit" class="ui submit button")
 						i(class="write icon")
 						| Create
@@ -34,14 +34,14 @@ html
 					thead
 						tr
 							th Title
-							th Position
+							th Role
 							th Date
 							th Actions
 					tbody
 						each blog in blogs
 							tr
 								td= blog.title
-								td= blog.position.title
+								td= blog.role.title
 								td= blog.updated
 								td
 									a(class="ui edit button" href="/admin/blog/"+blog.id+"/edit")

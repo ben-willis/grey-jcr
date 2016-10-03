@@ -1,16 +1,16 @@
 var express = require('express');
 var router = express.Router();
 
-var Position = require('../models/position')
+var Role = require('../models/role')
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-		Position.getByType("rep").then(function(positions) {
+		Role.getByType("rep").then(function(roles) {
 			return Promise.all(
-				positions.map(function(position) {
-					return position.getUsers().then(function(users) {
-						position.users = users;
-						return position;
+				roles.map(function(role) {
+					return role.getUsers().then(function(users) {
+						role.users = users;
+						return role;
 					});
 				})
 			)

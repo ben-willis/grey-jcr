@@ -2,15 +2,16 @@ var express = require('express');
 var router = express.Router();
 var validator = require('validator');
 var Blog = require('../../models/blog');
-var Position = require('../../models/position');
+var Role = require('../../models/role');
 
 /* GET blog page. */
 router.get('/', function (req, res, next) {
 	req.user.getBlogs().then(function(blog_datas) {
-		return Promise.all( blog_datas.map(function(data){
-				return Position.findById(data.position_id).then(function(position_data){
+		return Promise.all(
+			blog_datas.map(function(data){
+				return Role.findById(data.role_id).then(function(role_data){
 					blog = new Blog(data);
-					blog.position = new Position(position_data);
+					blog.role = new Role(role_data);
 					return blog;
 				})
 			})
@@ -28,7 +29,7 @@ router.post('/new', function (req, res, next) {
 		title: req.body.title,
 		message: req.body.message,
 		author: req.user.username,
-		position_id: parseInt(req.body.position)
+		role_id: parseInt(req.body.role)
 	}).then(function (){
 		return res.redirect('/admin/blog')
 	}).catch(function (err) {

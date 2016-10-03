@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var User = require('../models/user');
-var Position = require('../models/position');
+var Role = require('../models/role');
 var Blog = require('../models/blog');
 var Event = require('../models/event');
 
@@ -26,9 +26,9 @@ router.get('/', function (req, res, next) {
 				blogs.map(function(blog) {
 					return blog.getAuthor().then(function(author) {
 						blog.author = author;
-						return blog.getPosition();
-					}).then(function(position) {
-						blog.position = position;
+						return blog.getRole();
+					}).then(function(role) {
+						blog.role = role;
 						return blog;
 					})
 				})

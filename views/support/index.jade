@@ -22,15 +22,15 @@ html
 				p Representatives Committee (Reps Comm) are elected roles in Grey that cover all people in the JCR, from minority groups, such as LGBTa and Mature students (among others) to entire year groups, such as freshers and finalists. The committee members hold events, raise awareness and provide a signposting role allowing the individuals from these groups extra support and ensuring their views are heard. Grey is committed to ensuring all members of the JCR can be involved in all parts of college, and this committee is a vital part in making sure all JCR members are welcomed and find their home in Grey.
 				p If you have any queries, concerns or feedback for indvidual reps, please feel free to contact them. Any general queries please contact the Representatives Officer.				
 				div(class="ui six doubling link cards")
-					each position in reps
-						each user in position.users
+					each role in reps
+						each user in role.users
 							div(class="card")
 								div(class="image")
 									img(src="/api/users/"+user.username+"/avatar")
 								div(class="content")
-									div(class="header")= position.title
+									div(class="header")= role.title
 									div(class="meta")=user.name
-									div(class="description")=position.description
+									div(class="description")=role.description
 
 			div(class="ui vertical segment" id="university")
 				h3(class="ui header") University Support
@@ -58,8 +58,8 @@ html
 		script.
 			$(".card").click(function (e) {
 				e.preventDefault();
-				positionid = $(this).attr('data-position');
-				$.get('/api/positions/'+positionid, function (data) {
+				var role_id = $(this).attr('data-role');
+				$.get('/api/roles/'+role_id, function (data) {
 					$('.ui.modal .header').text(data.title);
 					$('.ui.modal .content').text(data.description);
 					$('.ui.modal').modal('show');

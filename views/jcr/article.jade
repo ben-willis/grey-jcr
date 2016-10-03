@@ -15,7 +15,7 @@ html
 						div(class="meta")
 							span(class="author")
 								i(class="ui user icon")
-								= blog.author.name + " ("+blog.position.title+")"
+								= blog.author.name + " ("+blog.role.title+")"
 							span(class="timestamp")
 								i(class="ui clock icon")
 								= prettydate.format(blog.updated)

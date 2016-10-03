@@ -71,8 +71,8 @@ Folder.findById = function(folder_id) {
     });
 }
 
-Folder.findForPosition = function(position_id) {
-    return db('folders').first().where({owner: position_id}).then(function(data) {
+Folder.findForRole = function(role_id) {
+    return db('folders').first().where({owner: role_id}).then(function(data) {
         if (!data) return {};
         return new Folder(data);
     });
