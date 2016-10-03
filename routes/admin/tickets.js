@@ -1,13 +1,25 @@
 var express = require('express');
 var router = express.Router();
 var validator = require('validator');
-var treeize   = require('treeize');
+var csv = require('csv');
 
-var Ticket = require('../../models/ticket')
+var Ticket = require('../../models/ticket');
+var Booking = require('../../models/booking');
+var User = require('../../models/user');
 
 /* GET tickets page. */
 router.get('/', function (req, res, next) {
-	Ticket.getAll().then(function (tickets) {
+	Ticket.getAll()
+		.then(function (tickets) {
+			return Promise.all(
+				tickets.map(function(ticket) {
+					return Booking.countByTicketId(ticket.id).then(function(booking_count) {
+						ticket.sold = booking_count;
+						return ticket;
+					})
+				})
+			)
+		}).then(function(tickets ){
 			res.render('admin/tickets', {tickets: tickets});
 		})
 		.catch(function (err) {
@@ -27,7 +39,6 @@ router.post('/', function (req, res, next) {
 /* GET edit ticket page. */
 router.get('/:ticket_id', function (req, res, next) {
 	Ticket.findById(req.params.ticket_id).then(function (ticket) {
-		console.log(ticket.options[0])
 		res.render('admin/tickets_edit', {ticket: ticket});
 	}).catch(function (err) {
 		next(err);
@@ -100,5 +111,68 @@ router.post('/:ticket_id', function (req, res, next) {
 	});
 });
 
+/* GET ticket bookings */
+router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
+	var ticket = null;
+	var columns = null;
+	var options = {};
+	var choices = {};
+	var bookings_data = [];
+	Ticket.findById(parseInt(req.params.ticket_id))
+		.then(function(data) {
+			ticket = data;
+			columns = {
+				booked_by: "Booked By",
+				name: "Name",
+				guest: "Guest",
+				email: "Email",
+				notes: "Notes"
+			}
+			return ticket.getOptionsAndChoices();
+		})
+		.then(function(data) {
+			for (var i = 0; i < data.length; i++) {
+				columns[data[i].id] = data[i].name;
+				options[data[i].id] = {};
+				for (choice of data[i].choices) {
+					choices[choice.id] = data[i].id;
+					options[data[i].id][choice.id] = choice.name;
+				}
+			}
+			return Booking.getByTicketId(req.params.ticket_id);
+		})
+		.then(function(bookings) {
+			return Promise.all(
+				bookings.map(function(booking) {
+					var username = (booking.username == null) ? booking.booked_by : booking.username;
+					return User.findByUsername(username).then(function(user) {
+						var name = (booking.username == null) ? booking.guestname : user.name;
+						booking_data = {
+							booked_by: booking.booked_by,
+							name: name,
+							guest: (booking.username == null),
+							email: user.email,
+							notes: booking.notes
+						}
+						for (choice of booking.choices) {
+							option_id = choices[choice];
+							booking_data[option_id] = options[option_id][choice]
+						}
+						return booking_data;
+					});
+				})
+			)
+		})
+		.then(function(bookings){
+			csv.stringify(bookings, {header: true, columns: columns}, function (err, output) {
+				if (err) throw err;
+				res.set('Content-Type', 'text/csv');
+				res.status(200).send(output);
+			})
+		})
+		.catch(function (err){
+			next(err);
+		});
+})
 
 module.exports = router;

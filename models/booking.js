@@ -89,6 +89,21 @@ Booking.getByTicketIdAndUsername = function(ticket_id, username) {
     })
 }
 
+Booking.getByTicketId = function(ticket_id) {
+    return db('bookings').select().where({ticket_id: ticket_id}).then(function(data){
+        return Promise.all(
+            data.map(function(booking_data) {
+                booking = new Booking(booking_data);
+                return booking.getChoices().then(function(choices) {
+                    booking = new Booking(booking_data);
+                    booking.choices = choices;
+                    return booking;
+                });
+            })
+        )
+    });
+}
+
 Booking.countByTicketId = function(ticket_id) {
     return db('bookings').count().where({ticket_id: ticket_id}).first().then(function(data) {
         return parseInt(data.count);

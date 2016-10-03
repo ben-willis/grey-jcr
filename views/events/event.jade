@@ -26,9 +26,9 @@ html
 							p Booking is now closed.
 						else if (ticket.sold == ticket.stock)
 							p Tickets have sold out.
-						else if (ticket.time_to_open > 0)
+						else if (ticket.open_booking > (new Date()))
 							p Booking opens in: <br/>
-								span(class="countdown" data-seconds=Math.floor(ticket.time_to_open))
+								span(class="countdown" data-seconds=Math.floor((ticket.open_booking - new Date())/1000))
 							a(class="ui primary transition hidden booking button" href="/events/"+event.id+"/"+ticket.id+"/book" ) Book Now!
 							script.
 								$(".countdown").kkcountdown({

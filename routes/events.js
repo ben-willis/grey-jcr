@@ -113,11 +113,12 @@ router.post('/:booking_id', function (req, res, next) {
 	var booking = null;
 	var ticket = null;
 	var amount = 0;
+	booking_choices = req.body.choices.filter(function(choice) {return (choice != "")})
 	Booking.findById(parseInt(req.params.booking_id))
 		.then(function(data) {
 			booking = data;
 			return Promise.all([
-				booking.setChoices(req.body.choices),
+				booking.setChoices(booking_choices),
 				booking.updateNotes(req.body.notes)
 			])
 		})
@@ -289,103 +290,3 @@ bookings_manager.createBooking = function(ticket_id, event_id, username, users) 
 		}
 	});
 }
-
-// req.db.tx(function (t) {
-// 	// t = this;
-// 	var ticketname;
-// 	var ticketprice;
-// 	var guest_surcharge;
-// 	var allow_guests;
-// 	var debtors = [];
-// 	return this.sequence(function (index, data, delay) {
-// 		switch (index) {
-// 			case 0:
-// 				// Find all the usernames that are being booked on
-// 				var query = 'SELECT users.username, users.name, bookings.id, (SELECT SUM(amount) FROM debts WHERE username=users.username) AS debt FROM users LEFT JOIN bookings ON users.username=bookings.username WHERE (bookings.ticketid=$1 OR bookings.ticketid IS NULL) AND (';
-// 				var values = [req.params.ticketid];
-// 				for (i = 0; i<bookings.length; i++) {
-// 					if (i!=0) {
-// 						query += ' OR ';
-// 					}
-// 					query += 'users.username=$'+(i+2);
-// 					values.push(bookings[i]);
-// 				}
-// 				query += ')';
-// 				return this.query(query, values);
-// 			case 1:
-// 				// For each user they're trying to book on
-// 				for (var i = 0; i < data.length; i++) {
-// 					// Check that they don't already have a ticket
-// 					if (data[i].id != null) {
-// 						err = new Error(data[i].name + " is already booked on.")
-// 						throw err;
-// 					}
-// 					// Remember whether they're a debtor
-// 					if (parseInt(data[i].debt) > 0 ) {
-// 						debtors.push(data[i].name);
-// 					}
-// 				};
-// 				return req.db.one("SELECT name, min_booking, max_booking, open_sales, close_sales, price, guests, guest_surcharge, block_debtors FROM tickets WHERE id=$1", [req.params.ticketid])
-// 			// Check there are enough places
-// 			case 2:
-// 				if (bookings.length < data.min_booking || bookings.length > data.max_booking) {
-// 					err = new Error("You need to book on at least "+data.min_booking+" and at most "+data.max_booking+" people.");
-// 					throw err;
-// 				}
-// 				if (new Date() < data.open_sales || new Date() > data.close_sales) {
-// 					err = new Error("Booking is not open at this time.");
-// 					throw err;
-// 				}
-// 				if (data.block_debtors && debtors.length>0) {
-// 					err = new Error(debtors[0] + " is a debtor and debtors are blocked from booking.");
-// 					throw err;
-// 				}
-// 				ticketname = data.name;
-// 				ticketprice = data.price;
-// 				allow_guests = data.guests;
-// 				guest_surcharge = data.guest_surcharge;
-// 				return this.one('SELECT stock - (SELECT COUNT(*) FROM bookings WHERE ticketid=$1) AS remaining FROM tickets WHERE id=$1', [req.params.ticketid]);
-// 			// Book them on
-// 			case 3:
-// 				if (data.remaining < bookings.length) {
-// 					err = new Error("No more tickets left");
-// 					throw err;
-// 				}
-// 				var query = 'INSERT INTO bookings (username, booked_by, eventid, ticketid, guest_name) VALUES';
-// 				var values = [req.user.username, req.params.eventid, req.params.ticketid];
-// 				for (i = 0; i<bookings.length; i++) {
-// 					if (i!=0) {
-// 						query += ', ';
-// 					}
-// 					if (validator.matches(bookings[i], /[A-Za-z]{4}[0-9]{2}/i) || !allow_guests) {
-// 						query += '($'+(i+4)+', $1, $2, $3, NULL)';
-// 					} else {
-// 						query += '(NULL, $1, $2, $3, $'+(i+4)+')';
-// 					}
-// 					values.push(bookings[i]);
-// 				}
-// 				query += ' RETURNING id, username';
-// 				return this.query(query, values);
-// 			// Add their debts
-// 			case 4:
-// 				var query = 'INSERT INTO debts (name, message, amount, bookingid, username) VALUES '
-// 				var values = [ticketname];
-// 				for (var i = 0; i < data.length; i++) {
-// 					if (i!=0) {
-// 						query += ', '
-// 					}
-// 					query += '($1, $'+(4*i + 5)+', $'+(4*i + 4)+', $'+(4*i + 2)+', $'+(4*i + 3)+')';
-// 					values.push(data[i].id);
-// 					if (validator.matches(bookings[i], /[A-Za-z]{4}[0-9]{2}/i) || !allow_guests) {
-// 						values.push(data[i].username);
-// 						values.push(ticketprice);
-// 					} else {
-// 						values.push(req.user.username);
-// 						values.push(ticketprice + guest_surcharge);
-// 					}
-// 					values.push('Ticket for '+bookings[i]);
-// 				};
-// 				return this.query(query, values);
-// 		}
-// 	});
-// })

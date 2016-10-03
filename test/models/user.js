@@ -50,7 +50,9 @@ describe("Static User Methods", function() {
             expect(User.search("abc")).to.eventually.have.length(1),
             expect(User.search("xyz")).to.eventually.have.length(0)
         ])
-    })
+    });
+
+    it("should get all debtors")
 })
 
 describe('User Object', function() {

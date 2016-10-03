@@ -16,7 +16,6 @@ router.get('/', function (req, res, next) {
 });
 
 router.post('/newfolder', function (req, res, next) {
-	console.log(req.body);
 	Folder.findById(parseInt(req.body.folder)).then(function(folder){
 		folder.createSubfolder(req.body.name)
 	}).then(function () {

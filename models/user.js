@@ -37,7 +37,7 @@ User.prototype.getDebt = function() {
 
 User.prototype.getDebts = function() {
     return db('debts')
-        .select(['amount', 'name', 'message'])
+        .select()
         .where('username', this.username);
 }
 
@@ -175,6 +175,21 @@ User.authorize = function(username, password) {
         });
     });
 
+}
+
+User.getDebtors = function() {
+    return db('debts')
+        .select('users.username', 'users.name', 'users.email').sum('debts.amount')
+        .join('users', 'users.username', '=', 'debts.username')
+        .groupBy('users.username')
+        .havingRaw('SUM(debts.amount) != 0')
+        .then(function(debtors) {
+            return debtors.map(function(debtor_data) {
+                debtor = new User(debtor_data);
+                debtor.total_debt = parseInt(debtor_data.sum);
+                return debtor;
+            })
+        })
 }
 
 module.exports = User;

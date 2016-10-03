@@ -130,7 +130,6 @@ html
 					}
 				})
 				$('.edit.form').on('click', '.add.choice.button', function() {
-					console.log("called")
 					option_id = $(this).attr('data-optionid');
 					new_choice_field = "<div class='choice fields'>" +
 						"<div class='seven wide field'>" +
@@ -173,6 +172,5 @@ html
 					option_counter++;
 				})
 				$('.edit.form').on('click', '.remove.option.button', function() {
-					console.log("called")
 					$(this).parents(".option.segment").remove()
 				})

@@ -62,7 +62,7 @@ router.get('/:roomid/bookings', function (req, res, next) {
 					pending_bookings.push(bookings[i]);
 				} else {
 					upcoming_bookings.push(bookings[i]);
-				}				
+				}
 			};
 			res.render('admin/room_bookings', {room: room, pending_bookings: pending_bookings, upcoming_bookings: upcoming_bookings});
 		})
@@ -79,7 +79,6 @@ router.post('/:roomid/bookings', function (req, res, next) {
 	var duration = parseInt(req.body.end) - (60*parseInt(time[0])+parseInt(time[1]));
 	req.db.one('INSERT INTO room_bookings(name, start, duration, roomid, username, status) VALUES ($1, $2, $3, $4, $5, 1) RETURNING start', [req.body.name, start.toLocaleString(), duration, req.params.roomid, req.user.username])
 		.then(function (book) {
-			console.log(book.start)
 			res.redirect(303, '/admin/rooms/'+req.params.roomid+'/bookings')
 		})
 		.catch(function (err) {

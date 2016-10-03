@@ -20,18 +20,19 @@ html
 								th Amount
 								th Actions
 						tbody
+							-var total = 0;
 							each debtor in debtors
+								- total += debtor.total_debt
 								tr
 									td= debtor.name+" ("+debtor.username+")"
 									td= debtor.email
-									td= "£"+(debtor.amount/100).toFixed(2)
+									td= "£"+(debtor.total_debt/100).toFixed(2)
 									td
 										a(class="ui button" href="/admin/debts/"+debtor.username)
 											| View
 				div(class="five wide wide column")
 					div(class="ui center aligned basic segment")
 						div(class="ui statistic")
-							- var total=0; for(i=0; i<debtors.length;i++){total += parseInt(debtors[i].amount)}
 							div(class="value")="£"+(total/100).toFixed(2)
 							div(class="label") Total Debt
 						a(class="ui button" href="/admin/debts/totals.csv")

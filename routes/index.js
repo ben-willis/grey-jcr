@@ -36,7 +36,6 @@ router.get('/', function (req, res, next) {
 		}),
 		Event.getFutureEvents()
 	]).then(function (data){
-		console.log(data[1]);
 		res.render('home', {blogs: data[0], events: data[1].slice(0, 6)});
 	}).catch(function (err) {
 		next(err);

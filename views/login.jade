@@ -10,8 +10,6 @@ html
 			include ./menu.jade
 			div(class="ui vertical segment")
 				h2 Login
-				script.
-					console.log(!{JSON.stringify(query)})
 				if (query && query.unauthorised=="")
 					div(class="ui error message")
 						div(class="header") Unauthorised Access

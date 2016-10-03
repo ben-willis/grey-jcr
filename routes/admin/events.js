@@ -59,8 +59,6 @@ router.post('/:event_id/edit', upload.single('image'), function (req, res, next)
 	var time = (req.body.time).split(':');
 	var timestamp = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 
-	var values = [req.params.event_id];
-	var query = "DELETE FROM events_tickets WHERE eventid=$1; "
 	Event.findById(parseInt(req.params.event_id)).then(function(event) {
 		return Promise.all([
 			event,
@@ -96,7 +94,7 @@ router.get('/:event_id/delete', function (req, res, next) {
 });
 
 /* GET an events bookings */
-router.get('/:eventid/bookings.csv', function (req, res, next){
+router.get('/:event_id/bookings.csv', function (req, res, next){
 	var bookings;
 	req.db.many('SELECT tickets.id AS "ticket_id", tickets.name AS ticket_name, bookings.booked_by, users.name, users.email, bookings.notes, bookings.id AS "id*", bookings.guest_name, ticket_option_choices.name AS "choices:name", ticket_option_choices.id AS "choices:id" FROM bookings LEFT JOIN tickets ON tickets.id=bookings.ticketid LEFT JOIN users ON bookings.username=users.username LEFT JOIN booking_choices ON bookings.id=booking_choices.bookingid LEFT JOIN ticket_option_choices ON ticket_option_choices.id=booking_choices.choiceid WHERE bookings.eventid=$1;', [req.params.eventid])
 		.then(function (data){
