@@ -10,6 +10,7 @@ var httpError = require('http-errors');
 
 var Feedback = require('../models/feedback');
 var User = require('../models/user');
+var Election = require('../models/election');
 
 require('dotenv').config();
 
@@ -170,21 +171,11 @@ router.post('/feedback/:feedback_id', function (req, res, next) {
 
 /* GET the election page */
 router.get('/elections', function (req, res, next) {
-	req.db.manyOrNone('SELECT (SELECT COUNT(*)>0 FROM election_votes AS votes WHERE votes.electionid=elections.id AND votes.username=$1) AS voted, elections.id, elections.title, elections.status, election_positions.id AS "positions:id", election_positions.name AS "positions:name", election_nominations.name AS "positions:nominations:name", election_nominations.manifesto AS "positions:nominations:manifesto" FROM elections FULL JOIN election_positions ON elections.id=election_positions.electionid FULL JOIN election_nominations ON election_positions.id=election_nominations.positionid WHERE (elections.status=1 OR elections.status=2) AND election_positions.electionid IS NOT NULL AND election_nominations.electionid IS NOT NULL AND election_positions.id IS NOT NULL ORDER BY elections.status DESC, elections.id ASC, election_positions.id ASC', [req.user.username])
-		.then(function (elections) {
-			var electionTree = new treeize();
-			electionTree.grow(elections);
-			elections = electionTree.getData();
-			var open = [];
-			var publicizing = [];
-			for (var i = 0; i < elections.length; i++) {
-				if (elections[i].status == 2) {
-					open.push(elections[i]);
-				} else {
-					publicizing.push(elections[i]);
-				}
-			};
-			res.render('services/elections', {open: open, publicizing: publicizing});
+		Promise.all([
+			Election.getByStatus(2),
+			Election.getByStatus(1)
+		]).then(function(data){
+			res.render('services/elections', {open: data[0], publicizing: data[1]});
 		})
 		.catch(function (err) {
 			next(err);
@@ -192,35 +183,14 @@ router.get('/elections', function (req, res, next) {
 });
 
 /* GET the vote in elections page */
-router.get('/elections/:electionid', function (req, res, next) {
-	var voted = false;
+router.get('/elections/:election_id', function (req, res, next) {
+	var vote;
 	var election;
-	req.db.one('SELECT id, title, status FROM elections WHERE elections.id=$1', [req.params.electionid])
-		.then(function (data) {
-			// If the election isn't open throw an error
-			if (data.status != 2) {
-				err = new Error('Election is not open for voting');
-				err.status=400;
-				throw err;
-			}
-			election = data;
-			// If it is work out if they've voted
-			return req.db.one('SELECT COUNT(id) FROM election_votes WHERE username=$1 AND electionid=$2', [req.user.username, req.params.electionid])
-		})
-		.then(function (voteCount) {
-			if (voteCount.count == 0) {
-				return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid WHERE election_nominations.electionid=$1 ORDER BY election_positions.id', [req.params.electionid]);
-			} else {
-				voted = true;
-				return req.db.many('SELECT election_nominations.name AS "positions:nominations:name", election_nominations.id AS "positions:nominations:id", election_positions.name as "positions:name", election_positions.id AS "positions:id", election_votes.value AS "positions:nominations:value" FROM election_nominations LEFT JOIN election_positions ON election_positions.id=election_nominations.positionid LEFT JOIN election_votes ON election_votes.nominationid=election_nominations.id WHERE election_nominations.electionid=$1 AND election_votes.username=$2 ORDER BY election_positions.id', [req.params.electionid, req.user.username]);
-			}
-		})
-		// And send them the details on who's running
-		.then(function (nominations) {
-			var positionsTree = new treeize();
-			positionsTree.grow(nominations);
-			election.positions = positionsTree.getData();
-			res.render('services/elections_vote', {election: election, voted: voted});
+	req.user.getVote(parseInt(req.params.election_id)).then(function(data){
+		vote = data;
+		return Election.findById(parseInt(req.params.election_id))
+	}).then(function (election) {
+			res.render('services/elections_vote', {election: election, user_vote: vote});
 		})
 		.catch(function (err) {
 			next(err);
@@ -228,35 +198,24 @@ router.get('/elections/:electionid', function (req, res, next) {
 });
 
 /* POST a vote */
-router.post('/elections/:electionid', function (req, res, next) {
-	// Check whether they've voted
-	req.db.one('SELECT COUNT(id) FROM election_votes WHERE username=$1 AND electionid=$2', [req.user.username, req.params.electionid])
-		.then(function (voteCount) {
-			if (voteCount.count != 0) {
-				err = new Error("You have already voted in this election");
-				err.status(400);
-				throw err;
+router.post('/elections/:election_id', function (req, res, next) {
+	req.user.getVote(parseInt(req.params.election_id))
+		.then(function(vote) {
+			if (vote) {
+				throw httpError(400, "You have already voted in this election");
 			}
-			var query = "INSERT INTO election_votes(username, electionid, nominationid, value) VALUES ";
-			for (candidate in req.body.candidates) {
-				currentCandidate = candidate.slice(1);
-				if (!isNaN(currentCandidate) ) {
-					value = "($1, $2,";
-					value += currentCandidate + ', ';
-					if (!isNaN(req.body.candidates[candidate]) && req.body.candidates[candidate] != 0) {
-						value += req.body.candidates[candidate];
-					} else {
-						value += 0;
-					}
-					value += "),";
-					query += value;
-				}
-			}
-			query = query.slice(0, -1);
-			return req.db.none(query, [req.user.username, req.params.electionid]);
+			return Election.findById(parseInt(req.params.election_id));
+		})
+		.then(function(election){
+			return Promise.all(
+				req.body.ballot.map(function(ballot){
+					election.castVote(req.user.username, ballot.position_id, ballot.votes)
+				})
+			)
+
 		})
 		.then(function () {
-			res.redirect(303, '/services/elections/'+req.params.electionid+'?success');
+			res.redirect(303, '/services/elections/'+req.params.election_id+'?success');
 		})
 		.catch( function (err) {
 			next(err);

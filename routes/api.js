@@ -7,71 +7,49 @@ var treeize   = require('treeize');
 var User = require('../models/user');
 var Folder = require('../models/folder')
 var Role = require('../models/role');
-var Event = require('../models/event')
+var Event = require('../models/event');
+var Blog = require('../models/blog')
 
 // The main site search
 router.get('/search/', function (req, res, next) {
-	var query = '%'+req.query.q+'%';
-	var data = {
-		results: {}
-	};
-	req.db.manyOrNone("SELECT blog.id, blog.title, blog.slug, blog.timestamp, roles.slug AS role_slug FROM blog LEFT JOIN roles ON blog.roleid=roles.id WHERE LOWER(blog.title) LIKE LOWER($1) ORDER BY blog.timestamp DESC", [query])
-		.then(function (blogPosts) {
-			if (blogPosts.length != 0) {
-				data.results.blog = {
-					name: 'Blog Posts',
-					results: []
-				}
-				for (var i = 0; i < blogPosts.length; i++) {
-					data.results.blog.results.push({
-						title: blogPosts[i].title,
-						url: '/jcr/blog/'+blogPosts[i].role_slug+'/'+blogPosts[i].timestamp.getFullYear()+'/'+(blogPosts[i].timestamp.getMonth()+1)+'/'+blogPosts[i].slug,
-						description: prettydate.format(blogPosts[i].timestamp)
-					});
-				};
+	Promise.all([
+		User.search(req.query.q),
+		Blog.search(req.query.q),
+		Event.search(req.query.q)
+	]).then(function(data) {
+		users = data[0].map(function(user) {
+			return {
+				title: user.name,
+				url: '/services/user/'+user.username,
+				description: user.username
 			}
-			return req.db.manyOrNone("SELECT name, timestamp, image, slug FROM events WHERE LOWER(name) LIKE LOWER($1) AND timestamp>NOW() ORDER BY timestamp ASC", [query]);
 		})
-		.then(function (events) {
-			if (events.length != 0) {
-				data.results.events = {
-					name: 'Upcoming Events',
-					results: []
-				}
-				for (var i = 0; i < events.length; i++) {
-					data.results.events.results.push({
-						title: events[i].name,
-						// image: '/images/events/'+events[i].image,
-						url: "/events/"+events[i].time.getFullYear()+"/"+(events[i].time.getMonth()+1)+"/"+(events[i].time.getDate())+"/"+events[i].slug,
-						description: events[i].time.toDateString()
-					});
-				};
+		blogs = data[1].map(function(blog) {
+			return {
+				title: blog.title,
+				url: '/jcr/blog/'+blog.role.slug+'/'+blog.updated.getFullYear()+"/"+(blog.updated.getMonth()+1)+"/"+blog.updated.getDate()+"/"+blog.slug,
+				description: prettydate.format(blog.updated)
 			}
-			if (!req.isAuthenticated()) {
-				return res.json(data);
+		})
+		events = data[2].map(function(event) {
+			return {
+				title: event.name,
+				url: "/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug,
+				description: event.time.toDateString()
 			}
-			return User.searchByName(query);
 		})
-		.then(function (users) {
-			if(users.length != 0) {
-				data.results.users = {
-					name: 'Grey College Members',
-					results: []
-				}
-				for (var i = 0; i < users.length; i++) {
-					data.results.users.results.push({
-						title: users[i].name,
-						// image: '/api/users/'+users[i].username+'/avatar',
-						url: '/services/user/'+users[i].username,
-						description: users[i].username
-					});
-				};
+		return res.json({
+			results: {
+				users: {name: "Grey College Members", results: users},
+				blogs: {name: "Blog Posts", results: blogs},
+				events: {name: "Upcoming Events", results: events}
 			}
-			return res.json(data);
-		})
-		.catch( function (err) {
-			return res.json(err);
-		})
+		});
+	}).catch( function (err) {
+		console.log(err);
+		return res.json(err);
+	})
+
 });
 
 // Needed for the calendar

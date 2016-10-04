@@ -10,8 +10,8 @@ html
 			include ../menu.jade
 			h2(class="ui header")
 				= title
-				div(class="sub header")= election.title
-			if (!voted)
+				div(class="sub header")= election.name
+			if (user_vote == null)
 				p Please allocate your vote by numerical preference, i.e. <b>1</b> for your most preferred candidate, <b>2</b> for your second most preferred, etc.
 				p Any non-numerical allocation will be ignored.
 				p Please note that <b>R.O.N.</b> stands for <b>Re-Open Nominations</b>. If you are not happy with any of the candidates running, you may vote <b>R.O.N.</b> in order to re-open nominations for the position in the next JCR Meeting.
@@ -29,18 +29,20 @@ html
 			else 
 				p You have already voted in this election. Your votes are listed below.
 			div(class="ui vertical segment")
-				if (!voted)
+				if (user_vote == null)
 					form(class="ui form" action="/services/elections/"+election.id method="POST")
 						each position in election.positions
 							h4(class="ui dividing header")= position.name
+							input(type="text" name="ballot["+position.id+"][position_id]" value=position.id hidden)
 							div(class="ui middle aligned two column stackable vertically divided grid")
-								each nomination in position.nominations
+								each nominee in position.nominees
+									input(type="text" name="ballot["+position.id+"][votes]["+nominee.id+"][nominee_id]" value=nominee.id hidden)
 									div(class="row")
 										div(class="column")
-											label= nomination.name
+											label= nominee.name
 										div(class="column")
 											div(class="ui input")
-												input(type="text" name='candidates[c'+nomination.id+']' size="1")
+												input(type="text" name="ballot["+position.id+"][votes]["+nominee.id+"][preference]" size="1")
 						div(class="inline field")
 							div(class="ui checkbox")
 								input(type="checkbox" name="confirm")
@@ -66,13 +68,13 @@ html
 					each position in election.positions
 						h4(class="ui dividing header")= position.name
 						div(class="ui middle aligned two column stackable vertically divided grid")
-							each nomination in position.nominations
+							each nominee in position.nominees
 								div(class="row")
 									div(class="column")
-										label= nomination.name
+										label= nominee.name
 									div(class="column")
-										if (nomination.value != 0)
-											div(class="ui circular label")=nomination.value
+										if (user_vote[nominee.id])
+											div(class="ui circular label")= user_vote[nominee.id]
 										else
 											div(class="ui circular label")
 				

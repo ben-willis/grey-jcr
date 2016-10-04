@@ -76,6 +76,27 @@ Blog.findBySlugAndDate = function(slug, date) {
     });
 }
 
+Blog.search = function(query) {
+    return db('blogs')
+        .select()
+        .whereRaw("LOWER(title) LIKE '%' || LOWER(?) || '%' ", query)
+        .then(function(data){
+            return Promise.all(
+                data.map(function(blog_data) {
+                    blog = new Blog(blog_data);
+                    return blog.getRole().then(function(role) {
+                        return {
+                            title: blog_data.title,
+                            updated: new Date(blog_data.updated),
+                            slug: blog_data.slug,
+                            role: role
+                        }
+                    })
+                })
+            )
+        })
+}
+
 
 Blog.getAll = function() {
     return db('blogs').select().orderBy('updated', 'desc').then(function(data_array) {

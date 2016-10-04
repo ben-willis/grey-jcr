@@ -15,7 +15,7 @@ html
 				form(class="ui edit form" method="POST" action="")
 					div(class="required field")
 						label Title
-						input(type="text" name="title" value=election.title)
+						input(type="text" name="name" value=election.name)
 					div(class="required field")
 						label Status
 						select(name="status")
@@ -55,16 +55,16 @@ html
 								div(class="ui header")= position.name
 								a(class="ui red right corner label" href="/admin/elections/"+election.id+"/"+position.id+"/delete")
 									i(class="remove icon")
-								if (position.nominations)
+								if (position.nominees)
 									div(class="ui middle aligned divided list")
-										each nomination in position.nominations
+										each nominee in position.nominees
 											div(class="item")
-													= nomination.name + " "
-													a(class="ui tiny icon" href="/admin/elections/"+election.id+"/"+position.id+"/"+nomination.id+"/delete")
+													= nominee.name + " "
+													a(class="ui tiny icon" href="/admin/elections/"+election.id+"/"+position.id+"/"+nominee.id+"/delete")
 														i(class="red remove icon")
-								form(class="ui addnomination form" action="/admin/elections/"+election.id+"/"+position.id+"/newnomination" method="POST" enctype="multipart/form-data")
+								form(class="ui addnominee form" action="/admin/elections/"+election.id+"/"+position.id+"/newnominee" method="POST" enctype="multipart/form-data")
 									div(class="required field")
-										label Nomination name
+										label Nominee name
 										input(type="text" name="name")
 									div(class="field")
 										label Manifesto (pdf)
@@ -86,7 +86,7 @@ html
 							name: 'empty'
 						}
 					});
-					$('.addnomination.form').form({
+					$('.addnominee.form').form({
 						fields: {
 							name: 'empty'
 						}

@@ -102,6 +102,20 @@ User.prototype.getBlogs = function() {
     return db('blogs').select().where({author: this.username})
 }
 
+User.prototype.getVote = function(election_id) {
+    votes = {};
+    return db('election_votes')
+        .select('nominee_id', 'preference')
+        .where({username: this.username, election_id: election_id})
+        .then(function(data){
+            if (data.length == 0) return null;
+            for (vote of data) {
+                votes[vote.nominee_id] = vote.preference;
+            }
+            return votes;
+        })
+}
+
 /* Static Methods */
 
 User.create = function(username) {
@@ -149,12 +163,7 @@ User.search = function(query) {
     return db('users')
         .select(["name", "email", "username"])
         .whereRaw("LOWER(name) LIKE '%' || LOWER(?) || '%' ", query)
-        .orWhereRaw("LOWER(username) LIKE '%' || LOWER(?) || '%' ", query)
-        .then(function(results) {
-            return results.map(function(data) {
-                return new User(data);
-            })
-        });
+        .orWhereRaw("LOWER(username) LIKE '%' || LOWER(?) || '%' ", query);
 }
 
 User.authorize = function(username, password) {

@@ -14,7 +14,7 @@ html
 				form(class="ui form" method="POST" action="")
 					div(class="field")
 						label Name
-						input(type="text" name="title")
+						input(type="text" name="name")
 					button(type="submit" class="ui submit button")
 						i(class="write icon")
 						| Create
@@ -28,24 +28,75 @@ html
 					});
 
 			div(class="ui vertical segment")
-				h3 Previous Elections
+				h3 Open Elections
 
 				table(class="ui striped table")
 					thead
 						tr
 							th Name
-							th Status
 							th Actions
 					tbody
-						each election in elections
+						each election in open
 							tr
-								td= election.title
-								if (election.status == 2)
-									td Open
-								else if (election.status == 1)
-									td Publicizing
-								else
-									td Closed
+								td= election.name
+								td
+									div(class=(election.status==0)?"ui floating icon dropdown button":"ui floating icon disabled dropdown button" )
+										i(class="file text outline icon")
+										span(class="text") Results
+										div(class="menu")
+											each position in election.positions
+												a(class="item" href="/admin/elections/"+election.id+"/"+position.id+"/results")= position.name
+									a(class="ui button" href="/admin/elections/"+election.id)
+										i(class="edit icon")
+										| Edit
+									a(class="ui negative button" href="/admin/elections/"+election.id+"/delete" onclick="return confirm('Are you sure you want to delete this election?');")
+										i(class="remove icon")
+										| Delete
+
+						script.
+							$('.dropdown').dropdown();
+							
+			div(class="ui vertical segment")
+				h3 Publicizing Elections
+
+				table(class="ui striped table")
+					thead
+						tr
+							th Name
+							th Actions
+					tbody
+						each election in publicizing
+							tr
+								td= election.name
+								td
+									div(class=(election.status==0)?"ui floating icon dropdown button":"ui floating icon disabled dropdown button" )
+										i(class="file text outline icon")
+										span(class="text") Results
+										div(class="menu")
+											each position in election.positions
+												a(class="item" href="/admin/elections/"+election.id+"/"+position.id+"/results")= position.name
+									a(class="ui button" href="/admin/elections/"+election.id)
+										i(class="edit icon")
+										| Edit
+									a(class="ui negative button" href="/admin/elections/"+election.id+"/delete" onclick="return confirm('Are you sure you want to delete this election?');")
+										i(class="remove icon")
+										| Delete
+
+						script.
+							$('.dropdown').dropdown();
+
+			div(class="ui vertical segment")
+				h3 Closed Elections
+
+				table(class="ui striped table")
+					thead
+						tr
+							th Name
+							th Actions
+					tbody
+						each election in closed
+							tr
+								td= election.name
 								td
 									div(class=(election.status==0)?"ui floating icon dropdown button":"ui floating icon disabled dropdown button" )
 										i(class="file text outline icon")

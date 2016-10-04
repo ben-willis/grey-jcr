@@ -15,22 +15,21 @@ html
 				if (open.length == 0)
 					div(class="ui message") There are currently no open elections.
 				each election in open
-					h4(class="ui header")= election.title
+					h4(class="ui header")= election.name
 					div(class="ui three column stackable padded grid")
 						each position in election.positions
 							div(class="column")
 								h5(class="ui header")= position.name
 								div(class="divided list")
-								each nomination in position.nominations
-									- // if there is a candidate we write it
-									if (nomination.name != null)
-										div(class="item")
-											= nomination.name
-											|  - 
-											if (nomination.manifesto != null)
-												a(href="/files/manifestos/"+nomination.manifesto) Manifesto
-											else
-												| Manifesto Unavailable
+								each nominee in position.nominees
+									div(class="item")
+										= nominee.name
+										|  - 
+										if (nominee.manifesto != null)
+											a(href="/files/manifestos/"+nominee.manifesto) Manifesto
+										else
+											| Manifesto Unavailable
+											
 					if (election.voted)
 						a(class="ui primary button" href="/services/elections/"+election.id) Your Vote
 					else
@@ -42,22 +41,20 @@ html
 				if (publicizing.length == 0)
 					div(class="ui message") There are currently no upcoming elections.
 				each election in publicizing
-					h4(class="ui header")= election.title
+					h4(class="ui header")= election.name
 					div(class="ui three column stackable padded grid")
 						each position in election.positions
 							div(class="column")
 								h5(class="ui header")= position.name
 								div(class="divided list")
-								each nomination in position.nominations
-									- // if there is a candidate we write it
-									if (nomination.name != null)
-										div(class="item")
-											= nomination.name
-											|  - 
-											if (nomination.manifesto != null)
-												a(href="/files/manifestos/"+nomination.manifesto) Manifesto
-											else
-												| Manifesto Unavailable
+								each nominee in position.nominees
+									div(class="item")
+										= nominee.name
+										|  - 
+										if (nominee.manifesto != null)
+											a(href="/files/manifestos/"+nominee.manifesto) Manifesto
+										else
+											| Manifesto Unavailable
 
 				
 		include ../footer.jade

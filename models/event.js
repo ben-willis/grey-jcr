@@ -99,6 +99,12 @@ Event.findBySlugAndDate = function(slug, date) {
     });
 }
 
+Event.search = function(query) {
+    return db('events')
+        .select(["name", "slug", "time"])
+        .whereRaw("LOWER(name) LIKE '%' || LOWER(?) || '%' ", query);
+}
+
 Event.getByMonth = function(year, month) {
     return db('events').select().whereBetween('time', [
         new Date(year, month-1),
