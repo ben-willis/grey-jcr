@@ -72,5 +72,8 @@
     "treeize": "^2.0.2",
     "validator": "^5.1.0",
     "yamljs": "^0.2.6"
+  },
+  "devDependencies": {
+    "merge": "^1.2.0"
   }
 }

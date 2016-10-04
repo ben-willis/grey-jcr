@@ -11,7 +11,6 @@ var session = require('express-session');
 var redisStore = require('connect-redis')(session);
 var LocalStrategy = require('passport-local').Strategy;
 var https = require('https');
-var pgp = require('pg-promise')();
 var compress = require('compression');
 var helmet = require('helmet');
 
@@ -25,15 +24,6 @@ require('dotenv').config();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-
-// db set up
-var db = pgp({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_DATABASE,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD
-});
 
 var User = require('./models/user');
 var Folder = require('./models/folder')
@@ -116,7 +106,6 @@ passport.use(new LocalStrategy( function (username, password, done) {
 var prettydate = require('pretty-date');
 app.use(function (req, res, next) {
   // Sets some things for all requests things
-  req.db = db;
   res.locals.user = req.user;
   res.locals.query = req.query;
   res.locals.prettydate = prettydate;
