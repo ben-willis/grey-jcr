@@ -100,9 +100,20 @@ Blog.search = function(query) {
 
 Blog.getAll = function() {
     return db('blogs').select().orderBy('updated', 'desc').then(function(data_array) {
-        return data_array.map(function(data) {
-            return new Blog(data)
-        });
+        return Promise.all(
+            data_array.map(function(blog_data) {
+                blog = new Blog(blog_data)
+                return Promise.all([
+                    blog.getRole(),
+                    blog.getAuthor()
+                ]).then(function(data) {
+                    blog = new Blog(blog_data);
+                    blog.role = data[0];
+                    blog.author = data[1];
+                    return blog;
+                })
+            })
+        )
     })
 }
 

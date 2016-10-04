@@ -1,0 +1,176 @@
+- var title = 'Edit Ticket'
+
+doctype html
+html
+	head
+		include ./head.pug
+	body
+		div(class='ui container')
+			include ./header.pug
+			include ./menu.pug
+			h2= title
+			form(class="ui edit form" method="POST" action="/admin/tickets/"+ticket.id)
+				h4(class="ui dividing header") Ticket Details
+				div(class="field")
+					label Name
+					input(type="text" name="name" value=ticket.name)
+				div(class="two fields")
+					div(class="field")
+						label Min Size Booking
+						input(type="text" name="min_booking" value=ticket.min_booking)
+					div(class="field")
+						label Max Size Booking
+						input(type="text" name="max_booking" value=ticket.max_booking)
+				div(class="three fields")
+					div(class="field")
+						div(class="ui checkbox")
+							if (ticket.allow_debtors)
+								input(type="checkbox" name="allow_debtors" tabindex="0" checked)
+							else
+								input(type="checkbox" name="allow_debtors" tabindex="0")
+							label Allow Debtors
+					div(class="field")
+						div(class="ui checkbox")
+							if (ticket.allow_guests)
+								input(type="checkbox" name="allow_guests" tabindex="0" checked)
+							else
+								input(type="checkbox" name="allow_guests" tabindex="0")
+							label Allow Guests
+					div(class="inline field")
+						label Guest Surcharge
+						input(type="text" name="guest_surcharge" value=(ticket.guest_surcharge/100).toFixed(2))
+				div(class="two fields")
+					div(class="field")
+						label Stock
+						input(type="text" name="stock" value=ticket.stock)
+					div(class="field")
+						label Price
+						input(type="text" name="price" value=(ticket.price/100).toFixed(2))
+				div(class="two fields")
+					label Open Booking
+					div(class="field")
+						label Date
+						input(type="text" name="open_booking_date" value=ticket.open_booking.getDate() + "-"+(ticket.open_booking.getMonth() + 1)+"-"+ticket.open_booking.getFullYear())
+					div(class="field")
+						label Time
+						input(type="text" name="open_booking_time" value=("0"+ticket.open_booking.getHours()).slice(-2)+":"+("0"+ticket.open_booking.getMinutes()).slice(-2))
+				div(class="two fields")
+					label Close Booking
+					div(class="field")
+						label Date
+						input(type="text" name="close_booking_date" value=ticket.close_booking.getDate() + "-"+(ticket.close_booking.getMonth() + 1)+"-"+ticket.close_booking.getFullYear())
+					div(class="field")
+						label Time
+						input(type="text" name="close_booking_time" value=("0"+ticket.close_booking.getHours()).slice(-2)+":"+("0"+ticket.close_booking.getMinutes()).slice(-2))
+					
+						
+
+				h4(class="ui dividing header") Ticket Options
+				
+				- var option_counter = 0;
+				- var choice_counter = 0;
+				div(Class="options")
+					each option in ticket.options
+						div(class="ui vertical option segment")
+							div(class="fields")
+								div(Class="fourteen wide field")
+									label Option Name
+									input(type="text" name="options["+option_counter+"][name]" value=option.name)
+								div(class="two wide field")
+									label Remove Option
+									a(class="ui negative remove option fluid button")
+										i(class="delete icon")
+							div(class="choices")
+								if (option.choices)
+									each choice in option.choices
+										div(class="choice fields")
+											div(class="seven wide field")
+												label Choice Name
+												input(type="text" name="options["+option_counter+"][choices]["+choice_counter+"][name]" value=choice.name)
+											div(class="seven wide field")
+												label Choice Price
+												input(type="text" name="options["+option_counter+"][choices]["+choice_counter+"][price]" value=(choice.price/100).toFixed(2))
+											div(class="two wide field")
+												label Remove Choice
+												a(class="ui negative remove choice fluid button")
+													i(class="delete icon")
+										- choice_counter++;
+							div(class="field")
+								label
+								a(class="ui add choice button" data-optionid=option_counter)
+									i(class="plus icon")
+									| Add Choice
+						- option_counter++;
+				
+				div(class="field")
+					label
+					a(class="ui add option fluid button")
+						i(class="plus icon")
+						| Add Option
+					
+				button(type="submit" class="ui right floated submit button") 
+					i(class="save icon")
+					| Save
+				div(class="ui error message")
+
+
+			script.
+				var option_counter = #{option_counter}
+				var choice_counter = #{choice_counter}
+				$('.edit.form').form({
+					fields: {
+						name: 'empty',
+						min_booking: 'integer',
+						max_booking: 'integer',
+						stock: 'integer',
+						open_booking_date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]',
+						open_booking_time: 'regExp[/([01]?[0-9]|2[0-3]):[0-5][0-9]/ig]',
+						close_booking_date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]',
+						close_booking_time: 'regExp[/([01]?[0-9]|2[0-3]):[0-5][0-9]/ig]'
+					}
+				})
+				$('.edit.form').on('click', '.add.choice.button', function() {
+					option_id = $(this).attr('data-optionid');
+					new_choice_field = "<div class='choice fields'>" +
+						"<div class='seven wide field'>" +
+							"<label>Choice Name</label>" +
+							"<input type='text' name='options["+option_id+"][choices]["+choice_counter+"][name]'></input>" +
+						"</div>" +
+						"<div class='seven wide field'>" +
+							"<label>Choice Price</label>" +
+							"<input type='text' name='options["+option_id+"][choices]["+choice_counter+"][price]'></input>" +
+						"</div>" +
+						"<div class='two wide field'>" +
+							"<label>Remove Choice</label>" +
+							"<a class='ui negative remove choice fluid button'><i class='delete icon'></i></a>" +
+						"</div>" +
+					"</div>"
+					$(this).parents('.option').children('.choices').append(new_choice_field)
+					choice_counter++;
+				})
+				$('.edit.form').on('click', '.remove.choice.button', function() {
+					$(this).parents('.choice.fields').remove()
+				})
+				$('.edit.form').on('click', '.add.option.button', function() {
+					new_option_field = "<div class='ui vertical option segment'>" +
+						"<div class='fields'>" +
+							"<div class='fourteen wide field'>" +
+								"<label>Option Name</label>" +
+								"<input type='text' name='options["+option_counter+"][name]'></input>" +
+							"</div>" +
+							"<div class='two wide field'>" +
+								"<label>Remove Option</label>" + 
+								"<a class='ui negative remove option fluid button'><i class='delete icon'></i></a>" +
+							"</div>" +
+						"</div>" +
+						"<div class='choices'></div>" +
+						"<div class='field'>" +
+							"<label></label>" + 
+							"<a class='ui add choice button' data-optionid="+option_counter+"><i class='plus icon'></i>Add Choice</a>" +
+						"</div>"
+					$('.options').append(new_option_field)
+					option_counter++;
+				})
+				$('.edit.form').on('click', '.remove.option.button', function() {
+					$(this).parents(".option.segment").remove()
+				})

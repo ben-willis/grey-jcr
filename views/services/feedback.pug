@@ -1,0 +1,60 @@
+- var title = 'Feedback'
+
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui container')
+			include ../header.pug
+			include ../menu.pug
+			div(id="feedback")
+				h2= title
+				div(class="ui vertical segment")
+					h3 Send New Feedback
+					form(class="ui feedback form" method="POST" action="/services/feedback/")
+						div(class="field")
+							label Title
+							input(type="text" name="title")
+						div(class="field")
+							label Message
+							textarea(rows="3" name="message")
+						div(class="field")
+							div(class="ui checkbox")
+								input(type="checkbox" name="anonymous")
+								label Anonymize my Feedback
+						button(type="submit" class="ui submit button")
+							i(class="write icon")
+							| Send
+						div(class="ui error message")
+
+					script.
+						$('.feedback.form').form({
+							fields: {
+								title: 'empty',
+								message: 'empty'
+							}
+						});
+
+				div(class="ui vertical segment")
+					h3 Your previous feedback
+					table(class="ui fixed table")
+						thead
+							tr
+								th Title
+								th Date
+								th Replies
+						tbody
+							each feedback in feedbacks
+								tr
+									td
+										if(!feedback.read_by_user)
+											i(class="ui red circle icon")
+										if(feedback.archived)
+											i(class="archive icon")
+										a(href='/services/feedback/'+feedback.id)= feedback.title
+									td= prettydate.format(new Date(feedback.created))
+									td
+										a(class="ui label" href="/services/feedback/"+feedback.id)= feedback.replies.length
+		
+		include ../footer.pug

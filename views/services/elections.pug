@@ -1,0 +1,60 @@
+- var title = 'Elections'
+
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui container')
+			include ../header.pug
+			include ../menu.pug
+			h2(class="ui header")= title
+			p The Elections system allows you to vote for candidates in husted JCR elections as well as in college referendums.
+			div(class="ui vertical segment")
+				h3(class="ui header") Open Elections
+				if (open.length == 0)
+					div(class="ui message") There are currently no open elections.
+				each election in open
+					h4(class="ui header")= election.name
+					div(class="ui three column stackable padded grid")
+						each position in election.positions
+							div(class="column")
+								h5(class="ui header")= position.name
+								div(class="divided list")
+								each nominee in position.nominees
+									div(class="item")
+										= nominee.name
+										|  - 
+										if (nominee.manifesto != null)
+											a(href="/files/manifestos/"+nominee.manifesto) Manifesto
+										else
+											| Manifesto Unavailable
+											
+					if (election.voted)
+						a(class="ui primary button" href="/services/elections/"+election.id) Your Vote
+					else
+						a(class="ui primary button" href="/services/elections/"+election.id) Vote Now
+
+
+			div(class="ui vertical segment")
+				h3(class="ui header") Upcoming Elections
+				if (publicizing.length == 0)
+					div(class="ui message") There are currently no upcoming elections.
+				each election in publicizing
+					h4(class="ui header")= election.name
+					div(class="ui three column stackable padded grid")
+						each position in election.positions
+							div(class="column")
+								h5(class="ui header")= position.name
+								div(class="divided list")
+								each nominee in position.nominees
+									div(class="item")
+										= nominee.name
+										|  - 
+										if (nominee.manifesto != null)
+											a(href="/files/manifestos/"+nominee.manifesto) Manifesto
+										else
+											| Manifesto Unavailable
+
+				
+		include ../footer.pug

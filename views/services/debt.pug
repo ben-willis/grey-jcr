@@ -1,0 +1,46 @@
+- var title = 'My Debt'
+
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui container')
+			include ../header.pug
+			include ../menu.pug
+			h2(class="ui header")= title
+			div(class="ui vertically padded grid")
+				div(class="ten wide column")
+					h3(class="ui header") Debt History
+					table(class="ui striped table")
+						thead
+							tr
+								th Name
+								th Message
+								th Amount
+						tbody
+							- var total_debt = 0
+							each debt in debts
+								tr
+									if (debt.name == "PayPal Payment")
+										td
+											i(class="paypal icon")
+											= debt.name
+									else
+										td= debt.name
+									td= debt.message
+									td= ((debt.amount<0)?"-":"")+"£"+Math.abs((debt.amount/100)).toFixed(2)
+									- total_debt += debt.amount
+				div(class="six wide column")
+					h3(class="ui header") Total Debt
+					if (debts.length == 0)
+						p £0.00
+					else
+						p= "£"+(total_debt/100).toFixed(2)
+					if (debts.length != 0 && total_debt.total != 0)
+						h3(class="ui header") Clear Debt
+						a(class="ui twitter button" href="/services/debt/pay")
+							i(class="paypal icon")
+							| Pay with Paypal
+
+		include ../footer.pug

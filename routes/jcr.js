@@ -38,7 +38,12 @@ router.get('/', function (req, res, next) {
 
 /* GET blog page. */
 router.get('/blog', function (req, res, next) {
-	res.render('jcr/blog');
+	Blog.getAll().then(function(blogs){
+		res.render('jcr/blog', {blogs: blogs});
+	}).catch(function (err) {
+		next(err);
+	});
+
 });
 
 /* GET profile for a role page. */

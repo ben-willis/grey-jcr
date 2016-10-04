@@ -1,0 +1,17 @@
+- var title = 'Payment Cancelled'
+
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui container')
+			include ../header.pug
+			include ../menu.pug
+			h2(class="ui header")= title
+			div(class="ui vertical segment")
+				p The Payment was cancelled.
+				p
+					a(href="/services/debt/" class="ui basic button") Back
+
+		include ../footer.pug

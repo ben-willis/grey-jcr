@@ -1,0 +1,21 @@
+- var title = 'Edit Profile'
+
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui container')
+			include ../header.pug
+			include ../menu.pug
+			h2 Update your profile
+			div(class="ui vertical segment")
+				form(class="ui form" action="" method="POST" enctype="multipart/form-data")
+					div(class="field")
+						label Profile Picture
+						input(type="file" name="avatar")
+					button(type="submit" class="ui red submit button")
+						i(class="save icon")
+						| Save
+
+		include ../footer.pug

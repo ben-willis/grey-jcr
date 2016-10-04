@@ -332,7 +332,7 @@ router.get('/menus', function (req, res, next){
 	now = new Date();
 	week = 7*24*60*60*1000;
 	currWeek = (req.query.week) ? parseInt(req.query.week) : Math.floor((now-start)/week) + 1;
-	res.render('services/menus.jade', {week: currWeek});
+	res.render('services/menus', {week: currWeek});
 });
 
 module.exports = router;

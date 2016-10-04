@@ -1,0 +1,45 @@
+- var title = 'Home'
+
+doctype html
+html
+	head
+		include ./head.pug
+	body
+		div(class='ui container')
+			include ./header.pug
+			include ./menu.pug
+			h3 Feedback
+			if (!archive)
+				a(href="/admin/feedback/archive" class="ui button")
+					i(class="archive icon")
+					| Archived Feedback
+			else
+				a(href="/admin/feedback" class="ui button")
+					i(class="arrow circle left icon")
+					| Back
+			table(class="ui fixed table")
+				thead
+					tr
+						th Title
+						th Author
+						th Date
+						th Replies
+						th Actions
+				tbody
+					each feedback in feedbacks
+						tr
+							td
+								a(href="/admin/feedback/"+feedback.id)= feedback.title
+							td= (feedback.anonymous) ? 'Anonymous' : feedback.author.name
+							td= prettydate.format(new Date(feedback.created))
+							td
+								a(class="ui label" href="/admin/feedback/"+feedback.id)= feedback.replies.length
+							td
+								a(class="ui button" href="/admin/feedback/"+feedback.id+"/toggle-archive")
+									if (!feedback.archived)
+										i(class="archive icon")
+										| Archive
+									else
+										i(class="repeat icon")
+										| Restore
+			
