@@ -82,13 +82,17 @@ Feedback.findById = function(feedback_id) {
 }
 
 Feedback.getAll = function(archived) {
-    return db('feedbacks').select().where({parent_id: null, archived: archived}).then(function(feedbacks) {
-        return Promise.all(
-            feedbacks.map(function(feedback_data){
-                return new Feedback(feedback_data);
-            })
-        )
-    })
+    return db('feedbacks')
+        .select()
+        .where({parent_id: null, archived: archived})
+        .orderBy('created', 'DESC')
+        .then(function(feedbacks) {
+            return Promise.all(
+                feedbacks.map(function(feedback_data){
+                    return new Feedback(feedback_data);
+                })
+            )
+        })
 }
 
 Feedback.getAllByUser = function(username) {

@@ -192,6 +192,7 @@ User.getDebtors = function() {
         .join('users', 'users.username', '=', 'debts.username')
         .groupBy('users.username')
         .havingRaw('SUM(debts.amount) != 0')
+        .orderByRaw('SUM(debts.amount) DESC')
         .then(function(debtors) {
             return debtors.map(function(debtor_data) {
                 debtor = new User(debtor_data);
