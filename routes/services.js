@@ -116,7 +116,15 @@ router.post('/feedback', function (req, res, next) {
 /* GET an individual feedback */
 router.get('/feedback/:feedbackid', function (req, res, next) {
 	req.db.none('UPDATE feedback SET read_by_user=true WHERE id=$1 AND author=$2', [req.params.feedbackid, req.user.username])
-		.then(function(){
+		.then(function() {
+			return req.db.one('SELECT feedback.author FROM feedback WHERE id=$1', [req.params.feedbackid])
+		})
+		.then(function (feedback) {
+			if (feedback.author != req.user.username) {
+				err = new Error("Forbidden");
+				err.status = 403;
+				throw err;
+			}
 			return req.db.many('SELECT feedback.id, feedback.title, feedback.archived, feedback.message, feedback.timestamp, users.name, feedback.author, feedback.exec, feedback.anonymous FROM feedback LEFT JOIN users ON feedback.author=users.username WHERE (author=$1 AND id=$2) OR parentid=$2 ORDER BY timestamp ASC', [req.user.username, req.params.feedbackid])
 		})
 		.then(function (feedback) {
@@ -337,10 +345,10 @@ router.get('/debt/pay/cancel', function (req, res, next) {
 
 /* GET the menus page */
 router.get('/menus', function (req, res, next){
-	start = new Date(2016, 4-1, 25);
+	start = new Date(2016, 10-1, 3);
 	now = new Date();
 	week = 7*24*60*60*1000;
-	currWeek = (req.query.week) ? parseInt(req.query.week) : Math.floor((now-start)/week) + 1;
+	currWeek = (req.query.week) ? parseInt(req.query.week) : Math.max(Math.floor((now-start)/week) + 1,1);
 	res.render('services/menus.jade', {week: currWeek});
 });
 
