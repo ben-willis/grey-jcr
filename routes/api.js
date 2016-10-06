@@ -46,7 +46,6 @@ router.get('/search/', function (req, res, next) {
 			}
 		});
 	}).catch( function (err) {
-		console.log(err);
 		return res.json(err);
 	})
 

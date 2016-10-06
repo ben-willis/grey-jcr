@@ -304,15 +304,10 @@ router.get('/debt/pay/execute', function (req, res, next) {
 
 	paypal.payment.execute(paymentId, { 'payer_id': PayerID }, function (err, payment) {
 	    if (err) return next(err);
-	    var amount = (-1)*Math.floor(parseFloat(payment.transactions[0].amount.total)*100);
+	    var amount = Math.floor(parseFloat(payment.transactions[0].amount.total)*100);
 	   	var paymentid = payment.transactions[0].related_resources[0].sale.id;
 	   	delete req.session.paymentId;
-		req.user.addDebt({
-			name: 'PayPal Payment',
-			message: 'Payment ID: '+paymentid,
-			amount: amount,
-			username: req.user.username
-		}).then(function(){
+		req.user.payDebt('PayPal Payment', 'Payment ID: '+paymentid, amount).then(function(){
 	    	res.redirect(303, '/services/debt');
 	    }).catch(function (err) {
 	    	next(err);

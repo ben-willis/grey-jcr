@@ -6,12 +6,6 @@ exports.up = function(knex, Promise) {
             t.text('description').nullable();
             t.integer('level').defaultTo(0);
             t.string('slug').notNull();
-        }).then(function() {
-            return knex('roles').insert({
-                title: 'Website Editor',
-                level: 5,
-                slug: 'Website-Editor'
-            })
         });
 };
 

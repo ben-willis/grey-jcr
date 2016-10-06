@@ -98,23 +98,28 @@ Blog.search = function(query) {
 }
 
 
-Blog.getAll = function() {
-    return db('blogs').select().orderBy('updated', 'desc').then(function(data_array) {
-        return Promise.all(
-            data_array.map(function(blog_data) {
-                blog = new Blog(blog_data)
-                return Promise.all([
-                    blog.getRole(),
-                    blog.getAuthor()
-                ]).then(function(data) {
-                    blog = new Blog(blog_data);
-                    blog.role = data[0];
-                    blog.author = data[1];
-                    return blog;
+Blog.getAll = function(limit) {
+    var limit = (typeof limit !== 'undefined') ? limit : 30;
+    return db('blogs')
+        .select()
+        .orderBy('updated', 'desc')
+        .limit(limit)
+        .then(function(data_array) {
+            return Promise.all(
+                data_array.map(function(blog_data) {
+                    blog = new Blog(blog_data)
+                    return Promise.all([
+                        blog.getRole(),
+                        blog.getAuthor()
+                    ]).then(function(data) {
+                        blog = new Blog(blog_data);
+                        blog.role = data[0];
+                        blog.author = data[1];
+                        return blog;
+                    })
                 })
-            })
-        )
-    })
+            )
+        })
 }
 
 module.exports = Blog;

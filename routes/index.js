@@ -18,10 +18,10 @@ var api = require('./api');
 /* GET home page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		Blog.getAll(),
-		Event.getFutureEvents()
+		Blog.getAll(6),
+		Event.getFutureEvents(6)
 	]).then(function (data){
-		res.render('home', {blogs: data[0], events: data[1].slice(0, 6)});
+		res.render('home', {blogs: data[0], events: data[1]});
 	}).catch(function (err) {
 		next(err);
 	})

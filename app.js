@@ -38,16 +38,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
     store: new redisStore({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT}),
-      secret: process.env.SESSION_SECRET,
-      resave: false,
-      saveUninitialized: true
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true
 }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'semantic/dist')));
 
-// Authentication setup
+/* PASSPORT */
 passport.serializeUser(function (user, done) {
   done(null, user.username);
 });
@@ -103,16 +103,16 @@ passport.use(new LocalStrategy( function (username, password, done) {
         });
 }));
 
+/* PUG */
 var prettydate = require('pretty-date');
 app.use(function (req, res, next) {
-  // Sets some things for all requests things
   res.locals.user = req.user;
   res.locals.query = req.query;
   res.locals.prettydate = prettydate;
   next();
 });
 
-/* ROUTING */
+/* ROUTING AND ERRORS */
 app.use('/', routes);
 app.use('/admin/', admin);
 
@@ -123,26 +123,14 @@ app.use(function(req, res, next) {
   next(err);
 });
 
-// super admin error handler
-// will print stacktrace
+// error handler
 app.use(function(err, req, res, next) {
-  if (true) {
+    console.log(err);
     res.status(err.status || 500);
     res.render('error', {
-      message: err.message,
-      error: err
+        message: err.message,
+        error: {}
     });
-  } else {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: {}
-    });
-  }
 });
-
-String.prototype.capitalizeFirstLetter = function() {
-    return this.charAt(0).toUpperCase() + this.toLowerCase().slice(1);
-}
 
 module.exports = app;

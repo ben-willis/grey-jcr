@@ -119,14 +119,20 @@ Event.getByMonth = function(year, month) {
     });
 }
 
-Event.getFutureEvents = function() {
-    return db('events').select().where('time', '>', new Date()).then(function(events) {
-        return Promise.all(
-            events.map(function(event_data){
-                return new Event(event_data);
-            })
-        )
-    });
+Event.getFutureEvents = function(limit) {
+    var limit = (typeof limit !== 'undefined') ? limit : 30;
+    return db('events')
+        .select()
+        .where('time', '>', new Date())
+        .orderBy('time', 'ASC')
+        .limit(limit)
+        .then(function(events) {
+            return Promise.all(
+                events.map(function(event_data){
+                    return new Event(event_data);
+                })
+            )
+        });
 }
 
 Event.getPastEvents = function() {
