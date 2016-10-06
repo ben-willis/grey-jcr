@@ -68,44 +68,99 @@ Ticket.prototype.getOptionsAndChoices = function() {
     })
 }
 
-Ticket.prototype.setOptionsAndChoices = function(options) {
-    // Delete all previous options and choices
-    return db('ticket_options').where({ticket_id: this.id}).del().then(function(){
-        this_ticket_id = this.id;
-        // Create the new options and choices
-        return Promise.all(
-            options.map(function(option) {
-                option.id = null;
-                return db('ticket_options').insert({
-                    name: option.name,
-                    ticket_id: this_ticket_id
-                }).returning('id').then(function(ids){
-                    option.id = ids[0]
-                    return Promise.all(
-                        option.choices.map(function(choice) {
-                            choice.id = null;
-                            return db('ticket_option_choices').insert({
-                                option_id: option.id,
-                                name: choice.name,
-                                price: choice.price
-                            }).returning('id').then(function(ids) {
-                                choice.id = ids[0];
-                                return choice;
-                            })
-                        })
-                    ).then(function(choices) {
-                        option.choices = choices;
-                        return option;
-                    })
+Ticket.prototype.addOption = function(name) {
+    return db('ticket_options').insert({
+        name: name,
+        ticket_id: this.id
+    }).returning('id').then(function(ids) {
+        this.options.push({
+            id: ids[0],
+            name: name,
+            ticket_id: this.id,
+            choices: []
+        })
+        return;
+    }.bind(this));
+}
 
-                })
-            })
-        )
-    }.bind(this)).then(function (data) {
-        this.options = data;
+Ticket.prototype.renameOption = function(option_id, new_name) {
+    return db('ticket_options').update({
+        name: new_name,
+    }).where({id: option_id}).then(function(ids) {
+        for (option of this.options) {
+            if (option.id == option_id) {
+                option.name = new_name;
+                break;
+            }
+        }
+        return;
+    }.bind(this));
+}
+
+Ticket.prototype.removeOption = function(option_id) {
+    return db('ticket_options').del().where({id: option_id}).then(function() {
+        for (var i = 0; i < this.options.length; i++) {
+            if (this.options[i].id == option_id) {
+                this.options.splice(i, 1);
+                break;
+            }
+        }
         return;
     }.bind(this))
 }
+
+Ticket.prototype.addChoice = function(option_id, name, price) {
+    return db('ticket_option_choices').insert({
+        name: name,
+        price: price,
+        option_id: option_id
+    }).returning('id').then(function(ids) {
+        for (option of this.options) {
+            if (option.id == option_id) {
+                option.choices.push({
+                    id: ids[0],
+                    name: name,
+                    price: price,
+                    ticket_id: this.id
+                })
+                break;
+            }
+        }
+        return;
+    }.bind(this));
+}
+
+Ticket.prototype.updateChoice = function (choice_id, new_name, new_price) {
+    return db('ticket_option_choices').update({
+        name: new_name,
+        price: new_price
+    }).where({id: choice_id}).then(function() {
+        for (option of this.options) {
+            for (choice of option.choices) {
+                if (choice.id == choice_id) {
+                    choice.name = new_name,
+                    choice.price = new_price
+                    break;
+                }
+            }
+        }
+        return;
+    }.bind(this));
+};
+
+Ticket.prototype.removeChoice = function (choice_id) {
+    return db('ticket_option_choices').del().where({id: choice_id}).then(function() {
+        for (option of this.options) {
+            for (var i = 0; i < option.choices.length; i++) {
+                if (option.choices[i].id == choice_id) {
+                    option.choices.splice(i, 1);
+                    break;
+                }
+            }
+        }
+        return;
+    }.bind(this));
+};
 
 /* Static Methods */
 
@@ -132,6 +187,7 @@ Ticket.getAll = function() {
             tickets.map(function(ticket_data) {
                 ticket = new Ticket(ticket_data);
                 return ticket.getOptionsAndChoices().then(function(ticket_options) {
+                    ticket = new Ticket(ticket_data);
                     ticket.options = ticket_options;
                     return ticket;
                 })

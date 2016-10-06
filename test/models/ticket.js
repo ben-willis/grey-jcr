@@ -152,24 +152,34 @@ describe('Ticket Object', function() {
         })
     })
 
-    it('can set options and choices', function(done) {
-        test_ticket.setOptionsAndChoices([{
-            name: "Fake Option 1",
-            choices: [
-                {
-                    name: "Fake Choice 1",
-                    price: 5
-                }
-            ]
-        }]).then(function() {
+    it('can add, rename and delete options' ,function(done) {
+        expect(test_ticket.options).to.have.length(0);
+        test_ticket.addOption("New Option").then(function() {
             expect(test_ticket.options).to.have.length(1);
-            return db('ticket_options').select().where({ticket_id: test_ticket.id});
-        }).then(function(options){
-            expect(options).to.have.length(1);
+            return test_ticket.renameOption(test_ticket.options[0].id, "Renamed!");
+        }).then(function() {
+            expect(test_ticket.options[0].name).to.equal("Renamed!");
+            return test_ticket.removeOption(test_ticket.options[0].id)
+        }).then(function() {
+            expect(test_ticket.options).to.have.length(0);
             done();
-        }).catch(function(err){
-            done(err);
-        })
+        }).catch(done);
+    });
+
+    it('can add, edit and delete choices', function(done) {
+        test_ticket.addOption("New Option").then(function() {
+            expect(test_ticket.options[0].choices).to.have.length(0);
+            return test_ticket.addChoice(test_ticket.options[0].id, "New Option", 500);
+        }).then(function(){
+            expect(test_ticket.options[0].choices).to.have.length(1);
+            return test_ticket.updateChoice(test_ticket.options[0].choices[0].id, "Renamed!", 1000);
+        }).then(function() {
+            expect(test_ticket.options[0].choices[0].name).to.equal("Renamed!");
+            return test_ticket.removeChoice(test_ticket.options[0].choices[0].id)
+        }).then(function() {
+            expect(test_ticket.options[0].choices).to.have.length(0);
+            done();
+        }).catch(done);
     });
 
     it('can delete itself', function(done){

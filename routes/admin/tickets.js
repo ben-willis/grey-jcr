@@ -11,6 +11,7 @@ var User = require('../../models/user');
 router.get('/', function (req, res, next) {
 	Ticket.getAll()
 		.then(function (tickets) {
+			console.log(tickets);
 			return Promise.all(
 				tickets.map(function(ticket) {
 					return Booking.countByTicketId(ticket.id).then(function(booking_count) {
@@ -90,25 +91,78 @@ router.post('/:ticket_id', function (req, res, next) {
 	}
 
 	Ticket.findById(req.params.ticket_id).then(function(ticket) {
-		return Promise.all([
-			ticket.update(req.body.name, {
-				max_booking: parseInt(req.body.max_booking),
-		        min_booking: parseInt(req.body.min_booking),
-		        allow_debtors: allow_debtors,
-		        allow_guests: allow_guests,
-		        open_booking: open_booking,
-		        close_booking: close_booking,
-		        price: price,
-		        guest_surcharge: guest_surcharge,
-				stock: Math.max(req.body.stock, 0)
-			}),
-			ticket.setOptionsAndChoices(req.body.options)
-		])
+		return ticket.update(req.body.name, {
+			max_booking: parseInt(req.body.max_booking),
+	        min_booking: parseInt(req.body.min_booking),
+	        allow_debtors: allow_debtors,
+	        allow_guests: allow_guests,
+	        open_booking: open_booking,
+	        close_booking: close_booking,
+	        price: price,
+	        guest_surcharge: guest_surcharge,
+			stock: Math.max(req.body.stock, 0)
+		})
 	}).then(function () {
 		res.redirect(303, '/admin/tickets')
 	}).catch(function (err) {
 		next(err);
 	});
+});
+
+/* POST a new option*/
+router.post('/:ticket_id/options', function(req, res, next) {
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.addOption(req.body.name);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
+});
+
+/* POST rename an option */
+router.post('/:ticket_id/options/:option_id', function(req, res, next) {
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.renameOption(req.params.option_id, req.body.name);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
+});
+
+/* GET delete a option */
+router.get('/:ticket_id/options/:option_id/delete', function(req, res, next) {
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.removeOption(req.params.option_id);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
+});
+
+/* POST a new choice */
+router.post('/:ticket_id/options/:option_id/choices', function(req, res, next) {
+	price = Math.floor(parseFloat(req.body.price)*100);
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.addChoice(req.params.option_id, req.body.name, price);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
+});
+
+/* POST update a choice */
+router.post('/:ticket_id/options/:option_id/choices/:choice_id', function(req, res, next) {
+	price = Math.floor(parseFloat(req.body.price)*100);
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.updateChoice(req.params.choice_id, req.body.name, price);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
+});
+
+/* GET remove a choice */
+router.get('/:ticket_id/options/:option_id/choices/:choice_id/delete', function(req, res, next) {
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.removeChoice(req.params.choice_id);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
 });
 
 /* GET ticket bookings */

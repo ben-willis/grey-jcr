@@ -62,61 +62,73 @@ html
 					div(class="field")
 						label Time
 						input(type="text" name="close_booking_time" value=("0"+ticket.close_booking.getHours()).slice(-2)+":"+("0"+ticket.close_booking.getMinutes()).slice(-2))
-					
-						
 
-				h4(class="ui dividing header") Ticket Options
-				
-				- var option_counter = 0;
-				- var choice_counter = 0;
-				div(Class="options")
-					each option in ticket.options
-						div(class="ui vertical option segment")
-							div(class="fields")
-								div(Class="fourteen wide field")
-									label Option Name
-									input(type="text" name="options["+option_counter+"][name]" value=option.name)
-								div(class="two wide field")
-									label Remove Option
-									a(class="ui negative remove option fluid button")
-										i(class="delete icon")
-							div(class="choices")
-								if (option.choices)
-									each choice in option.choices
-										div(class="choice fields")
-											div(class="seven wide field")
-												label Choice Name
-												input(type="text" name="options["+option_counter+"][choices]["+choice_counter+"][name]" value=choice.name)
-											div(class="seven wide field")
-												label Choice Price
-												input(type="text" name="options["+option_counter+"][choices]["+choice_counter+"][price]" value=(choice.price/100).toFixed(2))
-											div(class="two wide field")
-												label Remove Choice
-												a(class="ui negative remove choice fluid button")
-													i(class="delete icon")
-										- choice_counter++;
-							div(class="field")
-								label
-								a(class="ui add choice button" data-optionid=option_counter)
-									i(class="plus icon")
-									| Add Choice
-						- option_counter++;
-				
-				div(class="field")
-					label
-					a(class="ui add option fluid button")
-						i(class="plus icon")
-						| Add Option
-					
-				button(type="submit" class="ui right floated submit button") 
+				button(type="submit" class="ui right floated submit button")
 					i(class="save icon")
 					| Save
 				div(class="ui error message")
 
+			h4(class="ui dividing header") Ticket Options
+			each option in ticket.options
+				div(class="ui vertical segment")
+					form(class="ui form" method="POST" action="/admin/tickets/"+ticket.id+"/options/"+option.id)
+						div(class="fields")
+							div(Class="fourteen wide field")
+								label Option Name
+								input(type="text" name="name" value=option.name)
+							div(class="one wide field")
+								label Rename
+								button(type="submit" class="ui right floated submit fluid button")
+									i(class="write icon")
+							div(class="one wide field")
+								label Remove
+								a(class="ui negative fluid button" href="/admin/tickets/"+ticket.id+"/options/"+option.id+"/delete")
+									i(class="delete icon")
+
+					each choice in option.choices
+						form(class="ui form" method="POST" action="/admin/tickets/"+ticket.id+"/options/"+option.id+"/choices/"+choice.id)
+							div(class="fields")
+								div(class="seven wide field")
+									label Choice Name
+									input(type="text" name="name" value=choice.name)
+								div(class="seven wide field")
+									label Choice Price
+									input(type="text" name="price" value=(choice.price/100).toFixed(2))
+								div(class="one wide field")
+									label Update
+									button(type="submit" class="ui right floated submit fluid button")
+										i(class="write icon")
+								div(class="one wide field")
+									label Remove
+									a(class="ui negative fluid button" href="/admin/tickets/"+ticket.id+"/options/"+option.id+"/choices/"+choice.id+"/delete")
+										i(class="delete icon")
+
+					form(class="ui form" method="POST" action="/admin/tickets/"+ticket.id+"/options/"+option.id+"/choices/")
+						div(class="fields")
+							div(class="seven wide field")
+								label New Choice Name
+								input(type="text" name="name")
+							div(class="seven wide field")
+								label New Choice Price
+								input(type="text" name="price")
+							div(class="two wide field")
+								label Add New Choice
+								button(type="submit" class="ui right floated submit fluid button")
+									i(class="plus icon")
+
+			div(class="ui vertical segment")
+				form(class="ui form" method="POST" action="/admin/tickets/"+ticket.id+"/options/")
+					div(class="fields")
+						div(class="fourteen wide field")
+							label New Option Name
+							input(type="text" name="name")
+						div(class="two wide field")
+							label Add New Option
+							button(type="submit" class="ui right floated submit fluid button")
+								i(class="plus icon")
+
 
 			script.
-				var option_counter = #{option_counter}
-				var choice_counter = #{choice_counter}
 				$('.edit.form').form({
 					fields: {
 						name: 'empty',
@@ -128,49 +140,4 @@ html
 						close_booking_date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]',
 						close_booking_time: 'regExp[/([01]?[0-9]|2[0-3]):[0-5][0-9]/ig]'
 					}
-				})
-				$('.edit.form').on('click', '.add.choice.button', function() {
-					option_id = $(this).attr('data-optionid');
-					new_choice_field = "<div class='choice fields'>" +
-						"<div class='seven wide field'>" +
-							"<label>Choice Name</label>" +
-							"<input type='text' name='options["+option_id+"][choices]["+choice_counter+"][name]'></input>" +
-						"</div>" +
-						"<div class='seven wide field'>" +
-							"<label>Choice Price</label>" +
-							"<input type='text' name='options["+option_id+"][choices]["+choice_counter+"][price]'></input>" +
-						"</div>" +
-						"<div class='two wide field'>" +
-							"<label>Remove Choice</label>" +
-							"<a class='ui negative remove choice fluid button'><i class='delete icon'></i></a>" +
-						"</div>" +
-					"</div>"
-					$(this).parents('.option').children('.choices').append(new_choice_field)
-					choice_counter++;
-				})
-				$('.edit.form').on('click', '.remove.choice.button', function() {
-					$(this).parents('.choice.fields').remove()
-				})
-				$('.edit.form').on('click', '.add.option.button', function() {
-					new_option_field = "<div class='ui vertical option segment'>" +
-						"<div class='fields'>" +
-							"<div class='fourteen wide field'>" +
-								"<label>Option Name</label>" +
-								"<input type='text' name='options["+option_counter+"][name]'></input>" +
-							"</div>" +
-							"<div class='two wide field'>" +
-								"<label>Remove Option</label>" + 
-								"<a class='ui negative remove option fluid button'><i class='delete icon'></i></a>" +
-							"</div>" +
-						"</div>" +
-						"<div class='choices'></div>" +
-						"<div class='field'>" +
-							"<label></label>" + 
-							"<a class='ui add choice button' data-optionid="+option_counter+"><i class='plus icon'></i>Add Choice</a>" +
-						"</div>"
-					$('.options').append(new_option_field)
-					option_counter++;
-				})
-				$('.edit.form').on('click', '.remove.option.button', function() {
-					$(this).parents(".option.segment").remove()
 				})

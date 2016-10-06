@@ -208,5 +208,4 @@ describe('Election Object', function() {
         expect(cleansed_ballot_4).to.have.length(0);
     });
     it("can find first preference");
-    it("can count ballots");
 })
