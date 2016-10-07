@@ -6,18 +6,31 @@ var path = require('path');
 var chai = require("chai");
 var expect = chai.expect;
 
+var error = require('../fake_data/error.json');
+var user = require('../fake_data/user.json');
+var blogs = require('../fake_data/user.json');
+var events = require('../fake_data/events.json');
+
 var locals = {
-    user: {
-        name: "Fake User",
-        email: "fake@user.com",
-        username: "fake12"
-    },
+    user: user,
     prettydate: prettydate
 }
 
 describe('mcr views', function() {
     it('renders without errors', function() {
         pug.renderFile(path.join(__dirname, '../../views/mcr/index.pug'), merge(locals, {}));
+    })
+})
+
+describe('facilities views', function() {
+    it('renders without errors', function() {
+        pug.renderFile(path.join(__dirname, '../../views/facilities/index.pug'), merge(locals, {}));
+    })
+})
+
+describe('sportsandsocs views', function() {
+    it('renders without errors', function() {
+        pug.renderFile(path.join(__dirname, '../../views/sportsandsocs/index.pug'), merge(locals, {}));
     })
 })
 
@@ -28,12 +41,10 @@ describe('other views', function() {
         pug.renderFile(path.join(__dirname, '../../views/login.pug'), merge(locals, {}));
         pug.renderFile(path.join(__dirname, '../../views/header.pug'), merge(locals, {}));
         pug.renderFile(path.join(__dirname, '../../views/footer.pug'), merge(locals, {}));
+        pug.renderFile(path.join(__dirname, '../../views/error.pug'), merge(locals, {error: error}));
         pug.renderFile(path.join(__dirname, '../../views/error.pug'), merge(locals, {
-            message: "Fake Error",
-            error: {
-                status: 413,
-                stack: "Nah"
-            }
+            blogs: blogs,
+            events: events
         }));
     })
 })
