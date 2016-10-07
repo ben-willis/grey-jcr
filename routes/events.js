@@ -165,16 +165,16 @@ router.get('/:year/:month/:day/:slug', function (req, res, next) {
 		.then(function(ticket_ids) {
 			return Promise.all(
 				ticket_ids.map(function(ticket_id) {
-					var ticket = null;
-					return Ticket.findById(ticket_id)
-						.then(function(data) {
-							ticket = data;
-							return Booking.getByTicketIdAndUsername(data.id, req.user.username);
-						})
-						.then(function(bookings) {
-							ticket.bookings = bookings;
-							return ticket
-						});
+					return Promise.all([
+						Ticket.findById(ticket_id),
+						Booking.getByTicketIdAndUsername(ticket_id, req.user.username),
+						Booking.countByTicketId(ticket_id)
+					]).then(function(data) {
+						ticket = data[0];
+						ticket.bookings = data[1];
+						ticket.sold = data[2];
+						return ticket;
+					});
 				})
 			)
 		})
@@ -272,9 +272,8 @@ bookings_manager = {
 }
 
 bookings_manager.createBooking = function(ticket_id, event_id, username, users) {
-	self = this;
 	return new Promise(function(resolve, reject) {
-		self.queue.push({
+		this.queue.push({
 			ticket_id: ticket_id,
 			event_id: event_id,
 			booker: username,
@@ -284,8 +283,8 @@ bookings_manager.createBooking = function(ticket_id, event_id, username, users) 
 				reject: reject
 			}
 		});
-		if (!self.processing) {
-			self.processQueue();
+		if (!this.processing) {
+			this.processQueue();
 		}
-	});
+	}.bind(this));
 }

@@ -78,7 +78,7 @@ router.post('/:ticket_id', function (req, res, next) {
 	var allow_debtors = (req.body.allow_debtors=='on');
 	var allow_guests = (req.body.allow_guests=='on');
 
-	var price = req.body.price*100;
+	var price = Math.round(req.body.price*100);
 	var guest_surcharge = req.body.guest_surcharge*100;
 
 	if (!req.body.options)
