@@ -21,8 +21,8 @@ router.get('/', function (req, res, next) {
 
 /* GET calendar page. */
 router.get('/calendar/:year?/:month?', function (req, res, next) {
-	var year = (isNaN(req.params.year)) ? (new Date()).getFullYear() : req.params.year;
-	var month = (isNaN(req.params.month)) ? (new Date()).getMonth()+1 : req.params.month;
+	var year = (isNaN(req.params.year)) ? (new Date()).getFullYear() : parseInt(req.params.year);
+	var month = (isNaN(req.params.month)) ? (new Date()).getMonth()+1 : parseInt(req.params.month);
 	res.render('events/calendar', {month: month, year: year});
 });
 
