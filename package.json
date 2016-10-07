@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "NODE_ENV=development node ./bin/www",
-    "test": "NODE_ENV=testing ./node_modules/.bin/mocha --reporter spec --recursive"
+    "test": "NODE_ENV=testing ./node_modules/.bin/mocha --reporter spec --recursive",
+    "start-forever": "NODE_ENV=production forever start --minUptime 1000 --spinSleepTime 1000 ./bin/www"
   },
   "dependencies": {
     "async": "^1.5.2",
@@ -58,6 +59,7 @@
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "paypal-rest-sdk": "^1.6.8",
+    "pg": "^4.5.6",
     "pg-promise": "^3.2.1",
     "pretty-date": "^0.2.0",
     "pug": "^2.0.0-beta6",
