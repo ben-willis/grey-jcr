@@ -1,0 +1,65 @@
+- var title = 'View Feedback'
+
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui container')
+			include ../header.pug
+			include ../menu.pug
+			h2(class="ui header")= title
+			
+			if ("success" in query)
+				div(class="ui positive icon message")
+					i(class="close icon")
+					i(class="comment icon")
+					div(class="content")
+						div(class="header") Feedback sent!
+						p You will receive a response as soon as possible
+				script.
+					$('.message .close').on('click', function() {
+						$(this).closest('.message').transition('fade');
+					});
+					
+			else if (feedback.archived)
+				div(Class="ui icon message")
+					i(class="archive icon")
+					div(class="content")
+						div(class="header") Archived Feedback
+						p This piece of feedback has been archived. If you want to bring it to the exec's attention again simple leave another reply.
+
+			div(class="ui vertical segment")
+				h3(class="ui header")
+					img(src=(!feedback.anonymous) ? "/api/users/"+feedback.author.username+"/avatar" : "/api/users/anon/avatar" class="ui circular image")
+					div(class="content")
+						= feedback.title
+						if (feedback.anonymous)
+							div(class="sub header") Anonymous
+						else
+							div(class="sub header")= feedback.author.name
+				div(class="feedback")= feedback.message
+				div(class="ui comments")
+					each reply in replies
+						div(class="comment")
+							span(class="avatar")
+								img(src=(!feedback.anonymous || feedback.exec) ? "/api/users/"+reply.author.username+"/avatar" : "/api/users/anon/avatar")
+							div(class="content")
+								if (reply.exec)
+									span(class="author") Exec
+								else if (!feedback.anonymous)
+									span(class="author")= reply.author.name
+								else
+									span(class="author") Anonymous
+								div(class="metadata")
+									div(class="date")= prettydate.format(new Date(reply.created))
+								div(class="feedback text")= reply.message
+
+					form(class="ui reply form" method="POST" action="")
+						div(class="field")
+							textarea(rows="3" name="message")
+						button(type="submit" class="ui submit button")
+							i(class="reply icon")
+							| Reply
+
+		include ../footer.pug

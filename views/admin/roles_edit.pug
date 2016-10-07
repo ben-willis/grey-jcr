@@ -1,0 +1,20 @@
+- var title = 'Home'
+
+doctype html
+html
+	head
+		include ./head.pug
+	body
+		div(class='ui container')
+			include ./header.pug
+			include ./menu.pug
+			div(class="ui vertical segment")
+				h2 Edit Role
+				form(class="ui edit form" method="POST" action="/admin/roles/"+role.id+"/edit")
+					h3= role.title
+					div(class="field")
+						label Description
+						textarea(rows="3" name="description")=role.description
+					button(type="submit" class="ui submit button")
+						i(class="save icon")
+						| Save

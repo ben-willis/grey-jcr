@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-var positions = require('./positions');
+var roles = require('./roles');
 var blog = require('./blog');
 var feedback = require('./feedback');
 var events = require('./events');
@@ -30,7 +30,7 @@ router.get('/', function (req, res, next) {
 	res.render('admin/home');
 });
 
-router.use('/positions', positions);
+router.use('/roles', roles);
 router.use('/blog', blog);
 router.use('/feedback', feedback);
 router.use('/events', events);

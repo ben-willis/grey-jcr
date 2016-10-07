@@ -1,0 +1,44 @@
+- var title = 'Events'
+
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui container')
+			include ../header.pug
+			- var current="events";
+			include ../menu.pug
+			h2(class="ui header")= title
+			div(class="ui vertical segment")
+				h3(class="ui header") Upcoming Events
+				div(class="ui link doubling four cards")
+					each event in events
+						a(class="card" href="/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug)
+							if (event.image)
+								div(class="image")
+									img(src="/images/events/"+event.image)
+							div(class="content")
+								div(class="header")= event.name
+								div(class="meta")= event.time.toDateString()
+			div(class="ui vertical segment")
+				h3(class="ui header") Phoenix Ball
+				img(class="ui small right floated image" src="http://testing.greyjcr.com/uploads/Phoenix%20Ball.jpg")
+				p Phoenix Ball is the culmination of the social calendar in Grey College. Students look forward to Phoenix Ball as a way to celebrate the end of a wonderful year at Grey.  Hosted in the first week after the end of exams, Phoenix ball traditionally include the option of a meal and is hosted in location out of college.  Entertainment is provided at a the venue and then a silent disco and survivors breakfast are hosted back on the College lawn until the early hours of the morning.  Themes are decided by the Ball Chairs and are revealed with much anticipation.  Previous years themes have been Alice in Wonderland, The Secret Garden, and A Whole New World.
+			div(class="ui vertical segment")
+				h3 Grey Day
+				p Grey Day falls on the first Saturday after exams every year, and is a celebration of all of the best things about Grey. Whether you're sunning yourself on the lawn with a pint, dancing to the amazing live bands or enjoying the bouncy castle with your friends, it's a chilled day to celebrate a long year's hard work.
+				img(class="ui centered medium image" src="http://testing.greyjcr.com/uploads/Grey%20Day.jpg")
+			div(class="ui vertical segment")
+				h3 Informal Ball
+				p Informal Ball is an annual event held within Grey in the last few weeks of Michaelmas Term and is always a massive success! The college is transformed by Social Committee in to what becomes one of the biggest events of the year!
+				p Previous themes have included:
+				ul
+					li Cirque du soleil
+					li A Journey Through Time
+					li The Show Must Go On
+				p Everyone really embraces the themes with brilliant costumes!
+				p Along with phenomenal decoration there is plenty to do throughout the evening ents-wise, highlights from the last few years have been bouncy castles, chocolate fountains, photobooth and dance machines!
+				p There is also the opportunity to attend a three-course meal prior to the night's main event! During the meal there is usually some form of entertainment ranging from live music to magician's depending on the theme!
+				p Combine all this with drinks receptions, food vans, great music and over 600 Grey students and you get one of the best nights of the year!
+		include ../footer.pug

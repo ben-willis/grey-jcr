@@ -1,0 +1,19 @@
+- var title = 'Confirm Payment'
+
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui container')
+			include ../header.pug
+			include ../menu.pug
+			h2(class="ui header")= title
+			div(class="ui vertical segment")
+				p Please check the amount and then confirm your payment.
+				p Amount: £ #{(debt_amount/100).toFixed(2)}
+				p
+					a(href="/services/debt/pay/execute?PayerID="+payerId class="ui primary button") Confirm
+					a(href="/services/debt/pay/cancel" class="ui basic button") Cancel
+
+		include ../footer.pug

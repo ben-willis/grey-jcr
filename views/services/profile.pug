@@ -1,0 +1,24 @@
+- var title = 'Profile'
+
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui container')
+			include ../header.pug
+			include ../menu.pug
+			h2= title
+			div(class="ui vertical segment")
+				div(class="ui card")
+					div(class="image")
+						img(src="/api/users/"+currUser.username+"/avatar")
+					div(class="content")
+						div(class="header")= currUser.name
+						div(class="meta")=currUser.username
+					div(class="extra content")
+						a(href="mailto:"+currUser.email)
+							i(class="mail icon")
+							= currUser.email
+
+		include ../footer.pug

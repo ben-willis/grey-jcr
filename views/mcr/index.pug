@@ -1,0 +1,93 @@
+- var title = 'The MCR'
+
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui container')
+			include ../header.pug
+			- var current="mcr";
+			include ../menu.pug
+			h2(class="ui header")= title
+			div(class="ui vertical segment")
+				h3(class="ui header") About the MCR
+				p The MCR is the community for all postgraduates in Grey College, and supports and provides facilities for them. It is also the informal name for the Phoenix Room, located in the Elvet block, which is the postgraduate common room. One of the main benefits of MCR membership is access to the MCR common room, which acts as the social hub for all members living in or out of college. Along with being a great place to just hang out and chat with friends, the common room also offers:
+				ul
+					li Free tea/coffee/squash and biscuits
+					li A projector and surround sound system
+					li DVD player, Xbox 360, and Wii U
+					li A large DVD and games library
+
+				p From film nights to formals, the MCR organises a wide variety of events throughout the year, catering to everyone's interests. What’s more, it’s an opportunity for you to put forward any ideas or suggestions which are always welcome. There is a comprehensive calendar of events, both in and out of term time,designed to bring together all common room members, provide a social aspect to the postgraduate community and raise the MCR profile within college.
+
+				p More information about the MCR can be found on <a href="https://community.dur.ac.uk/grey.mcr/">the MCR website</a>.
+
+			div(class="ui vertical segment")
+				h3(class="ui header") The Executive Committee
+				p The MCR Exec organise MCR events, and generally look after and take care of anything that needs doing in relation to the running of the MCR. Elections are held at the beginning of the year, once everyone has settled in. There are currently 10 members of the MCR Exec.
+
+				div(class="ui five doubling cards")
+					div(class="card")
+						div(class="image")
+							img(src="/images/mcr/stuart.jpg")
+						div(class="content")
+							div(class="header") President
+							div(class="meta") Stuart Flegg
+					div(class="card")
+						div(class="image")
+							img(src="/images/mcr/sarah.jpg")
+						div(class="content")
+							div(class="header") Vice-President
+							div(class="meta") Sarah Gray
+					div(class="card")
+						div(class="image")
+							img(src="/images/mcr/vincent.jpg")
+						div(class="content")
+							div(class="header") Treasurer
+							div(class="meta") Vincent Chan
+					div(class="card")
+						div(class="image")
+							img(src="/images/mcr/hannah.jpg")
+						div(class="content")
+							div(class="header") Secretary
+							div(class="meta") Hannah Piercy
+					div(class="card")
+						div(class="image")
+							img(src="/images/mcr/katie.jpg")
+						div(class="content")
+							div(class="header") Social Secretary
+							div(class="meta") Katie Bennett
+					div(class="card")
+						div(class="image")
+							img(src="/images/mcr/ross.jpg")
+						div(class="content")
+							div(class="header") Social Secretary
+							div(class="meta") Ross Purcell
+					div(class="card")
+						div(class="image")
+							img(src="/images/mcr/ana-maria.jpg")
+						div(class="content")
+							div(class="header") Welfare Officer
+							div(class="meta") Ana-Maria Costea
+					div(class="card")
+						div(class="image")
+							img(src="/images/mcr/abi.jpg")
+						div(class="content")
+							div(class="header") Welfare Officer
+							div(class="meta") Abigail Finch
+					div(class="card")
+						div(class="image")
+							img(src="/images/mcr/henry.png")
+						div(class="content")
+							div(class="header") Fourth Year Representative
+							div(class="meta") Henry Sawczyc
+					div(class="card")
+						div(class="image")
+							img(src="/images/mcr/matthew.jpg")
+						div(class="content")
+							div(class="header") Web Editor
+							div(class="meta") Matthew Kirk
+
+
+		include ../footer.pug

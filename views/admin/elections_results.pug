@@ -1,0 +1,13 @@
+- var title = 'Election Results'
+
+doctype html
+html
+	head
+		include ./head.pug
+	body
+		div(class='ui container')
+			include ./header.pug
+			- var current="elections";
+			include ./menu.pug
+			h2= title
+			div!= result

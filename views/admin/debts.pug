@@ -1,0 +1,61 @@
+- var title = 'Debts'
+
+doctype html
+html
+	head
+		include ./head.pug
+	body
+		div(class='ui container')
+			include ./header.pug
+			include ./menu.pug
+			h2(class="ui header")= title
+			div(class="ui vertically padded grid")
+				div(class="eleven wide column")
+					h3(class="ui header") Top Debtors
+					table(class="ui fixed table")
+						thead
+							tr
+								th Name (username)
+								th Email
+								th Amount
+								th Actions
+						tbody
+							-var total = 0;
+							each debtor in debtors
+								- total += debtor.total_debt
+								tr
+									td= debtor.name+" ("+debtor.username+")"
+									td= debtor.email
+									td= "£"+(debtor.total_debt/100).toFixed(2)
+									td
+										a(class="ui button" href="/admin/debts/"+debtor.username)
+											| View
+				div(class="five wide wide column")
+					div(class="ui center aligned basic segment")
+						div(class="ui statistic")
+							div(class="value")="£"+(total/100).toFixed(2)
+							div(class="label") Total Debt
+						a(class="ui button" href="/admin/debts/totals.csv")
+							i(class="download icon")
+							| Download All Debts
+					h3(class="ui dividing header") Find Debtors
+					div(class="ui fluid search field")
+						div(class="ui fluid input")
+							input(type="text" name="username" class="prompt" placeholder="Find a user...")
+						div(class="results")
+
+					script.
+						$('.ui.search').search({
+							apiSettings: {
+								url: '/api/users/?q={query}'
+							},
+							fields: {
+								results: 'users',
+								title: 'username',
+								description : 'name'
+							},
+							onSelect: function (result, response) {
+								window.location.href = "/admin/debts/"+result.username;
+								return false;
+							}
+						});

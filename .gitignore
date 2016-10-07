@@ -37,10 +37,13 @@ jspm_packages
 .env
 
 # Redis
-dump.rbd
+*.rbd
 
 # Files
 public/files
 public/images/avatars
 public/images/events
 tmp
+
+#testing database
+*.sqlite3

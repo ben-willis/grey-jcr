@@ -1,0 +1,23 @@
+- var title = 'Blog - ' + blog.title
+
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui container')
+			include ../header.pug
+			include ../menu.pug
+			div(class="ui vertical segment items")
+				div(class="item")
+					div(class="content")
+						div(class="header")= blog.title
+						div(class="meta")
+							span(class="author")
+								i(class="ui user icon")
+								= blog.author.name + " ("+blog.role.title+")"
+							span(class="timestamp")
+								i(class="ui clock icon")
+								| #{prettydate.format(blog.updated)}
+						div(class="article description")!= blog.message
+		include ../footer.pug

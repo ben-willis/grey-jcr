@@ -1,0 +1,15 @@
+- var title = 'Error'
+
+doctype html
+html
+	head
+		include ./head.pug
+	body
+		div(class='ui container')
+			include ./header.pug
+			include ./menu.pug
+			div(class="ui vertical segment")
+				h2= message
+				h3= error.status
+				pre #{error.stack}
+		include ./footer.pug

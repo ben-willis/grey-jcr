@@ -1,12 +1,26 @@
 var express = require('express');
 var router = express.Router();
 var validator = require('validator');
-var treeize   = require('treeize');
+var csv = require('csv');
+
+var Ticket = require('../../models/ticket');
+var Booking = require('../../models/booking');
+var User = require('../../models/user');
 
 /* GET tickets page. */
 router.get('/', function (req, res, next) {
-	req.db.manyOrNone('SELECT id, name, stock, (SELECT COUNT(*) FROM bookings WHERE bookings.ticketid=tickets.id) AS bookings FROM tickets')
+	Ticket.getAll()
 		.then(function (tickets) {
+			console.log(tickets);
+			return Promise.all(
+				tickets.map(function(ticket) {
+					return Booking.countByTicketId(ticket.id).then(function(booking_count) {
+						ticket.sold = booking_count;
+						return ticket;
+					})
+				})
+			)
+		}).then(function(tickets ){
 			res.render('admin/tickets', {tickets: tickets});
 		})
 		.catch(function (err) {
@@ -16,53 +30,42 @@ router.get('/', function (req, res, next) {
 
 /* POST a new ticket */
 router.post('/', function (req, res, next) {
-	req.db.one('INSERT INTO tickets(name, max_booking) VALUES ($1, $2) RETURNING id', [req.body.name, 8])
-		.then(function (ticket) {
-			res.redirect(303, '/admin/tickets/'+ticket.id)
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	Ticket.create(req.body.name).then(function (ticket) {
+		res.redirect(303, '/admin/tickets/'+ticket.id)
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* GET edit ticket page. */
-router.get('/:ticketid', function (req, res, next) {
-	var ticket;
-	req.db.one('SELECT id, name, price, max_booking, min_booking, block_debtors, guests, guest_surcharge, stock, open_sales, close_sales FROM tickets WHERE id=$1',[req.params.ticketid])
-		.then(function (data) {
-			ticket = data;
-			return req.db.manyOrNone('SELECT ticket_options.name, ticket_options.id, ticket_option_choices.id AS "choices:id", ticket_option_choices.name AS "choices:name", ticket_option_choices.price AS "choices:price" FROM ticket_options LEFT JOIN ticket_option_choices ON ticket_options.id=ticket_option_choices.optionid WHERE ticketid=$1', [req.params.ticketid])
-		})
-		.then(function (options) {
-			var optionsTree = new treeize;
-			optionsTree.grow(options);
-			res.render('admin/tickets_edit', {ticket: ticket, options: optionsTree.getData()});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+router.get('/:ticket_id', function (req, res, next) {
+	Ticket.findById(req.params.ticket_id).then(function (ticket) {
+		res.render('admin/tickets_edit', {ticket: ticket});
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* GET delete a ticket page. */
-router.get('/:ticketid/delete', function (req, res, next) {
-	req.db.none('DELETE FROM tickets WHERE id=$1', [req.params.ticketid])
-		.then(function () {
-			res.redirect(303, '/admin/tickets');
-		})
-		.catch(function (err) {
-			next(err);
-		});
+router.get('/:ticket_id/delete', function (req, res, next) {
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.delete();
+	}).then(function () {
+		res.redirect(303, '/admin/tickets');
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
 /* POST an editted ticket */
-router.post('/:ticketid', function (req, res, next) {
-	var date = (req.body.open_sales_date).split('-'); var time = (req.body.open_sales_time).split(':');
-	var open_sales = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
+router.post('/:ticket_id', function (req, res, next) {
+	var date = (req.body.open_booking_date).split('-'); var time = (req.body.open_booking_time).split(':');
+	var open_booking = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 
-	date = (req.body.close_sales_date).split('-'); time = (req.body.close_sales_time).split(':');
-	var close_sales = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
+	date = (req.body.close_booking_date).split('-'); time = (req.body.close_booking_time).split(':');
+	var close_booking = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 
-	if (close_sales < open_sales) {
+	if (close_booking < open_booking) {
 		err = new Error("Close of booking must be after open of booking");
 		err.status(400);
 		next(err);
@@ -71,62 +74,159 @@ router.post('/:ticketid', function (req, res, next) {
 		err.status(400);
 		next(err);
 	}
-	
-	var block_debtors = (req.body.block_debtors=='on');
-	var guests = (req.body.guests=='on');
 
-	var price = req.body.price*100;
+	var allow_debtors = (req.body.allow_debtors=='on');
+	var allow_guests = (req.body.allow_guests=='on');
+
+	var price = Math.round(req.body.price*100);
 	var guest_surcharge = req.body.guest_surcharge*100;
 
-	req.db.none('UPDATE tickets SET name=$2, max_booking=$3, min_booking=$4, block_debtors=$5, guests=$6, guest_surcharge=$7, stock=$8, open_sales=$9, close_sales=$10, price=$11 WHERE id=$1', [req.params.ticketid, req.body.name, req.body.max_booking, req.body.min_booking, block_debtors, guests, guest_surcharge, req.body.stock, open_sales.toLocaleString(), close_sales.toLocaleString(), price])
-		.then(function () {
-			res.redirect(303, '/admin/tickets')
+	if (!req.body.options)
+		req.body.options = []
+	for (var i = 0; i < req.body.options.length; i++) {
+		req.body.options[i].choices = req.body.options[i].choices.filter(function(choice){ return choice != undefined });
+		for (var j = 0; j < req.body.options[i].choices.length; j++) {
+			req.body.options[i].choices[j].price = req.body.options[i].choices[j].price * 100;
+		}
+	}
+
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.update(req.body.name, {
+			max_booking: parseInt(req.body.max_booking),
+	        min_booking: parseInt(req.body.min_booking),
+	        allow_debtors: allow_debtors,
+	        allow_guests: allow_guests,
+	        open_booking: open_booking,
+	        close_booking: close_booking,
+	        price: price,
+	        guest_surcharge: guest_surcharge,
+			stock: Math.max(req.body.stock, 0)
 		})
-		.catch(function (err) {
+	}).then(function () {
+		res.redirect(303, '/admin/tickets')
+	}).catch(function (err) {
+		next(err);
+	});
+});
+
+/* POST a new option*/
+router.post('/:ticket_id/options', function(req, res, next) {
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.addOption(req.body.name);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
+});
+
+/* POST rename an option */
+router.post('/:ticket_id/options/:option_id', function(req, res, next) {
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.renameOption(req.params.option_id, req.body.name);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
+});
+
+/* GET delete a option */
+router.get('/:ticket_id/options/:option_id/delete', function(req, res, next) {
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.removeOption(req.params.option_id);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
+});
+
+/* POST a new choice */
+router.post('/:ticket_id/options/:option_id/choices', function(req, res, next) {
+	price = Math.floor(parseFloat(req.body.price)*100);
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.addChoice(req.params.option_id, req.body.name, price);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
+});
+
+/* POST update a choice */
+router.post('/:ticket_id/options/:option_id/choices/:choice_id', function(req, res, next) {
+	price = Math.floor(parseFloat(req.body.price)*100);
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.updateChoice(req.params.choice_id, req.body.name, price);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
+});
+
+/* GET remove a choice */
+router.get('/:ticket_id/options/:option_id/choices/:choice_id/delete', function(req, res, next) {
+	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.removeChoice(req.params.choice_id);
+	}).then(function () {
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+	}).catch(next);
+});
+
+/* GET ticket bookings */
+router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
+	var ticket = null;
+	var columns = null;
+	var options = {};
+	var choices = {};
+	var bookings_data = [];
+	Ticket.findById(parseInt(req.params.ticket_id))
+		.then(function(data) {
+			ticket = data;
+			columns = {
+				booked_by: "Booked By",
+				name: "Name",
+				guest: "Guest",
+				email: "Email",
+				notes: "Notes"
+			}
+			return ticket.getOptionsAndChoices();
+		})
+		.then(function(data) {
+			for (var i = 0; i < data.length; i++) {
+				columns[data[i].id] = data[i].name;
+				options[data[i].id] = {};
+				for (choice of data[i].choices) {
+					choices[choice.id] = data[i].id;
+					options[data[i].id][choice.id] = choice.name;
+				}
+			}
+			return Booking.getByTicketId(req.params.ticket_id);
+		})
+		.then(function(bookings) {
+			return Promise.all(
+				bookings.map(function(booking) {
+					var username = (booking.username == null) ? booking.booked_by : booking.username;
+					return User.findByUsername(username).then(function(user) {
+						var name = (booking.username == null) ? booking.guestname : user.name;
+						booking_data = {
+							booked_by: booking.booked_by,
+							name: name,
+							guest: (booking.username == null),
+							email: user.email,
+							notes: booking.notes
+						}
+						for (choice of booking.choices) {
+							option_id = choices[choice];
+							booking_data[option_id] = options[option_id][choice]
+						}
+						return booking_data;
+					});
+				})
+			)
+		})
+		.then(function(bookings){
+			csv.stringify(bookings, {header: true, columns: columns}, function (err, output) {
+				if (err) throw err;
+				res.set('Content-Type', 'text/csv');
+				res.status(200).send(output);
+			})
+		})
+		.catch(function (err){
 			next(err);
 		});
-});
-
-/* POST a new option */
-router.post('/:ticketid/addoption', function (req, res, next) {
-	req.db.none('INSERT INTO ticket_options(name, ticketid) VALUES ($1, $2)', [req.body.name, req.params.ticketid])
-		.then(function (){
-			res.redirect(303, '/admin/tickets/'+req.params.ticketid);
-		})
-		.catch(function (err) {
-			next(err);
-		})
-});
-
-/* POST an update to an option */
-router.post('/:ticketid/:optionid', function (req, res, next) {
-	req.db.none('UPDATE ticket_options SET name=$1 WHERE id=$2', [req.body.name, req.params.optionid])
-		.then(function (){
-			if (!req.body.choice) return;
-			query = 'UPDATE ticket_option_choices SET name=choices.name, price=choices.price FROM (VALUES ';
-			values = [];
-			for (var i = 0; i < req.body.choice.length; i++) {
-				if (i!=0) {
-					query += ', ';
-				}
-				query += '($'+(3*i + 1)+', $'+(3*i + 2)+', $'+(3*i + 3)+')';
-				values.push(parseInt(req.body.choice[i].id));
-				values.push(req.body.choice[i].name);
-				values.push(req.body.choice[i].price*100);
-			};
-			query += ') AS choices(id, name, price) WHERE ticket_option_choices.id=choices.id'
-			return req.db.none(query, values);
-		})
-		.then(function (){
-			if (!req.body.newchoice.name) return;
-			return req.db.none('INSERT INTO ticket_option_choices(name, price, optionid) VALUES ($1, $2, $3)',[req.body.newchoice.name, req.body.newchoice.price*100, req.params.optionid]);
-		})
-		.then(function (){
-			res.redirect(303, '/admin/tickets/'+req.params.ticketid);
-		})
-		.catch(function (err) {
-			next(err);
-		})
-});
+})
 
 module.exports = router;

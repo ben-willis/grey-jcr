@@ -1,20 +1,36 @@
 var express = require('express');
 var router = express.Router();
 
+var User = require('../models/user');
+var Role = require('../models/role');
+var Blog = require('../models/blog');
+var Folder = require('../models/folder');
+
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	req.db.many('SELECT * FROM userPositions LEFT JOIN users ON userPositions.username=users.username LEFT JOIN positions ON userPositions.position=positions.id WHERE level>=3')
-		.then(function (positions) {
-			var exec = [];
-			var officers = [];
-			for (var i = 0; i < positions.length; i++) {
-				if (positions[i].level >= 4 && positions[i].id != 1) {
-					exec.push(positions[i]);
-				} else {
-					officers.push(positions[i]);
-				}
-			};
-			res.render('jcr/index', {exec: exec, officers: officers});
+	Promise.all([
+		Role.getByType("exec").then(function(exec_members) {
+			return Promise.all(
+				exec_members.map(function(exec_member) {
+					return exec_member.getUsers().then(function(users) {
+						exec_member.users = users;
+						return exec_member;
+					});
+				})
+			)
+		}),
+		Role.getByType("officer").then(function(exec_members) {
+			return Promise.all(
+				exec_members.map(function(exec_member) {
+					return exec_member.getUsers().then(function(users) {
+						exec_member.users = users;
+						return exec_member;
+					});
+				})
+			)
+		})
+	]).then(function (roles) {
+			res.render('jcr/index', {exec: roles[0], officers: roles[1]});
 		}).catch(function (err) {
 			next(err);
 		});
@@ -22,30 +38,51 @@ router.get('/', function (req, res, next) {
 
 /* GET blog page. */
 router.get('/blog', function (req, res, next) {
-	res.render('jcr/blog');
+	Blog.getAll().then(function(blogs){
+		res.render('jcr/blog', {blogs: blogs});
+	}).catch(function (err) {
+		next(err);
+	});
+
 });
 
-/* GET profile for a position page. */
-router.get('/blog/:position', function (req, res, next) {
-	var posts;
-	req.db.manyOrNone("SELECT *, blog.title AS title, blog.slug AS slug, positions.title AS position_title, positions.slug AS positions_slug FROM blog LEFT JOIN users ON blog.author=users.username LEFT JOIN positions ON blog.positionid=positions.id WHERE positions.slug=$1", [req.params.position])
-		.then(function (data) {
-			posts = data;
-			return req.db.one("SELECT title, description, level, slug, file_directories.id AS dirId FROM positions LEFT JOIN file_directories ON file_directories.owner=positions.id WHERE positions.slug=$1 AND file_directories.parent=0", [req.params.position]);
-		})
-		.then(function (position) {
-			console.log(position);
-			res.render('jcr/profile', { posts: posts, position: position});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+/* GET profile for a role page. */
+router.get('/blog/:role_slug', function (req, res, next) {
+	Role.findBySlug(req.params.role_slug).then(function(role){
+		return Promise.all([
+			role,
+			role.getBlogs().then(function(blogs){
+				return Promise.all(
+					blogs.map(function(blog_data){
+						blog = new Blog(blog_data);
+						return blog.getAuthor().then(function(author){
+							blog_data.author = author;
+							return blog_data;
+						})
+					})
+				)
+			}),
+			Folder.findForRole(role.id)
+		])
+	}).then(function(data) {
+		res.render('jcr/profile', { blogs: data[1], role: data[0], folder: data[2]});
+	}).catch(function (err) {
+		next(err);
+	});
 });
 
-router.get('/blog/:position/:year/:month/:title', function (req, res, next) {
-	req.db.one("SELECT *, blog.title AS title, blog.slug AS slug, positions.title AS position_title, positions.slug AS positions_slug FROM blog LEFT JOIN users ON blog.author=users.username LEFT JOIN positions ON blog.positionid=positions.id WHERE positions.slug=$1 AND EXTRACT(YEAR FROM blog.timestamp)=$2 AND EXTRACT(MONTH FROM blog.timestamp)=$3 AND blog.slug=$4", [req.params.position, req.params.year, req.params.month, req.params.title])
-	.then(function (post) {1
-		res.render('jcr/article', { post: post});
+router.get('/blog/:role/:year/:month/:date/:slug', function (req, res, next) {
+	Blog.findBySlugAndDate(req.params.slug, new Date(req.params.year, parseInt(req.params.month)-1, req.params.date)).then(function (blog) {
+		return Promise.all([
+			blog,
+			blog.getAuthor(),
+			blog.getRole()
+		])
+	}).then(function(data){
+		blog = data[0];
+		blog.author = new User(data[1]);
+		blog.role = new Role(data[2]);
+		res.render('jcr/article', { blog: blog });
 	}).catch(function (err) {
 		next(err);
 	});

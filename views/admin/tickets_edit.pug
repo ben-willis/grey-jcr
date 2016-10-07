@@ -1,0 +1,143 @@
+- var title = 'Edit Ticket'
+
+doctype html
+html
+	head
+		include ./head.pug
+	body
+		div(class='ui container')
+			include ./header.pug
+			include ./menu.pug
+			h2= title
+			form(class="ui edit form" method="POST" action="/admin/tickets/"+ticket.id)
+				h4(class="ui dividing header") Ticket Details
+				div(class="field")
+					label Name
+					input(type="text" name="name" value=ticket.name)
+				div(class="two fields")
+					div(class="field")
+						label Min Size Booking
+						input(type="text" name="min_booking" value=ticket.min_booking)
+					div(class="field")
+						label Max Size Booking
+						input(type="text" name="max_booking" value=ticket.max_booking)
+				div(class="three fields")
+					div(class="field")
+						div(class="ui checkbox")
+							if (ticket.allow_debtors)
+								input(type="checkbox" name="allow_debtors" tabindex="0" checked)
+							else
+								input(type="checkbox" name="allow_debtors" tabindex="0")
+							label Allow Debtors
+					div(class="field")
+						div(class="ui checkbox")
+							if (ticket.allow_guests)
+								input(type="checkbox" name="allow_guests" tabindex="0" checked)
+							else
+								input(type="checkbox" name="allow_guests" tabindex="0")
+							label Allow Guests
+					div(class="inline field")
+						label Guest Surcharge
+						input(type="text" name="guest_surcharge" value=(ticket.guest_surcharge/100).toFixed(2))
+				div(class="two fields")
+					div(class="field")
+						label Stock
+						input(type="text" name="stock" value=ticket.stock)
+					div(class="field")
+						label Price
+						input(type="text" name="price" value=(ticket.price/100).toFixed(2))
+				div(class="two fields")
+					label Open Booking
+					div(class="field")
+						label Date
+						input(type="text" name="open_booking_date" value=ticket.open_booking.getDate() + "-"+(ticket.open_booking.getMonth() + 1)+"-"+ticket.open_booking.getFullYear())
+					div(class="field")
+						label Time
+						input(type="text" name="open_booking_time" value=("0"+ticket.open_booking.getHours()).slice(-2)+":"+("0"+ticket.open_booking.getMinutes()).slice(-2))
+				div(class="two fields")
+					label Close Booking
+					div(class="field")
+						label Date
+						input(type="text" name="close_booking_date" value=ticket.close_booking.getDate() + "-"+(ticket.close_booking.getMonth() + 1)+"-"+ticket.close_booking.getFullYear())
+					div(class="field")
+						label Time
+						input(type="text" name="close_booking_time" value=("0"+ticket.close_booking.getHours()).slice(-2)+":"+("0"+ticket.close_booking.getMinutes()).slice(-2))
+
+				button(type="submit" class="ui right floated submit button")
+					i(class="save icon")
+					| Save
+				div(class="ui error message")
+
+			h4(class="ui dividing header") Ticket Options
+			each option in ticket.options
+				div(class="ui vertical segment")
+					form(class="ui form" method="POST" action="/admin/tickets/"+ticket.id+"/options/"+option.id)
+						div(class="fields")
+							div(Class="fourteen wide field")
+								label Option Name
+								input(type="text" name="name" value=option.name)
+							div(class="one wide field")
+								label Rename
+								button(type="submit" class="ui right floated submit fluid button")
+									i(class="write icon")
+							div(class="one wide field")
+								label Remove
+								a(class="ui negative fluid button" href="/admin/tickets/"+ticket.id+"/options/"+option.id+"/delete")
+									i(class="delete icon")
+
+					each choice in option.choices
+						form(class="ui form" method="POST" action="/admin/tickets/"+ticket.id+"/options/"+option.id+"/choices/"+choice.id)
+							div(class="fields")
+								div(class="seven wide field")
+									label Choice Name
+									input(type="text" name="name" value=choice.name)
+								div(class="seven wide field")
+									label Choice Price
+									input(type="text" name="price" value=(choice.price/100).toFixed(2))
+								div(class="one wide field")
+									label Update
+									button(type="submit" class="ui right floated submit fluid button")
+										i(class="write icon")
+								div(class="one wide field")
+									label Remove
+									a(class="ui negative fluid button" href="/admin/tickets/"+ticket.id+"/options/"+option.id+"/choices/"+choice.id+"/delete")
+										i(class="delete icon")
+
+					form(class="ui form" method="POST" action="/admin/tickets/"+ticket.id+"/options/"+option.id+"/choices/")
+						div(class="fields")
+							div(class="seven wide field")
+								label New Choice Name
+								input(type="text" name="name")
+							div(class="seven wide field")
+								label New Choice Price
+								input(type="text" name="price")
+							div(class="two wide field")
+								label Add New Choice
+								button(type="submit" class="ui right floated submit fluid button")
+									i(class="plus icon")
+
+			div(class="ui vertical segment")
+				form(class="ui form" method="POST" action="/admin/tickets/"+ticket.id+"/options/")
+					div(class="fields")
+						div(class="fourteen wide field")
+							label New Option Name
+							input(type="text" name="name")
+						div(class="two wide field")
+							label Add New Option
+							button(type="submit" class="ui right floated submit fluid button")
+								i(class="plus icon")
+
+
+			script.
+				$('.edit.form').form({
+					fields: {
+						name: 'empty',
+						min_booking: 'integer',
+						max_booking: 'integer',
+						stock: 'integer',
+						open_booking_date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]',
+						open_booking_time: 'regExp[/([01]?[0-9]|2[0-3]):[0-5][0-9]/ig]',
+						close_booking_date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]',
+						close_booking_time: 'regExp[/([01]?[0-9]|2[0-3]):[0-5][0-9]/ig]'
+					}
+				})
