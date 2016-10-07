@@ -60,7 +60,6 @@
     "passport-local": "^1.0.0",
     "paypal-rest-sdk": "^1.6.8",
     "pg": "^4.5.6",
-    "pg-promise": "^3.2.1",
     "pretty-date": "^0.2.0",
     "pug": "^2.0.0-beta6",
     "request": "^2.75.0",
@@ -73,9 +72,7 @@
     "sqlite3": "^3.1.4",
     "treeize": "^2.0.2",
     "validator": "^5.1.0",
-    "yamljs": "^0.2.6"
-  },
-  "devDependencies": {
+    "yamljs": "^0.2.6",
     "merge": "^1.2.0"
   }
 }
