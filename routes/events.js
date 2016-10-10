@@ -159,7 +159,7 @@ router.get('/:year/:month/:day/:slug', function (req, res, next) {
 	var tickets = [];
 	Event.findBySlugAndDate(req.params.slug, new Date(req.params.year, req.params.month-1, req.params.day)).then(function (data) {
 			event = data;
-			if (!req.user) return;
+			if (!req.user) return [];
 			return event.getTickets();
 		})
 		.then(function(ticket_ids) {

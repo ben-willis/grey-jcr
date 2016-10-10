@@ -83,6 +83,7 @@ Booking.findById = function(booking_id) {
 
 Booking.getByTicketIdAndUsername = function(ticket_id, username) {
     return db('bookings').select().where({ticket_id: ticket_id, username: username}).orWhere({ticket_id: ticket_id, booked_by: username}).then(function(data) {
+        if (!data) return [];
         return data.map(function(booking_data) {
             return new Booking(booking_data);
         });
