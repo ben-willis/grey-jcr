@@ -107,7 +107,7 @@ Role.getByType = function (type) {
             promise = promise.where("level", "=", 3).orWhere("id", "=", 1);
             break;
         case "welfare":
-            promise = promise.where("level", "=", 2).orWhere("slug", "=", "Male-Welfare-Officer").orWhere("slug", "=", "Female-Welfare-Officer");
+            promise = promise.where("level", "=", 2).orWhere("slug", "=", "male-welfare-officer").orWhere("slug", "=", "female-welfare-officer");
             break;
         case "rep":
             promise = promise.where("level", "=", 1);

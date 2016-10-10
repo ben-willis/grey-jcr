@@ -21,7 +21,7 @@ html
 						option(value="4") Exec
 						option(value="3") Officer
 						option(value="2") Welfare
-						option(value="1") Representative 
+						option(value="1") Representative
 				button(type="submit" class="ui submit button")
 					i(Class="write icon")
 					| Create
@@ -47,7 +47,7 @@ html
 									- for (j = 0; j<exec[i].users.length; j++)
 
 										div(class="ui image label")
-											img(src="/api/users/"+exec[i].username+"/avatar")
+											img(src="/api/users/"+exec[i].users[j].username+"/avatar")
 											= exec[i].users[j].name
 											a(href="/admin/roles/"+currentRole+"/removeUser/"+exec[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
 
@@ -78,7 +78,7 @@ html
 									- for (j = 0; j<officers[i].users.length; j++)
 
 										div(class="ui image label")
-											img(src="/api/users/"+officers[i].username+"/avatar")
+											img(src="/api/users/"+officers[i].users[j].username+"/avatar")
 											= officers[i].users[j].name
 											a(href="/admin/roles/"+currentRole+"/removeUser/"+officers[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
 
@@ -109,7 +109,7 @@ html
 									- for (j = 0; j<welfare[i].users.length; j++)
 
 										div(class="ui image label")
-											img(src="/api/users/"+welfare[i].username+"/avatar")
+											img(src="/api/users/"+welfare[i].users[j].username+"/avatar")
 											= welfare[i].users[j].name
 											a(href="/admin/roles/"+currentRole+"/removeUser/"+welfare[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
 
@@ -140,7 +140,7 @@ html
 									- for (j = 0; j<reps[i].users.length; j++)
 
 										div(class="ui image label")
-											img(src="/api/users/"+reps[i].username+"/avatar")
+											img(src="/api/users/"+reps[i].users[j].username+"/avatar")
 											= reps[i].users[j].name
 											a(href="/admin/roles/"+currentRole+"/removeUser/"+reps[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
 
