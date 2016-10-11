@@ -10,7 +10,7 @@ html
 			include ../menu.pug
 			h2(class="ui header")= title
 			p= "You must book on a minimum of "+ticket.min_booking+" people."
-			if (ticket.guests)
+			if (ticket.allow_guests)
 				p To book a JCR member on please enter their CIS username. To book a guest on please enter their fullname.
 			div(class="ui vertical segment")
 				form(class="ui form" method="POST" action="/events/"+event_id+"/"+ticket.id+"/book")
