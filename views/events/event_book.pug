@@ -9,9 +9,12 @@ html
 			include ../header.pug
 			include ../menu.pug
 			h2(class="ui header")= title
-			p= "You must book on a minimum of "+ticket.min_booking+" people."
+			if (ticket.min_booking > 1)
+				p= "You must book on a minimum of "+ticket.min_booking+" people."
 			if (ticket.allow_guests)
-				p To book a JCR member on please enter their CIS username. To book a guest on please enter their fullname.
+				p(class="ui message") To book a JCR member on please enter their CIS username. To book a guest on please enter their fullname.
+			else
+				p To book a JCR member on please enter their CIS username.
 			div(class="ui vertical segment")
 				form(class="ui form" method="POST" action="/events/"+event_id+"/"+ticket.id+"/book")
 					- for(i=0; i<ticket.max_booking; i++)
