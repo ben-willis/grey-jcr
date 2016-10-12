@@ -9,12 +9,13 @@ html
 			include ../header.pug
 			include ../menu.pug
 			h2= title
-			div(class="ui secondary rooms menu")
+			p(class="ui message") Please contact the Services Manager or JCR President if you wish to make a room booking
+			div(class="ui top attached tabular rooms menu")
 				for room in rooms
 					a(class="item" data-tab=room.id)= room.name
 
 			for room in rooms
-				div(class="ui vertical tab segment" data-tab=room.id)
+				div(class="ui bottom attached tab segment" data-tab=room.id)
 					p= room.description
 					h3 Bookings
 					table(class="ui eight column definition celled table")

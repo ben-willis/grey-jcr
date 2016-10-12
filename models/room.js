@@ -38,13 +38,14 @@ Room.prototype.getBookingsByDate = function(date) {
     return db('room_bookings').select().whereBetween('start_time', [
         date,
         new Date(date.getTime() + 24*60*60*1000)
-    ]).orderBy('start_time', 'asc');
+    ]).andWhere({'room_id': this.id}).orderBy('start_time', 'asc');
 }
 
 Room.prototype.getFutureBookings = function() {
     return db('room_bookings')
         .select()
         .where('start_time', '>', new Date())
+        .andWhere({'room_id': this.id})
         .orderBy('start_time', 'asc');
 }
 
