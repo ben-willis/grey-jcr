@@ -10,11 +10,12 @@ describe('Static Event Methods', function() {
 
     beforeEach(function(done) {
         db('rooms').insert({
-            name: "Test Room"
+            name: "Test Room",
+            description: "Test Room description"
         }).returning('id').then(function(id) {
             test_room_id = id[0];
             done();
-        });
+        }).catch(done);
     });
 
     afterEach(function(done) {
@@ -32,7 +33,7 @@ describe('Static Event Methods', function() {
     });
 
     it("should create a new room", function(done) {
-        Room.create("New Room").then(function(){
+        Room.create("New Room", "New Room Description").then(function(){
             return db('rooms').select();
         }).then(function(rooms) {
             expect(rooms).to.have.length(2);
@@ -50,9 +51,8 @@ describe('Static Event Methods', function() {
 
 describe('Room Methods', function() {
     it("should get all bookings for a date of each type");
-    it("should get all future bookings of each type");
+    it("should get all future bookings");
     it("should add a booking");
-    it("should change the status of a booking");
     it("should delete a booking");
-    it("should get all bookings for a user of each type")
+    it("should edit a room")
 })
