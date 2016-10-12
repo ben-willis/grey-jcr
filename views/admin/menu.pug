@@ -15,9 +15,9 @@ div(class='ui stackable inverted menu')
 	a(class='item' href='/admin/files')
 		i(class="folder open icon")
 		| Files
-	//- a(class='item' href='/admin/rooms')
-	//- 	i(class="book icon")
-	//- 	| Room Booking
+	a(class='item' href='/admin/rooms')
+		i(class="book icon")
+		| Room Booking
 	if (user.level > 4)
 		a(class='item' href='/admin/debts')
 			i(class="pound icon")

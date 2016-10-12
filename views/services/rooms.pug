@@ -9,128 +9,51 @@ html
 			include ../header.pug
 			include ../menu.pug
 			h2= title
-			div(Class="ui vertical segment")
-				p You can request bookings for any of the below rooms but your request must be accepted by an administrator. Your pending bookings are coloured red and all accepted bookings are green.
-			div(class="ui vertical segment")
-				div(class="ui top attached tabular menu")
-					each room in rooms
-						a(class="item" data-tab=room.id)= room.name
+			p(class="ui message") Please contact the Services Manager or JCR President if you wish to make a room booking
+			div(class="ui top attached tabular rooms menu")
+				for room in rooms
+					a(class="item" data-tab=room.id)= room.name
 
-				each room in rooms
-					div(class="ui bottom attached tab clearing segment" data-tab=room.id)
-						h3= "Request a booking for "+room.name
-						form(class="ui form" method="POST" action="/services/rooms/"+room.id)
-							div(class="field")
-								label Name
-								input(type="text" name="name")
-							div(class="field")
-								label Date
-								input(type="text" name="date" value=(new Date()).getDate() + "-"+((new Date()).getMonth() + 1)+"-"+(new Date()).getFullYear())
-							div(class="two fields")
-								div(class="field")
-									label Start Time
-									select(class="ui dropdown" name="start")
-										- for (i=18; i<43; i++)
-											option(value=Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2))= Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2)
-								div(class="field")
-									label End Time
-									select(class="ui dropdown" name="end")
-										- for (i=19; i<44; i++)
-											option(value=(i*30))= Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2)
-							button(class="ui submit button" type="submit")
-								i(class="write icon")
-								| Create
-							div(class="ui error message")
-
-						script.
-							$(".dropdown").dropdown();
-							$('.form').form({
-								fields: {
-									name: 'empty',
-									date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]'
-								}
-							});
-
-						h3 Bookings
-						table(class="ui eight column definition celled table")
-							thead
+			for room in rooms
+				div(class="ui bottom attached tab segment" data-tab=room.id)
+					p= room.description
+					h3 Bookings
+					table(class="ui eight column definition celled table")
+						thead
+							tr
+								th
+								th Sunday - #{week_start.getDate()}/#{week_start.getMonth()+1}
+								th Monday
+								th Tuesday
+								th Wednesday
+								th Thursday
+								th Friday
+								th Saturday
+						tbody
+							- findSlot = function(date) {return (2*date.getHours() + date.getMinutes()/30)};
+							- for (slot=18; slot<44; slot++)
 								tr
-									th
-									- var sunday = new Date(year, 0, date);
-									th= "Sunday - "+sunday.getDate()+"/"+(sunday.getMonth()+1)
-									th Monday
-									th Tuesday
-									th Wednesday
-									th Thursday
-									th Friday
-									th Saturday
-							tbody
-								if (room.bookings)
-									- room.bookings.sort(compare);
-									- for (slot=18; slot<44; slot++)
-										tr
-											td= Math.floor(slot/2) + ':' + ("0"+(slot%2 * 30)).slice(-2)
-											- for (dow=0; dow<7; dow++)
-												if (room.bookings[0] && room.bookings[0].dow == dow && room.bookings[0].slot == slot)
-													if (!room.bookings[0].started)
-														td(rowspan=room.bookings[0].duration class=(room.bookings[0].status==0)?"negative":"positive")= room.bookings[0].name
-														- room.bookings[0].started = true;
-													if (room.bookings[0].duration == 1)
-														- room.bookings.shift()
-													else
-														- room.bookings[0].duration -= 1;
-														- room.bookings[0].slot += 1;
-														- room.bookings.sort(compare);
-												else if (room.bookings[0] && room.bookings[0].slot < slot)
-													- room.bookings.shift()
-													td
-												else
-													td
-								else
-									- for (slot=18; slot<44; slot++)
-										tr
-											td= Math.floor(slot/2) + ':' + ("0"+(slot%2 * 30)).slice(-2)
-											- for (dow=0; dow<7; dow++)
-												td
+									td= Math.floor(slot/2) + ':' + ("0"+(slot%2 * 30)).slice(-2)
+									for day_bookings in room.bookings
+										if (day_bookings.length > 0 && findSlot(day_bookings[0].start_time) == slot)
+											if (!day_bookings[0].started)
+												td(rowspan=(day_bookings[0].duration/30) class="negative")= day_bookings[0].name
+												- day_bookings[0].started = true;
 
-						if (date < 7)
-							a(class="ui left floated button" href="/services/rooms/?date="+(365-7+date)+"&year="+(year-1)+"#"+room.id)
-								i(class="left arrow icon")
-								| Last Week
-						else
-							a(class="ui left floated button" href="/services/rooms/?date="+(date-7)+"&year="+year+"#"+room.id)
-								i(class="left arrow icon")
-								| Last Week
-						if (date > 358)
-							a(class="ui right floated button" href="/services/rooms/?date="+(365-date)+"&year="+(year+1)+"#"+room.id)
-								| Next Week
-								i(class="right arrow icon")
-						else
-							a(class="ui right floated button" href="/services/rooms/?date="+(date+7)+"&year="+year+"#"+room.id)
-								| Next Week
-								i(class="right arrow icon")
-
-
-			- function compare(a,b) {
-			-	if (a.dow < b.dow) {
-			-		return -1;
-			-	} else if (a.dow > b.dow) {
-			-		return 1;
-			-	} else if (a.slot < b.slot) {
-			-		return -1;
-			-	} else if (a.slot > b.slot) {
-			-		return 1;	
-			-	} else {
-			-		return 0;	
-			-	}
-			- }
-
+											if (day_bookings[0].duration == 30)
+												- day_bookings.shift()
+											else
+												- day_bookings[0].duration -= 30;
+												- day_bookings[0].start_time = new Date(day_bookings[0].start_time.getTime() + 30*60*1000);
+										else
+											td
 
 			script.
-				$('.menu .item').tab({
-					onVisible: function(path) {parent.location.hash = path;}
+				if (location.hash == "") {location.hash = #{rooms[0].id}}
+				$('[data-tab='+(location.hash).substring(1)+']').addClass("active");
+				$('.rooms.menu .item').tab({
+					onLoad: function(tabPath, parameterArray, historyEvent) {location.hash = tabPath}
 				});
-				$('*[data-tab='+((parent.location.hash)?(parent.location.hash.substr(1)):1)+']').addClass("active");
 
 
 		include ../footer.pug

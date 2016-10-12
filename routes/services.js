@@ -11,6 +11,7 @@ var httpError = require('http-errors');
 var Feedback = require('../models/feedback');
 var User = require('../models/user');
 var Election = require('../models/election');
+var Room = require('../models/room');
 
 require('dotenv').config();
 
@@ -25,48 +26,32 @@ router.use(function (req, res, next) {
 
 /* GET room booking page */
 router.get('/rooms/', function (req, res, next) {
-	var year = (req.query && req.query.year) ? parseInt(req.query.year) : (new Date()).getFullYear()
-	// Get the date of the first day of the week
-	var curr = new Date();
-	var firstday = new Date(curr.setDate(curr.getDate() - curr.getDay()));
-	var date = (req.query && req.query.date) ? parseInt(req.query.date) : Math.floor((firstday -  new Date(year, 0, 0))/86400000);
-	// Calculate its date number
-	req.db.manyOrNone('SELECT rooms.id, rooms.name, room_bookings.name AS "bookings:name", room_bookings.username AS "bookings:user", room_bookings.status AS "bookings:status", room_bookings.start AS "bookings:start", EXTRACT(dow FROM room_bookings.start) AS "bookings:dow", (2*EXTRACT(hour FROM room_bookings.start) + EXTRACT(minute FROM room_bookings.start)/30) AS "bookings:slot", room_bookings.duration/30 AS "bookings:duration" FROM rooms LEFT JOIN room_bookings ON rooms.id=room_bookings.roomid ORDER BY EXTRACT(dow FROM room_bookings.start) ASC, (2*EXTRACT(hour FROM room_bookings.start) + EXTRACT(minute FROM room_bookings.start)/30) ASC')
-		.then(function(data) {
-			for (var i = data.length - 1; i >= 0; i--) {
-				start = new Date(data[i]["bookings:start"]);
-				if (start < new Date(year, 0, date) || start > new Date(year, 0, date+7) || (data[i]["bookings:user"]!=req.user.username && data[i]["bookings:status"]==0)) {
-					delete data[i]["bookings:name"]
-					delete data[i]["bookings:start"]
-					delete data[i]["bookings:dow"]
-					delete data[i]["bookings:slot"]
-					delete data[i]["bookings:duration"]
-					delete data[i]["bookings:status"]
-					delete data[i]["bookings:user"]
-				}
-			};
-			var roomTree = new treeize();
-			roomTree.grow(data);
-			rooms = roomTree.getData();
-			res.render('services/rooms', {rooms: rooms, year: year, date: date});
-		}).catch(function (err) {
-			next(err);
-		});
-});
+	var week_offset = (req.query.week_offset) ? req.query.week_offset : 0;
 
-/* POST a room booking */
-router.post('/rooms/:roomid/', function (req, res, next) {
-	var date = (req.body.date).split('-');
-	var time = (req.body.start).split(':');
-	var start = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
-	var duration = parseInt(req.body.end) - (60*parseInt(time[0])+parseInt(time[1]));
-	req.db.one('INSERT INTO room_bookings(name, start, duration, roomid, username, status) VALUES ($1, $2, $3, $4, $5, 0) RETURNING start', [req.body.name, start.toLocaleString(), duration, req.params.roomid, req.user.username])
-		.then(function (book) {
-			res.redirect(303, '/services/rooms/?success#'+req.params.roomid)
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	var current_date = new Date();
+	var selected_date = new Date(current_date.getFullYear(), current_date.getMonth(), current_date.getDate() + 7*week_offset);
+
+	var week_dates = [0,1,2,3,4,5,6].map(function(dow) {
+		return new Date(selected_date.getTime() + ((dow - selected_date.getDay())*24*60*60*1000))
+	})
+
+	var room = null;
+	Room.getAll().then(function(rooms) {
+		return Promise.all(
+			rooms.map(function(room){
+				return Promise.all(
+					week_dates.map(function(date){
+						return room.getBookingsByDate(date);
+					})
+				).then(function(bookings) {
+					room.bookings = bookings;
+					return room;
+				})
+			})
+		)
+	}).then(function(rooms) {
+		res.render('services/rooms', {rooms: rooms, week_start: week_dates[0]})
+	}).catch(next);
 });
 
 /* GET user page. */
