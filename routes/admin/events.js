@@ -63,7 +63,7 @@ router.post('/:event_id/edit', upload.single('image'), function (req, res, next)
 	Event.findById(parseInt(req.params.event_id)).then(function(event) {
 		return Promise.all([
 			event,
-			event.setTickets([].concat(ticket_ids))
+			event.setTickets(ticket_ids)
 		])
 	}).then(function(data) {
 		event = data[0]
