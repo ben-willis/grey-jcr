@@ -119,6 +119,7 @@ User.prototype.getVote = function(election_id) {
 /* Static Methods */
 
 User.create = function(username) {
+    username = username.toLowerCase();
     return this.fetch_details(username).then(function(data) {
         if (data.college != "Grey College") throw httpError(400, "You must be a member of Grey College");
 

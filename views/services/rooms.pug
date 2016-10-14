@@ -48,6 +48,17 @@ html
 										else
 											td
 
+					- week_offset = (query.week_offset) ? parseInt(query.week_offset) : 0
+					a(class="ui button" href="/services/rooms/?week_offset="+(week_offset-1)+"#"+room.id)
+						i(class="left arrow icon")
+						| Previous Week
+
+					a(class="ui right floated button" href="/services/rooms/?week_offset="+(week_offset+1)+"#"+room.id)
+						| Next Week
+						i(class="right arrow icon")
+
+			div(Class="ui basic segment")
+
 			script.
 				if (location.hash == "") {location.hash = #{rooms[0].id}}
 				$('[data-tab='+(location.hash).substring(1)+']').addClass("active");
