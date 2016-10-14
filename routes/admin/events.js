@@ -58,6 +58,7 @@ router.post('/:event_id/edit', upload.single('image'), function (req, res, next)
 	var date = (req.body.date).split('-');
 	var time = (req.body.time).split(':');
 	var timestamp = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
+	var ticket_ids = (!req.body.tickets) ? [] : req.body.tickets;
 
 	Event.findById(parseInt(req.params.event_id)).then(function(event) {
 		return Promise.all([
