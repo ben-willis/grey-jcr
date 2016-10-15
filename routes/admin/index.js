@@ -16,7 +16,7 @@ router.use(function (req, res, next) {
 	if (!req.isAuthenticated()) {
 		req.session.redirect_to = req.originalUrl;
 		return res.redirect(401, '/login?unauthorised');
-	} else if (req.user.level<4 ) {
+	} else if (req.user.level < 3) {
 		err = new Error("Forbidden");
 		err.status = 403;
 		return next(err);

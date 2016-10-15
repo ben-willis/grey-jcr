@@ -2,22 +2,22 @@ div(class='ui stackable inverted menu')
 	a(class='item' href='/admin')
 		i(class="home icon")
 		| Home
-
 	a(class='item' href='/admin/events')
 		i(class="calendar icon")
 		| Events
-	a(class='item' href='/admin/tickets')
-		i(class="ticket icon")
-		| Tickets
 	a(class='item' href='/admin/blog')
 		i(class="newspaper icon")
 		| Blog
-	a(class='item' href='/admin/files')
-		i(class="folder open icon")
-		| Files
-	a(class='item' href='/admin/rooms')
-		i(class="book icon")
-		| Room Booking
+	if (user.level > 3)
+		a(class='item' href='/admin/tickets')
+			i(class="ticket icon")
+			| Tickets
+		a(class='item' href='/admin/files')
+			i(class="folder open icon")
+			| Files
+		a(class='item' href='/admin/rooms')
+			i(class="book icon")
+			| Room Booking
 	if (user.level > 4)
 		a(class='item' href='/admin/debts')
 			i(class="pound icon")

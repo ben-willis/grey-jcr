@@ -9,5 +9,56 @@ html
 			include ./header.pug
 			include ./menu.pug
 			h2 Welcome to the Administration Panel
-			p This section allows all executive officers to edit certain sections of the JCR site.
-			p Please do not abuse this power, or it will be taken away and limited to specific people.
+			p(class="ui message") Please do not abuse this power, or it will be taken away and limited to specific people.
+			h3 Features you can manage
+			div(class="ui relaxed list")
+				div(class="item")
+					i(class="bordered calendar icon")
+					div(class="content")
+						div(class="header") Events
+						div(class="description") Add events to the calendar. Tickets can only be created by exec members.
+				div(class="item")
+					i(class="bordered newspaper icon")
+					div(class="content")
+						div(class="header") Blog
+						div(class="description") Post news to the homepage. Visible to anyone who vists the website.
+				if (user.level > 3)
+					div(class="item")
+						i(class="bordered ticket icon")
+						div(class="content")
+							div(class="header") Tickets
+							div(class="description") Create tickets for events and download bookings.
+					div(class="item")
+						i(class="bordered folder open icon")
+						div(class="content")
+							div(class="header") Files
+							div(class="description") Upload files to your personal directory. Accessible by anyone who visits the website.
+					div(class="item")
+						i(class="bordered book icon")
+						div(class="content")
+							div(class="header") Room Booking
+							div(class="description") Create rooms and add bookings. Please be careful not to double book otherwise things will break.
+				if (user.level > 4)
+					div(class="item")
+						i(class="bordered pound icon")
+						div(class="content")
+							div(class="header") Debts
+							div(class="description") Manage user debts.
+					div(class="item")
+						i(class="bordered checkmark box icon")
+						div(class="content")
+							div(class="header") Elections
+							div(class="description") Create elections and count votes.
+					div(class="item")
+						i(class="bordered comment icon")
+						div(class="content")
+							div(class="header") Feedback
+							div(class="description") Read and reply to feedback. Archive feedback to mark it as "dealt with".
+					div(class="item")
+						i(class="bordered users icon")
+						div(class="content")
+							div(class="header") Roles
+							div(class="description") Manage JCR roles and assign users to positions.
+
+			h3 Issues/Requests
+			p If you have any issues with the website or have any features you want added feel free to email me (b.c.willis@durham.ac.uk) and I'll see what I can do!

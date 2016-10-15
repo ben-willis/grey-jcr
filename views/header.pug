@@ -6,7 +6,7 @@ div(class="ui stackable grid")
 					div(class="text") Services
 					i(class="ui dropdown link icon")
 					div(class="menu")
-						if (user.level >= 4)
+						if (user.level > 2)
 							a(class="item" href="/admin") Admin
 						a(class="item" href="/services/feedback") Feedback
 						a(class="item" href="/events/calendar") Calendar
@@ -41,7 +41,7 @@ div(class="ui stackable grid")
 		div(class="ui vertical segment")
 			div(class="ui stackable compact text menu")
 				if (user)
-					if (user.level >= 4)
+					if (user.level > 2)
 						a(class="item" href="/admin") Admin
 					a(class="item" href="/services/feedback") Feedback
 					a(class="item" href="/events/calendar") Calendar
