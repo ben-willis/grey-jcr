@@ -46,7 +46,13 @@ Role.prototype.getUsers = function() {
 
 Role.prototype.getBlogs = function() {
     return db('blogs')
-        .where({'role_id': this.id});
+        .select('id')
+        .where({'role_id': this.id})
+        .then(function(blogs) {
+            return blogs.map(function(data) {
+                return data.id;
+            })
+        });
 }
 
 /* Static Methods */

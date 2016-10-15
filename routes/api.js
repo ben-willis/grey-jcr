@@ -121,7 +121,6 @@ router.get('/blogs/:blog_id/like', function(req, res, next) {
 	}).then(function() {
 		res.json({status: 'success'})
 	}).catch(function(err) {
-		console.log(err);
 		res.json(err);
 	})
 });
