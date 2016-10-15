@@ -11,7 +11,6 @@ var User = require('../../models/user');
 router.get('/', function (req, res, next) {
 	Ticket.getAll()
 		.then(function (tickets) {
-			console.log(tickets);
 			return Promise.all(
 				tickets.map(function(ticket) {
 					return Booking.countByTicketId(ticket.id).then(function(booking_count) {

@@ -19,6 +19,22 @@ Blog.prototype.getRole = function () {
     return db('roles').first().where({id: this.role_id});
 };
 
+Blog.prototype.getHearts = function () {
+    return db('blog_hearts').select('username').where({blog_id: this.id}).then(function(hearts) {
+        return hearts.map(function(data){
+            return data.username;
+        })
+    });
+}
+
+Blog.prototype.addHeart = function(username) {
+    return db('blog_hearts').insert({username: username, blog_id: this.id});
+}
+
+Blog.prototype.removeHeart = function(username) {
+    return db('blog_hearts').del().where({username: username, blog_id: this.id});
+}
+
 Blog.prototype.getAuthor = function () {
     return db('users').first().where({username: this.author});
 };
@@ -62,8 +78,20 @@ Blog.create = function(data) {
 Blog.findById = function(id) {
     return db('blogs').first().where({id: id}).then(function(data) {
         if (!data) throw httpError(404, "Blog not found");
-        return new Blog(data)
-    })
+        blog = new Blog(data);
+        return Promise.all([
+            blog,
+            blog.getRole(),
+            blog.getAuthor(),
+            blog.getHearts()
+        ])
+    }).then(function(data) {
+        blog = data[0];
+        blog.role = data[1];
+        blog.author = data[2];
+        blog.hearts = data[3];
+        return blog;
+    });
 }
 
 Blog.findBySlugAndDate = function(slug, date) {
@@ -72,7 +100,19 @@ Blog.findBySlugAndDate = function(slug, date) {
         new Date(date.getTime() + 24*60*60*1000)
     ]).andWhere({slug: slug}).then(function(data) {
         if (!data) throw httpError(404, "Blog not found");
-        return new Blog(data)
+        blog = new Blog(data);
+        return Promise.all([
+            blog,
+            blog.getRole(),
+            blog.getAuthor(),
+            blog.getHearts()
+        ])
+    }).then(function(data) {
+        blog = data[0];
+        blog.role = data[1];
+        blog.author = data[2];
+        blog.hearts = data[3];
+        return blog;
     });
 }
 
@@ -110,11 +150,13 @@ Blog.getAll = function(limit) {
                     blog = new Blog(blog_data)
                     return Promise.all([
                         blog.getRole(),
-                        blog.getAuthor()
+                        blog.getAuthor(),
+                        blog.getHearts()
                     ]).then(function(data) {
                         blog = new Blog(blog_data);
                         blog.role = data[0];
                         blog.author = data[1];
+                        blog.hearts = data[2];
                         return blog;
                     })
                 })

@@ -51,14 +51,10 @@ router.get('/blog/:role_slug', function (req, res, next) {
 	Role.findBySlug(req.params.role_slug).then(function(role){
 		return Promise.all([
 			role,
-			role.getBlogs().then(function(blogs){
+			role.getBlogs().then(function(blog_ids){
 				return Promise.all(
-					blogs.map(function(blog_data){
-						blog = new Blog(blog_data);
-						return blog.getAuthor().then(function(author){
-							blog_data.author = author;
-							return blog_data;
-						})
+					blog_ids.map(function(blog_id){
+						return Blog.findById(blog_id);
 					})
 				)
 			}),
@@ -73,15 +69,6 @@ router.get('/blog/:role_slug', function (req, res, next) {
 
 router.get('/blog/:role/:year/:month/:date/:slug', function (req, res, next) {
 	Blog.findBySlugAndDate(req.params.slug, new Date(req.params.year, parseInt(req.params.month)-1, req.params.date)).then(function (blog) {
-		return Promise.all([
-			blog,
-			blog.getAuthor(),
-			blog.getRole()
-		])
-	}).then(function(data){
-		blog = data[0];
-		blog.author = new User(data[1]);
-		blog.role = new Role(data[2]);
 		res.render('jcr/article', { blog: blog });
 	}).catch(function (err) {
 		next(err);

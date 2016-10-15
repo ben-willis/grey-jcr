@@ -127,7 +127,8 @@ describe('Blog Object', function() {
         Promise.all([
             db('blogs').del(),
             db('roles').del(),
-            db('users').del()
+            db('users').del(),
+            db('blog_hearts').del()
         ]).then(function() {
             blog = null;
             done();
@@ -143,6 +144,27 @@ describe('Blog Object', function() {
         }).catch(function(err){
             done(err);
         });
+    });
+
+    it('can add, get and remove hearts', function(done) {
+        db('blog_hearts').select().then(function(hearts) {
+            expect(hearts).to.have.length(0);
+            return blog.addHeart('abcd12');
+        }).then(function() {
+            return db('blog_hearts').select();
+        }).then(function(hearts) {
+            expect(hearts).to.have.length(1);
+            return blog.getHearts();
+        }).then(function(hearts) {
+            expect(hearts).to.have.length(1);
+            expect(hearts[0]).to.equal('abcd12');
+            return blog.removeHeart('abcd12')
+        }).then(function() {
+            return db('blog_hearts').select();
+        }).then(function(hearts) {
+            expect(hearts).to.have.length(0);
+            done();
+        }).catch(done)
     });
 
     it('can get its roles data', function(done){
