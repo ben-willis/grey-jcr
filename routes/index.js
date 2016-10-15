@@ -7,6 +7,7 @@ var Event = require('../models/event');
 var auth = require('./auth');
 var jcr = require('./jcr');
 var services = require('./services');
+var info = require('./info');
 var support = require('./support');
 var facilities = require('./facilities');
 var events = require('./events');
@@ -30,6 +31,7 @@ router.get('/', function (req, res, next) {
 router.use('/', auth);
 router.use('/jcr/', jcr);
 router.use('/services/', services);
+router.use('/info/', info);
 router.use('/support/', support);
 router.use('/facilities/', facilities);
 router.use('/events/', events);
