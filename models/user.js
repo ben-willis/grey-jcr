@@ -38,6 +38,7 @@ User.prototype.getDebt = function() {
 User.prototype.getDebts = function() {
     return db('debts')
         .select()
+        .orderBy('debt_added', 'desc')
         .where('username', this.username);
 }
 

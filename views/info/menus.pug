@@ -18,11 +18,11 @@ html
 				h3 Dinner
 				img(class="ui fluid image" src="/images/menus/w"+currWeek+"d.jpg")
 				if (week > 1)
-					a(class="ui left floated button" href="/services/menus?week="+(week-1))
+					a(class="ui left floated button" href="/info/menus?week="+(week-1))
 						i(class="left arrow icon")
 						| Last Week
 				if (week < 10)
-					a(class="ui right floated button" href="/services/menus?week="+(week+1))
+					a(class="ui right floated button" href="/info/menus?week="+(week+1))
 						| Next Week
 						i(class="right arrow icon")
 
