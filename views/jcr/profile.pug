@@ -55,7 +55,7 @@ html
 						each blog in blogs
 							div(class="item")
 								div(class="content")
-									a(class="header" href=blog.permalink)= blog.title
+									a(class="header" href="/jcr/blog/"+role.slug+"/"+blog.permalink)= blog.title
 									div(class="meta")
 										span(class="author")
 											i(class="ui user icon")

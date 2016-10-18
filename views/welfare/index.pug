@@ -22,7 +22,7 @@ html
 						each user in role.users
 							div(class="card" data-role=role.id)
 								div(class="image")
-									img(src="/api/users/"+role.username+"/avatar")
+									img(src="/api/users/"+user.username+"/avatar")
 								div(class="content")
 									div(class="header")= role.title
 									div(class="meta")=user.name

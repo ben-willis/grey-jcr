@@ -1,8 +1,17 @@
 var express = require('express');
 var router = express.Router();
 var validator = require('validator');
+var httpError = require('http-errors');
 
 var Room = require('../../models/room');
+
+router.use(function (req, res, next) {
+	if (req.user.level < 4) {
+		return next(httpError(403));
+	} else {
+		return next();
+	}
+});
 
 /* GET room page. */
 router.get('/', function (req, res, next) {

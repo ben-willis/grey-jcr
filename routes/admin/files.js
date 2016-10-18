@@ -8,8 +8,17 @@ var mime = require('mime');
 var httpError = require('http-errors');
 var slug = require('slug');
 var shortid = require('shortid');
+var httpError = require('http-errors');
 
 var Folder = require('../../models/folder');
+
+router.use(function (req, res, next) {
+	if (req.user.level < 4) {
+		return next(httpError(403));
+	} else {
+		return next();
+	}
+});
 
 /* GET files page. */
 router.get('/', function (req, res, next) {

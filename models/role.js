@@ -48,6 +48,7 @@ Role.prototype.getBlogs = function() {
     return db('blogs')
         .select('id')
         .where({'role_id': this.id})
+        .orderBy('updated', 'desc')
         .then(function(blogs) {
             return blogs.map(function(data) {
                 return data.id;
