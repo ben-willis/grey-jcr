@@ -15,6 +15,9 @@ html
 					div(class="field")
 						label Name
 						input(type="text" name="name")
+					div(class="field")
+						label Description
+						textarea(name="description")
 					button(class="ui submit button" type="submit")
 						i(class="write icon")
 						| Create
@@ -44,9 +47,9 @@ html
 										a(class="ui button" href="/admin/rooms/"+room.id+"/bookings")
 											i(class="calendar icon")
 											| Manage Bookings
-										div(class="ui rename button" data-roomid=room.id data-roomname=room.name)
+										a(class="ui button" href="/admin/rooms/"+room.id)
 											i(class="edit icon")
-											| Rename
-										a(class="ui negative button" href="/admin/rooms/"+room.id+"/delete") 
+											| Edit
+										a(class="ui negative button" href="/admin/rooms/"+room.id+"/delete")
 											i(class="remove icon")
 											| Delete

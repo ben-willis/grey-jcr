@@ -23,12 +23,16 @@ html
 										div(class="meta")
 											span(class="author")
 												i(class="ui user icon")
-												= blog.author.name + " ("+blog.role.title+")"
+												| #{blog.author.name}  (#{blog.role.title})
 											span(class="timestamp")
 												i(class="ui clock icon")
 												= prettydate.format(blog.updated)
 										div(class="article description")!= blog.message
 										div(class="extra")
+											if (user)
+												i(class=(blog.hearts.indexOf(user.username) == -1)?"blog like icon":"active blog like icon" data-blog_id=blog.id)
+												span(class="blog likes")= blog.hearts.length + 2
+												| likes
 											a(class="right floated" href="/jcr/blog/"+blog.role.slug+"/"+blog.permalink) Read More
 						a(class="ui right floated button" href="/jcr/blog/") More News
 					div(class="six wide column")
@@ -42,4 +46,22 @@ html
 									div(class="middle aligned content")
 										div(class="header")= event.name
 										div(class="meta")= event.time.toDateString()
+						a(class="ui right floated button" href="/events/calendar/") More Events
+
+			script.
+				$('.item .blog.like.icon')
+					.api({
+						url: '/api/blogs/{blog_id}/like'
+					})
+					.state({
+						onActivate: function() {
+							var current_count = parseInt($(this).next().text());
+							$(this).next().text(current_count + 1);
+						},
+						onDeactivate: function() {
+							var current_count = parseInt($(this).next().text());
+							$(this).next().text(current_count - 1);
+						}
+					});
+
 		include ./footer.pug

@@ -87,9 +87,8 @@ passport.use(new LocalStrategy( function (username, password, done) {
     // authorize user
     User.authorize(username, password)
         .then(function() {
-            User.findByUsername(username).then(function(user) {
-                done(null, user)
-            }).catch(function(err) {
+            User.findByUsername(username).catch(function(err) {
+                if (err.status != 404) throw err;
                 return User.create(username);
             }).then(function(user) {
                 done(null, user)
@@ -124,12 +123,19 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-    console.log(err);
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
+    if (process.env.NODE_ENV == "development") {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: err
+        });
+    } else {
+        res.status(err.status || 500);
+        res.render('error', {
+            message: err.message,
+            error: {}
+        });
+    }
 });
 
 module.exports = app;

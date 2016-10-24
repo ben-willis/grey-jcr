@@ -1,14 +1,14 @@
 var express = require('express');
 var router = express.Router();
 var validator = require('validator');
+var httpError = require('http-errors');
+
 var Role = require('../../models/role');
 var Folder = require('../../models/folder');
 
 router.use(function (req, res, next) {
-	if (req.user.level<5 ) {
-		err = new Error("Forbidden");
-		err.status = 403;
-		return next(err);
+	if (req.user.level < 5) {
+		return next(httpError(403));
 	} else {
 		return next();
 	}

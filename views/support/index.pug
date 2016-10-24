@@ -16,15 +16,15 @@ html
 				p Subject groups are an exciting new addition to college life, giving you the means to get to know others in college studying your subject, share advice between year groups, and have a point of contact who can connect you with other students. It’s an opportunity to learn from more experienced students, for older years to share interests in their subject and help guide other students.
 				p Every subject has a point of contact called the Subject Leader, a motivated student passionate about their subject. They’ll be able to recommend modules, career paths, give essay advice, and pass on contacts between different students studying the same subject. You’ll meet you Subject Leaders in the first week of term (after Freshers’ Week) and get a chance to get to know older students doing your course and find out what it’s like after first year.
 				p The Assistant Master (Welfare), Julie Bushby (julie.bushby@durham.ac.uk) is someone who students are able to approach for advice or help on academic or other issues.
-			
+
 			div(class="ui vertical segment" id="representatives")
 				h3(class="ui header") JCR Representatives
 				p Representatives Committee (Reps Comm) are elected roles in Grey that cover all people in the JCR, from minority groups, such as LGBTa and Mature students (among others) to entire year groups, such as freshers and finalists. The committee members hold events, raise awareness and provide a signposting role allowing the individuals from these groups extra support and ensuring their views are heard. Grey is committed to ensuring all members of the JCR can be involved in all parts of college, and this committee is a vital part in making sure all JCR members are welcomed and find their home in Grey.
-				p If you have any queries, concerns or feedback for indvidual reps, please feel free to contact them. Any general queries please contact the Representatives Officer.				
+				p If you have any queries, concerns or feedback for indvidual reps, please feel free to contact them. Any general queries please contact the Representatives Officer.
 				div(class="ui six doubling link cards")
 					each role in reps
 						each user in role.users
-							div(class="card")
+							div(class="card" data-role=role.id)
 								div(class="image")
 									img(src="/api/users/"+user.username+"/avatar")
 								div(class="content")

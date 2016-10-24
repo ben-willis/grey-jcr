@@ -22,13 +22,16 @@ html
 						div(class="field")
 							label Start Time
 							select(class="ui dropdown" name="start")
-								- for (i=18; i<43; i++)
+								- for (i=18; i<44; i++)
 									option(value=Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2))= Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2)
 						div(class="field")
 							label End Time
 							select(class="ui dropdown" name="end")
-								- for (i=19; i<44; i++)
+								- for (i=19; i<45; i++)
 									option(value=(i*30))= Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2)
+					div(class="field")
+						label Notes
+						textarea(rows="3" name="notes")
 					button(class="ui submit button" type="submit")
 						i(class="write icon")
 						| Create
@@ -44,7 +47,7 @@ html
 					});
 
 			div(class="ui vertical segment")
-				h3 Pending Bookings
+				h3 Future Bookings
 				table(class="ui fixed table")
 					thead
 						tr
@@ -53,35 +56,12 @@ html
 							th Duration
 							th Actions
 					tbody
-						each booking in pending_bookings
+						each booking in room.bookings
 							tr
 								td= booking.name
-								td= booking.start
+								td= booking.start_time
 								td= booking.duration
 								td
-									a(class="ui button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/accept") 
-										i(class="checkmark icon")
-										| Accept
-									a(class="ui negative button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/delete" onclick="return confirm('Are you sure you want to delete this booking?');") 
-										i(class="remove icon")
-										| Delete
-
-			div(class="ui vertical segment")
-				h3 Upcoming Bookings
-				table(class="ui fixed table")
-					thead
-						tr
-							th Name
-							th Start
-							th Duration
-							th Actions
-					tbody
-						each booking in upcoming_bookings
-							tr
-								td= booking.name
-								td= booking.start
-								td= booking.duration
-								td
-									a(class="ui negative button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/delete" onclick="return confirm('Are you sure you want to delete this booking?');") 
+									a(class="ui negative button" href="/admin/rooms/"+room.id+"/bookings/"+booking.id+"/delete" onclick="return confirm('Are you sure you want to delete this booking?');")
 										i(class="remove icon")
 										| Delete

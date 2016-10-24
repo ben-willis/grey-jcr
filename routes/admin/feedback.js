@@ -7,7 +7,7 @@ var Feedback = require('../../models/feedback');
 var User = require('../../models/user')
 
 router.use(function (req, res, next) {
-	if (req.user.level<5 ) {
+	if (req.user.level < 5) {
 		return next(httpError(403));
 	} else {
 		return next();

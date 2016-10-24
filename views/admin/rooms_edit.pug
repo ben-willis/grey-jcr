@@ -1,0 +1,22 @@
+- var title = 'Edit Room'
+
+doctype html
+html
+	head
+		include ./head.pug
+	body
+		div(class='ui container')
+			include ./header.pug
+			include ./menu.pug
+			div(class="ui vertical segment")
+				h2 Edit Room
+				form(class="ui edit form" method="POST" action="/admin/rooms/"+room.id)
+					div(class="field")
+						label Name
+						input(type="text" name="name" value=room.name)
+					div(class="field")
+						label Description
+						textarea(rows="3" name="description")=room.description
+					button(type="submit" class="ui submit button")
+						i(class="save icon")
+						| Save

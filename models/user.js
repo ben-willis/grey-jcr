@@ -38,6 +38,7 @@ User.prototype.getDebt = function() {
 User.prototype.getDebts = function() {
     return db('debts')
         .select()
+        .orderBy('debt_added', 'desc')
         .where('username', this.username);
 }
 
@@ -57,12 +58,6 @@ User.prototype.payDebt = function(name, message, amount) {
         message: message,
         amount: -amount
     })
-}
-
-User.prototype.deleteDebtById = function(debt_id) {
-    return db('debts').where({
-        id: debt_id
-    }).del();
 }
 
 User.prototype.setDebtForBooking = function(name, message, amount, booking_id) {
@@ -119,6 +114,7 @@ User.prototype.getVote = function(election_id) {
 /* Static Methods */
 
 User.create = function(username) {
+    username = username.toLowerCase();
     return this.fetch_details(username).then(function(data) {
         if (data.college != "Grey College") throw httpError(400, "You must be a member of Grey College");
 
@@ -154,7 +150,7 @@ User.findByUsername = function (username) {
         .first()
         .where({'username': username})
         .then(function(data) {
-            if (!data) throw httpError(400, "Username not found in local database");
+            if (!data) throw httpError(404, "Username not found in local database");
             return new User(data)
         });
 }

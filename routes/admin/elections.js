@@ -7,14 +7,13 @@ var mime = require('mime');
 var treeize   = require('treeize');
 var shortid = require('shortid');
 var slug = require('slug');
+var httpError = require('http-errors');
 
 var Election = require('../../models/election');
 
 router.use(function (req, res, next) {
-	if (req.user.level<5 ) {
-		err = new Error("Forbidden");
-		err.status = 403;
-		return next(err);
+	if (req.user.level < 5) {
+		return next(httpError(403));
 	} else {
 		return next();
 	}

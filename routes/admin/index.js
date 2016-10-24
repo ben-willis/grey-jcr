@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var httpError = require('http-errors');
 
 var roles = require('./roles');
 var blog = require('./blog');
@@ -16,10 +17,8 @@ router.use(function (req, res, next) {
 	if (!req.isAuthenticated()) {
 		req.session.redirect_to = req.originalUrl;
 		return res.redirect(401, '/login?unauthorised');
-	} else if (req.user.level<4 ) {
-		err = new Error("Forbidden");
-		err.status = 403;
-		return next(err);
+	} else if (req.user.level < 3) {
+		return next(httpError(403));
 	} else {
 		return next();
 	}

@@ -23,18 +23,13 @@ html
 								th Message
 								th Timestamp
 								th Amount
-								th Actions
 						tbody
 							each debt in debts
 								tr
 									td= debt.name
 									td= debt.message
-									td
+									td= debt.debt_added
 									td= "£"+(debt.amount/100).toFixed(2)
-									td
-										a(class="ui negative button" href="/admin/debts/"+debtor.username+"/"+debt.id+"/delete" onclick="return confirm('Are you sure you want to delete this debt?');")
-											i(class="remove icon")
-											| Delete
 				div(class="six wide column")
 					h3(class="ui header") Add Debt
 					form(class="ui form" method="POST" action="/admin/debts/"+debtor.username)
