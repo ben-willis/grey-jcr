@@ -3,6 +3,8 @@ var router = express.Router();
 var validator = require('validator');
 var httpError = require('http-errors');
 
+var BookingManager = require('../helpers/bookings');
+
 var Event = require('../models/event');
 var Ticket = require('../models/ticket');
 var Booking = require('../models/booking');
@@ -48,7 +50,7 @@ router.post('/:event_id/:ticket_id/book', function (req, res, next) {
 
 	var bookings = null;
 
-	bookings_manager.createBooking(parseInt(req.params.ticket_id), parseInt(req.params.event_id), req.user.username, booking_names)
+	BookingManager.createBooking(parseInt(req.params.ticket_id), parseInt(req.params.event_id), req.user.username, booking_names)
 		.then(function(data) {
 			bookings = data;
 			return Ticket.findById(parseInt(req.params.ticket_id));
@@ -187,104 +189,3 @@ router.get('/:year/:month/:day/:slug', function (req, res, next) {
 });
 
 module.exports = router;
-
-/* BOOKING MANAGER */
-
-bookings_manager = {
-	queue: [],
-    processing: false,
-	processQueue() {
-        self = this;
-        self.processing = !(self.queue.length == 0);
-        if (!self.processing) return;
-
-		curr_booking = self.queue.shift();
-
-		Ticket.findById(curr_booking.ticket_id)
-			.then(function(){
-				return self.checkBookingValid(curr_booking)
-			})
-			.then(function(){
-				return Booking.create(curr_booking.ticket_id, curr_booking.event_id, curr_booking.booker, curr_booking.users)
-			})
-			.then(function(bookings) {
-	            return curr_booking.promise.resolve(bookings);
-			}).catch(function(err) {
-	            return curr_booking.promise.reject(err);
-			}).finally(function() {
-	            return self.processQueue();
-			});
-	},
-    checkBookingValid(booking) {
-		var ticket = null;
-		var user = null;
-		return Ticket.findById(booking.ticket_id)
-			.then(function(data) {
-				ticket = data;
-				if (ticket.open_booking > (new Date()) || ticket.close_booking < (new Date())) {
-					throw httpError(400, "Booking is closed");
-				}
-				if (booking.users.length < ticket.min_booking) {
-					throw httpError(400, "You must book on at least "+ticket.min_booking+" people")
-				}
-				if (booking.users.length < ticket.min_booking) {
-					throw httpError(400, "You can only book on up to "+ticket.max_booking+" people")
-				}
-				return;
-			})
-			.then(function(){
-				return Promise.all(
-					booking.users.map(function(name) {
-						if (name.match(/[A-Za-z]{4}[0-9]{2}/gi)) {
-							var user = null;
-							return User.findByUsername(name).then(function(data) {
-								user = data;
-								return user.getDebt();
-							}).then(function(debt){
-								if (debt > 0 && !ticket.allow_debtors) {
-									throw httpError(400, user.name+" is a debtor and debtors are blocked")
-								}
-								return Booking.getByTicketIdAndUsername(ticket.id, user.username);
-							}).then(function(bookings) {
-								if (!bookings) return;
-								for (var i = 0; i < bookings.length; i++) {
-									if (bookings[i].username == user.username) throw httpError(user.name+" is already booked on")
-								}
-							});
-						} else if (!ticket.allow_guests) {
-								throw httpError(400, "Booking is not open to guests");
-						} else {
-							return;
-						}
-					})
-				)
-			})
-			.then(function() {
-				return Booking.countByTicketId(ticket.id);
-			})
-			.then(function(bookings_so_far) {
-				if (ticket.stock - bookings_so_far < booking.users.length) {
-					throw httpError(400, "No more spaces")
-				}
-				return;
-			})
-    }
-}
-
-bookings_manager.createBooking = function(ticket_id, event_id, username, users) {
-	return new Promise(function(resolve, reject) {
-		this.queue.push({
-			ticket_id: ticket_id,
-			event_id: event_id,
-			booker: username,
-			users: users,
-			promise: {
-				resolve: resolve,
-				reject: reject
-			}
-		});
-		if (!this.processing) {
-			this.processQueue();
-		}
-	}.bind(this));
-}

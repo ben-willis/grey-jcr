@@ -56,8 +56,8 @@ Booking.prototype.setChoices = function(choices) {
 Booking.create = function(ticket_id, event_id, booked_by, names) {
     return Promise.all(
         names.map(function(name) {
-            username = (name.match(/[A-Za-z]{4}[0-9]{2}/gi)) ? name : null;
-            guestname = (name.match(/[A-Za-z]{4}[0-9]{2}/gi)) ? null : name;
+            username = (name.match(/^[A-Za-z]{4}[0-9]{2}$/gi)) ? name : null;
+            guestname = (name.match(/^[A-Za-z]{4}[0-9]{2}$/gi)) ? null : name;
             return db('bookings').insert({
                 ticket_id: ticket_id,
                 event_id: event_id,

@@ -16,7 +16,7 @@ html
 					i(class="ticket icon")
 					div(class="content")
 						div(class="header") Booking Successful!
-						p You can update the preferences for your bookings below.
+						p Please update the preferences for your bookings below.
 				script.
 					$('.message .close').on('click', function() {
 						$(this).closest('.message').transition('fade');
@@ -81,7 +81,7 @@ html
 												td= option.name + ": None Selected"
 												td £0.00
 								tfoot
-									tr 
+									tr
 										th(class="right aligned") Total
 										th= "£"+(total/100).toFixed(2)
 							if (booking.notes)

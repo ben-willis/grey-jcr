@@ -113,7 +113,7 @@ describe('User Object', function() {
         current_user.delete().then(function() {
             return User.findByUsername('abcd12');
         }).catch(function(err) {
-            expect(err.status).to.equal(400)
+            expect(err.status).to.equal(404)
             done();
         });
     });
@@ -140,17 +140,6 @@ describe('User Object', function() {
             }).catch(function(err){
                 done(err);
             })
-    });
-
-    it("should delete a debt", function(done) {
-        current_user.deleteDebtById(fake_debt_id).then(function() {
-            return current_user.getDebt();
-        }).then(function(amount) {
-            expect(amount).to.equal(0);
-            done();
-        }).catch(function(err){
-            done(err);
-        })
     });
 
     it("should add to its debt", function(done) {
