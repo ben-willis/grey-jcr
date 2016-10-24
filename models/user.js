@@ -60,12 +60,6 @@ User.prototype.payDebt = function(name, message, amount) {
     })
 }
 
-User.prototype.deleteDebtById = function(debt_id) {
-    return db('debts').where({
-        id: debt_id
-    }).del();
-}
-
 User.prototype.setDebtForBooking = function(name, message, amount, booking_id) {
     return db('debts').del().where({booking_id: booking_id}).then(function() {
         return db('debts').insert({

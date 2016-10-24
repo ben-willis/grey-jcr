@@ -77,18 +77,4 @@ router.post('/:username', function (req, res, next) {
 		})
 });
 
-/* DELETE a debt */
-router.get('/:username/:debt_id/delete', function (req, res, next) {
-	User.findByUsername(req.params.username)
-		.then(function(user) {
-			return user.deleteDebtById(req.params.debt_id);
-		})
-		.then(function() {
-			res.redirect(303, '/admin/debts/'+req.params.username+'?delete-success')
-		})
-		.catch(function (err){
-			next(err);
-		})
-});
-
 module.exports = router;
