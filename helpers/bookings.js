@@ -9,8 +9,12 @@ bookings_manager = {
 	queue: [],
     processing: false,
 	processQueue: function() {
-        this.processing = true;
-        if (this.queue.length == 0) return;
+        if (this.queue.length == 0) {
+            this.processing = false;
+            return;
+        } else {
+            this.processing = true;
+        }
 
 		curr_booking = this.queue.shift();
 
