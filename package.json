@@ -5,7 +5,7 @@
   "scripts": {
     "start": "NODE_ENV=development node ./bin/www",
     "test": "NODE_ENV=testing ./node_modules/.bin/mocha --reporter spec --recursive",
-    "start-forever": "NODE_ENV=production forever start --minUptime 1000 --spinSleepTime 1000 ./bin/www"
+    "start-forever": "NODE_ENV=production forever start --minUptime 1000 --spinSleepTime 1000 -e ./err.log ./bin/www"
   },
   "dependencies": {
     "async": "^1.5.2",

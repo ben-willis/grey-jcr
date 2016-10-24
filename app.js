@@ -88,9 +88,8 @@ passport.use(new LocalStrategy( function (username, password, done) {
     // authorize user
     User.authorize(username, password)
         .then(function() {
-            User.findByUsername(username).then(function(user) {
-                done(null, user)
-            }).catch(function(err) {
+            User.findByUsername(username).catch(function(err) {
+                if (err.status != 404) throw err;
                 return User.create(username);
             }).then(function(user) {
                 done(null, user)

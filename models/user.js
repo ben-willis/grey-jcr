@@ -150,7 +150,7 @@ User.findByUsername = function (username) {
         .first()
         .where({'username': username})
         .then(function(data) {
-            if (!data) throw httpError(400, "Username not found in local database");
+            if (!data) throw httpError(404, "Username not found in local database");
             return new User(data)
         });
 }
