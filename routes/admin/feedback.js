@@ -49,7 +49,7 @@ router.get('/archive', function (req, res, next) {
 			})
 		)
 	}).then(function (feedbacks) {
-		res.render('admin/feedback', {feedbacks: feedbacks, archive: false});
+		res.render('admin/feedback', {feedbacks: feedbacks, archive: true});
 	}).catch(function (err) {
 		next(err);
 	});

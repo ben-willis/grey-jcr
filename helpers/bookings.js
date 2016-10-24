@@ -63,8 +63,9 @@ bookings_manager = {
 				return Promise.all(
 					booking.users.map(function(name) {
 						if (name.match(/^[A-Za-z]{4}[0-9]{2}$/gi)) {
+							var username = name.toLowerCase();
 							var user = null;
-							return User.findByUsername(name).then(function(data) {
+							return User.findByUsername(username).then(function(data) {
 								user = data;
 								return user.getDebt();
 							}).then(function(debt){

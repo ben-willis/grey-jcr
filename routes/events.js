@@ -114,7 +114,7 @@ router.post('/:booking_id', function (req, res, next) {
 	var booking = null;
 	var ticket = null;
 	var amount = 0;
-	booking_choices = req.body.choices.filter(function(choice) {return (choice != "")})
+	booking_choices = (req.body.choices == undefined) ? [] : req.body.choices.filter(function(choice) {return (choice != "")})
 	Booking.findById(parseInt(req.params.booking_id))
 		.then(function(data) {
 			booking = data;
