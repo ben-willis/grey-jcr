@@ -49,7 +49,7 @@ html
 										div(class="ui image label")
 											img(src="/api/users/"+exec[i].users[j].username+"/avatar")
 											= exec[i].users[j].name
-											a(href="/admin/roles/"+currentRole+"/removeUser/"+exec[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
+											a(href="/admin/roles/"+exec[i].id+"/removeUser/"+exec[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
 
 							div(class="extra content")
 								form(class="ui form" method="POST" action="/admin/roles/"+exec[i].id+"/addUser")
@@ -80,7 +80,7 @@ html
 										div(class="ui image label")
 											img(src="/api/users/"+officers[i].users[j].username+"/avatar")
 											= officers[i].users[j].name
-											a(href="/admin/roles/"+currentRole+"/removeUser/"+officers[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
+											a(href="/admin/roles/"+officers[i].id+"/removeUser/"+officers[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
 
 							div(class="extra content")
 								form(class="ui form" method="POST" action="/admin/roles/"+officers[i].id+"/addUser")
@@ -111,7 +111,7 @@ html
 										div(class="ui image label")
 											img(src="/api/users/"+welfare[i].users[j].username+"/avatar")
 											= welfare[i].users[j].name
-											a(href="/admin/roles/"+currentRole+"/removeUser/"+welfare[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
+											a(href="/admin/roles/"+welfare[i].id+"/removeUser/"+welfare[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
 
 							div(class="extra content")
 								form(class="ui form" method="POST" action="/admin/roles/"+welfare[i].id+"/addUser")
@@ -142,7 +142,7 @@ html
 										div(class="ui image label")
 											img(src="/api/users/"+reps[i].users[j].username+"/avatar")
 											= reps[i].users[j].name
-											a(href="/admin/roles/"+currentRole+"/removeUser/"+reps[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
+											a(href="/admin/roles/"+reps[i].id+"/removeUser/"+reps[i].users[j].username class="delete icon" onclick="return confirm('Are you sure you want to remove this user?');"): i(class="fitted delete icon")
 
 							div(class="extra content")
 								form(class="ui form" method="POST" action="/admin/roles/"+reps[i].id+"/addUser")

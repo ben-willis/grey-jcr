@@ -39,11 +39,20 @@ Feedback.prototype.addReply = function(message, exec, author) {
         exec: exec,
         parent_id: this.id,
         read_by_user: !exec
+    }).then(function(){
+        if (this.archived) {
+            return this.toggleArchived();
+        } else {
+            return;
+        }
     })
 }
 
 Feedback.prototype.getReplies = function () {
-    return db('feedbacks').select().where('parent_id', this.id);
+    return db('feedbacks')
+        .select()
+        .orderBy('created', 'ASC')
+        .where('parent_id', this.id);
 };
 
 /* Static Methods */
