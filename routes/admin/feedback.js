@@ -96,7 +96,6 @@ router.get('/:feedback_id/toggle-archive', function (req, res, next) {
 /* POST a reply */
 router.post('/:feedback_id', function (req, res, next) {
 	Feedback.findById(parseInt(req.params.feedback_id)).then(function(feedback) {
-		if (feedback.author != req.user.username) throw httpError(403);
 		return feedback.addReply(req.body.message, true, req.user.username);
 	}).then(function () {
 		res.redirect(303, '/admin/feedback/'+req.params.feedback_id)
