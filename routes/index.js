@@ -1,4 +1,5 @@
 var express = require('express');
+var htmlToText = require('html-to-text');
 var router = express.Router();
 
 var Blog = require('../models/blog');
@@ -22,7 +23,13 @@ router.get('/', function (req, res, next) {
 		Blog.getAll(6),
 		Event.getFutureEvents(6)
 	]).then(function (data){
-		res.render('home', {blogs: data[0], events: data[1]});
+		blogs = data[0];
+		for (blog of blogs) {
+			blog.message = htmlToText.fromString(blog.message, {
+				wordwrap: false
+			}).slice(0, 300) + "...";
+		}
+		res.render('home', {blogs: blogs, events: data[1]});
 	}).catch(function (err) {
 		next(err);
 	})
