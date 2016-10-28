@@ -8,7 +8,6 @@ var bodyParser = require('body-parser');
 var flash = require('connect-flash');
 var passport = require('passport');
 var session = require('express-session');
-var redisStore = require('connect-redis')(session);
 var LocalStrategy = require('passport-local').Strategy;
 var https = require('https');
 var compress = require('compression');
@@ -37,7 +36,6 @@ app.use(flash());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
-    store: new redisStore({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT}),
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true
