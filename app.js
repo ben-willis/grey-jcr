@@ -3,11 +3,11 @@ var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var flash = require('connect-flash');
 var passport = require('passport');
 var session = require('express-session');
+var FileStore = require('session-file-store')(session);
 var LocalStrategy = require('passport-local').Strategy;
 var https = require('https');
 var compress = require('compression');
@@ -34,11 +34,12 @@ app.use(compress());
 app.use(bodyParser.json());
 app.use(flash());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use(session({
+    store: new FileStore(),
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {maxAge: 14*24*60*60*1000}
 }));
 app.use(passport.initialize());
 app.use(passport.session());

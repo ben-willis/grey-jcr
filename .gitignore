@@ -39,6 +39,9 @@ jspm_packages
 # Redis
 *.rbd
 
+# Sessions
+sessions
+
 # Files
 public/files
 public/images/avatars
