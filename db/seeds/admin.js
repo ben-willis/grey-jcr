@@ -1,4 +1,4 @@
-var csv = require('csv')
+require('dotenv').config();
 
 exports.seed = function(knex, Promise) {
     // Deletes ALL existing entries
@@ -12,9 +12,9 @@ exports.seed = function(knex, Promise) {
             return Promise.all([
                 // Inserts seed entries
                 knex('users').insert({
-                    username: 'hsdz38',
-                    name: 'Ben Willis',
-                    email: 'b.c.willis@durham.ac.uk'
+                    username: process.env.CIS_USERNAME,
+                    name: process.env.CIS_NAME,
+                    email: process.env.CIS_EMAIL
                 }),
                 knex('roles').insert({
                     title: 'Website Editor',
@@ -30,7 +30,7 @@ exports.seed = function(knex, Promise) {
                     owner: 1
                 }),
                 knex('user_roles').insert({
-                    username: 'hsdz38',
+                    username: process.env.CIS_USERNAME,
                     role_id: 1
                 })
 
