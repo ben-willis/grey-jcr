@@ -23,12 +23,18 @@ Feedback.prototype.toggleArchived = function () {
     });
 };
 
-Feedback.prototype.toggleReadByUser = function () {
-    read_by_user = this.read_by_user;
-    return db('feedbacks').update('read_by_user', !read_by_user).where({id: this.id}).then(function(){
-        this.read_by_user = !read_by_user;
+Feedback.prototype.setReadByUser = function () {
+    return db('feedbacks').update('read_by_user', true).where({id: this.id}).then(function(){
+        this.read_by_user = true;
         return;
-    });
+    }.bind(this));
+};
+
+Feedback.prototype.setUnreadByUser = function () {
+    return db('feedbacks').update('read_by_user', false).where({id: this.id}).then(function(){
+        this.read_by_user = false;
+        return;
+    }.bind(this));
 };
 
 Feedback.prototype.addReply = function(message, exec, author) {
@@ -45,7 +51,13 @@ Feedback.prototype.addReply = function(message, exec, author) {
         } else {
             return;
         }
-    })
+    }.bind(this)).then(function() {
+        if (exec) {
+            return this.setUnreadByUser()
+        } else {
+            return;
+        }
+    }.bind(this))
 }
 
 Feedback.prototype.getReplies = function () {

@@ -132,7 +132,8 @@ router.get('/feedback/:feedback_id', function (req, res, next) {
 			}),
 			User.findByUsername(feedback.author).then(function(user) {
 				return (feedback.anonymous) ? null: user;
-			})
+			}),
+			feedback.setReadByUser()
 		])
 	}).then(function (data) {
 		data[0].author = data[2];

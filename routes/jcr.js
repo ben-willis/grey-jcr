@@ -38,6 +38,9 @@ router.get('/', function (req, res, next) {
 
 /* GET blog page. */
 router.get('/blog', function (req, res, next) {
+	if (req.user) {
+		req.user.updateLastLogin();
+	}
 	Blog.getAll().then(function(blogs){
 		res.render('jcr/blog', {blogs: blogs});
 	}).catch(function (err) {

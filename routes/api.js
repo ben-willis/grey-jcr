@@ -8,7 +8,9 @@ var User = require('../models/user');
 var Folder = require('../models/folder')
 var Role = require('../models/role');
 var Event = require('../models/event');
-var Blog = require('../models/blog')
+var Blog = require('../models/blog');
+var Election = require('../models/election');
+var Feedback = require('../models/feedback');
 
 // The main site search
 router.get('/search/', function (req, res, next) {
@@ -124,5 +126,42 @@ router.get('/blogs/:blog_id/like', function(req, res, next) {
 		res.json(err);
 	})
 });
+
+// Needed for menu notifications
+router.get('/elections/:status', function(req,res,next) {
+	if (!req.user) return res.json({"error": "You must be logged in"});
+	Election.getByStatus(req.params.status).then(function(elections) {
+		return Promise.all(
+			elections.map(function(election) {
+				return User.findByUsername(req.user.username).then(function(user) {
+					return user.getVote(election.id);
+				}).then(function(votes) {
+					if (votes) {
+						election.voted = true;
+					} else {
+						election.voted = false;
+					}
+					return election;
+				})
+			})
+		)
+	}).then(function(elections) {
+		res.json(elections);
+	})
+});
+
+router.get('/blogs/unread', function(req, res, next) {
+	if (!req.user) return res.json({"error": "You must be logged in"});
+	Blog.getByDateRange(req.user.last_login, new Date()).then(function(blogs) {
+		res.json(blogs);
+	})
+})
+
+router.get('/feedbacks', function(req, res, next) {
+	if (!req.user) return res.json({"error": "You must be logged in"});
+	Feedback.getAllByUser(req.user.username).then(function(feedbacks) {
+		res.json(feedbacks);
+	})
+})
 
 module.exports = router;

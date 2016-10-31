@@ -164,4 +164,33 @@ Blog.getAll = function(limit) {
         })
 }
 
+Blog.getByDateRange = function(start_date, end_date) {
+    var limit = (typeof limit !== 'undefined') ? limit : 30;
+    return db('blogs')
+        .select()
+        .whereBetween('updated', [
+            start_date,
+            end_date
+        ])
+        .orderBy('updated', 'desc')
+        .then(function(data_array) {
+            return Promise.all(
+                data_array.map(function(blog_data) {
+                    blog = new Blog(blog_data)
+                    return Promise.all([
+                        blog.getRole(),
+                        blog.getAuthor(),
+                        blog.getHearts()
+                    ]).then(function(data) {
+                        blog = new Blog(blog_data);
+                        blog.role = data[0];
+                        blog.author = data[1];
+                        blog.hearts = data[2];
+                        return blog;
+                    })
+                })
+            )
+        })
+}
+
 module.exports = Blog;
