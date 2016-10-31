@@ -20,10 +20,10 @@ var api = require('./api');
 /* GET home page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		Blog.getAll(6),
+		Blog.get(),
 		Event.getFutureEvents(6)
 	]).then(function (data){
-		blogs = data[0];
+		blogs = data[0].splice(0,9);
 		for (blog of blogs) {
 			blog.message = htmlToText.fromString(blog.message, {
 				wordwrap: false,

@@ -138,30 +138,31 @@ Blog.search = function(query) {
 }
 
 
-Blog.getAll = function(limit) {
-    var limit = (typeof limit !== 'undefined') ? limit : 30;
-    return db('blogs')
-        .select()
-        .orderBy('updated', 'desc')
-        .limit(limit)
-        .then(function(data_array) {
-            return Promise.all(
-                data_array.map(function(blog_data) {
-                    blog = new Blog(blog_data)
-                    return Promise.all([
-                        blog.getRole(),
-                        blog.getAuthor(),
-                        blog.getHearts()
-                    ]).then(function(data) {
-                        blog = new Blog(blog_data);
-                        blog.role = data[0];
-                        blog.author = data[1];
-                        blog.hearts = data[2];
-                        return blog;
-                    })
+Blog.get = function(role_id) {
+    var blogs_promise = db('blogs').select().orderBy('updated', 'desc');
+
+    if (role_id) {
+        blogs_promise = blogs_promise.andWhere('role_id', role_id);
+    }
+
+    return blogs_promise.then(function(data_array) {
+        return Promise.all(
+            data_array.map(function(blog_data) {
+                blog = new Blog(blog_data)
+                return Promise.all([
+                    blog.getRole(),
+                    blog.getAuthor(),
+                    blog.getHearts()
+                ]).then(function(data) {
+                    blog = new Blog(blog_data);
+                    blog.role = data[0];
+                    blog.author = data[1];
+                    blog.hearts = data[2];
+                    return blog;
                 })
-            )
-        })
+            })
+        )
+    })
 }
 
 Blog.getByDateRange = function(start_date, end_date) {

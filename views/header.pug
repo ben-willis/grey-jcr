@@ -25,7 +25,7 @@ div(class="ui stackable grid" id="top_menu")
 						i(class='sign in icon')
 						| Log in
 			else
-				div(class='ui dropdown link item' )
+				div(class='ui dropdown link item')
 					img(class="ui avatar image" src="/api/users/"+user.username+"/avatar")
 					div(class="text") #{user.name} (#{user.username})
 					i(class="dropdown icon")
@@ -59,7 +59,7 @@ div(class="ui stackable grid" id="top_menu")
 						div(class="ui floating red circular label" v-show="unvoted_elections>0" style="display:none") {{unvoted_elections}}
 						| Elections
 					a(class="item" href="/services/rooms") Room Booking
-					div(class='ui pointing dropdown link item' )
+					div(class='ui dropdown link item' )
 						img(class="ui avatar image" src="/api/users/"+user.username+"/avatar")
 						div(class="text") #{user.name} (#{user.username})
 						i(class="dropdown icon")
@@ -87,10 +87,7 @@ div(class="ui stackable grid" id="top_menu")
 					a(class="ui icon youtube button" href="https://www.youtube.com/channel/UCmZ_ll7dit6Ulys-ts5FjVA"): i(class="youtube icon")
 
 
-script.
-	$('.ui.dropdown').dropdown({action: 'hide'});
-
-script.
+script(type="text/javascript").
 	var notifications = new Vue({
 		el: "#top_menu",
 		data: {
@@ -135,5 +132,8 @@ script.
 			this.fetchElections();
 			this.fetchBlogs();
 			this.fetchFeedback();
+		},
+		mounted: function() {
+			$('.ui.dropdown.link.item').dropdown({action: 'hide'});
 		}
 	})

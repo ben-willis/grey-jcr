@@ -78,7 +78,7 @@ describe('Static Blog Methods', function() {
     it("can find a blog by slug and time");
 
     it("can get all blogs", function(done) {
-        Blog.getAll().then(function(blogs) {
+        Blog.get().then(function(blogs) {
             expect(blogs).to.have.length(1);
             done();
         }).catch(function(err){

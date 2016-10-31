@@ -41,8 +41,25 @@ router.get('/blog', function (req, res, next) {
 	if (req.user) {
 		req.user.updateLastLogin();
 	}
-	Blog.getAll().then(function(blogs){
-		res.render('jcr/blog', {blogs: blogs});
+	role_id = parseInt(req.query.role_id) || 0;
+	page = parseInt(req.query.page) || 1;
+	limit = parseInt(req.query.limit) || 10;
+	Promise.all([
+		Blog.get(role_id),
+		Role.getByType("exec"),
+		Role.getByType("officer")
+	]).then(function(data) {
+		blogs = data[0];
+		total_pages = Math.ceil(blogs.length / limit);
+		page = (blogs.length == 0) ? 0 : page;
+		res.render('jcr/blog', {
+			page: page,
+			limit: limit,
+			total_pages: total_pages,
+			role_id: role_id,
+			blogs: blogs.splice((page-1) * limit, page*limit),
+			roles: data[1].concat(data[2])
+		})
 	}).catch(function (err) {
 		next(err);
 	});

@@ -14,7 +14,8 @@ html
 			div(class="ui vertical segment")
 				div(class="ui divided padded stackable grid")
 					div(class="ten wide column")
-						h2(class="ui header") Latest News
+						h2(class="ui left floated header") Latest News
+						a(class="ui right floated basic button" href="/jcr/blog/") All News
 						div(class="ui divided items")
 							each blog in blogs
 								div(class="item")
@@ -36,7 +37,6 @@ html
 												span(class="blog likes")= blog.hearts.length + 2
 												| likes
 											a(class="right floated" href="/jcr/blog/"+blog.role.slug+"/"+blog.permalink) Read More
-						a(class="ui right floated button" href="/jcr/blog/") More News
 					div(class="six wide column")
 						h2(class="ui header") Upcoming Events
 						div(class="ui divided link items")
@@ -48,7 +48,7 @@ html
 									div(class="middle aligned content")
 										div(class="header")= event.name
 										div(class="meta")= event.time.toDateString()
-						a(class="ui right floated button" href="/events/calendar/") More Events
+						a(class="ui right floated basic button" href="/events/calendar/") All Events
 
 			script.
 				$('.item .blog.like.icon')
