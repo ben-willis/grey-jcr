@@ -72,6 +72,9 @@ passport.deserializeUser(function (username, done) {
             }
         };
         current_user.roles = roles;
+        return current_user.getDebt()
+    }).then(function(debt){
+        current_user.debt = debt;
         done(null, current_user);
     }).catch(function (err) {
         return done(err);
