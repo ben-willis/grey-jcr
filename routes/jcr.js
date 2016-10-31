@@ -68,6 +68,9 @@ router.get('/blog', function (req, res, next) {
 
 /* GET profile for a role page. */
 router.get('/blog/:role_slug', function (req, res, next) {
+	if (req.user) {
+		req.user.updateLastLogin();
+	}
 	Role.findBySlug(req.params.role_slug).then(function(role){
 		return Promise.all([
 			role,

@@ -105,7 +105,7 @@ Role.getByType = function (type) {
     promise = db('roles').select();
     switch(type) {
         case "exec":
-            promise = promise.where("level", ">=", 4).andWhereNot("id", "=", 1);
+            promise = promise.where("level", ">=", 4).andWhereNot("id", "=", 1).orderBy('id', 'asc');
             break;
         case "admin":
             promise = promise.where("level", "=", 5);

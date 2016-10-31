@@ -4,6 +4,7 @@ var router = express.Router();
 
 var Blog = require('../models/blog');
 var Event = require('../models/event');
+var Role = require('../models/role');
 
 var auth = require('./auth');
 var jcr = require('./jcr');
@@ -21,7 +22,17 @@ var api = require('./api');
 router.get('/', function (req, res, next) {
 	Promise.all([
 		Blog.get(),
-		Event.getFutureEvents(6)
+		Event.getFutureEvents(6),
+		Role.getByType("exec").then(function(exec_members) {
+			return Promise.all(
+				exec_members.map(function(exec_member) {
+					return exec_member.getUsers().then(function(users) {
+						exec_member.users = users;
+						return exec_member;
+					});
+				})
+			)
+		})
 	]).then(function (data){
 		blogs = data[0].splice(0,9);
 		for (blog of blogs) {
@@ -30,7 +41,7 @@ router.get('/', function (req, res, next) {
 				ignoreHref: true
 			}).slice(0, 250) + "...";
 		}
-		res.render('home', {blogs: blogs, events: data[1]});
+		res.render('home', {blogs: blogs, events: data[1], exec: data[2]});
 	}).catch(function (err) {
 		next(err);
 	})
