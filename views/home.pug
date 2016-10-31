@@ -18,6 +18,8 @@ html
 						div(class="ui divided items")
 							each blog in blogs
 								div(class="item")
+									div(class="ui tiny image")
+										img(src="/api/users/"+blog.author.username+"/avatar")
 									div(class="content")
 										a(class="header" href="/jcr/blog/"+blog.role.slug+"/"+blog.permalink)= blog.title
 										div(class="meta")
@@ -27,7 +29,7 @@ html
 											span(class="timestamp")
 												i(class="ui clock icon")
 												= prettydate.format(blog.updated)
-										div(class="article description")!= blog.message
+										div(class="article description" style="white-space: pre-line")!= blog.message
 										div(class="extra")
 											if (user)
 												i(class=(blog.hearts.indexOf(user.username) == -1)?"blog like icon":"active blog like icon" data-blog_id=blog.id)

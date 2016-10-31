@@ -26,8 +26,9 @@ router.get('/', function (req, res, next) {
 		blogs = data[0];
 		for (blog of blogs) {
 			blog.message = htmlToText.fromString(blog.message, {
-				wordwrap: false
-			}).slice(0, 300) + "...";
+				wordwrap: false,
+				ignoreHref: true
+			}).slice(0, 250) + "...";
 		}
 		res.render('home', {blogs: blogs, events: data[1]});
 	}).catch(function (err) {
