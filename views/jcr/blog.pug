@@ -13,9 +13,12 @@ html
 				h2= title
 
 				div(class="ui filter menu")
-					div(class="item") Filter By:
+					div(class="item")
+						i(Class="filter icon")
+						| Filter By:
 					div(class="ui dropdown item")
 						input(type="hidden" name="filters")
+						i(class="user icon")
 						if (!filters.role_id)
 							span(class="text") Position
 						each role in roles
@@ -33,6 +36,7 @@ html
 
 					- months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 					div(class="ui dropdown item")
+						i(class="calendar icon")
 						if (!filters.year || !filters.month)
 							span(class="text") Year and Month
 						else
@@ -48,6 +52,8 @@ html
 										- for (m=0; m<12; m++)
 											a(class=(filters.month==(m+1) && filters.year==y)?"active item":"item" href=base_url+"&year="+y+"&month="+(m+1))= months[m]
 
+					a(class="right item" href="/jcr/blog")
+						| Clear
 
 				div(class="ui divided items")
 					each blog in blogs
