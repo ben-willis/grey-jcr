@@ -75,20 +75,24 @@ router.get('/blog/:role_slug', function (req, res, next) {
 	if (req.user) {
 		req.user.updateLastLogin();
 	}
+	page = parseInt(req.query.page) || 1;
+	limit = parseInt(req.query.limit) || 6;
 	Role.findBySlug(req.params.role_slug).then(function(role){
 		return Promise.all([
 			role,
-			role.getBlogs().then(function(blog_ids){
-				return Promise.all(
-					blog_ids.map(function(blog_id){
-						return Blog.findById(blog_id);
-					})
-				)
-			}),
+			Blog.get(role.id),
+			role.getUsers(),
 			Folder.findForRole(role.id)
 		])
 	}).then(function(data) {
-		res.render('jcr/profile', { blogs: data[1], role: data[0], folder: data[2]});
+		data[0].users = data[2];
+		res.render('jcr/profile', {
+			page: (data[1].length == 0) ? 0 : page,
+			limit: limit,
+			total_pages: Math.ceil(data[1].length / limit),
+			blogs: data[1].splice((page-1) * limit, page*limit),
+			role: data[0],
+			folder: data[3]});
 	}).catch(function (err) {
 		next(err);
 	});
