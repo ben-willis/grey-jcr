@@ -12,17 +12,22 @@ html
 			if (ticket.min_booking > 1)
 				p= "You must book on a minimum of "+ticket.min_booking+" people."
 			if (ticket.allow_guests)
-				p(class="ui message") To book a JCR member on please enter their CIS username. To book a guest on please enter their fullname.
+				p(class="ui message") To book on a JCR member enter their CIS username (e.g. abcd12). To book on a guest enter their fullname.
 			else
 				p To book a JCR member on please enter their CIS username.
+			if (!ticket.allow_debtors && user.debt>0)
+				div(class="ui warning message")
+					div(class="content")
+						div(class="header") Debtors are blocked from booking on to this event.
+						p You will not be able to book on because of your outstanding debt to the JCR. You can pay off your debt <a href="/services/debt">here</a>.
 			div(class="ui vertical segment")
 				form(class="ui form" method="POST" action="/events/"+event_id+"/"+ticket.id+"/book")
 					- for(i=0; i<ticket.max_booking; i++)
 						div(class=(i<ticket.min_booking)?"required field":"field")
 							if (ticket.guests)
-								label= "Username or Guest's Name "+(i+1)
+								label CIS Username or Guest's Name #{i+1}
 							else
-								label= "Username "+(i+1)
+								label Username #{i+1}
 							input(type="text" name="bookings[]")
 					button(class="ui submit button" type="submit") Book
 

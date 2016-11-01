@@ -4,7 +4,6 @@ doctype html
 html
 	head
 		include ../head.pug
-		script(src="/javascripts/vue.js")
 	body
 		div(class='ui container')
 			include ../header.pug
@@ -123,6 +122,7 @@ html
 				},
 				created: function() { this.fetchEvents(); },
 				watch:{
-					'year + month': 'fetchEvents'
+					'year': 'fetchEvents',
+					'month': 'fetchEvents'
 				}
 			});

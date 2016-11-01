@@ -110,15 +110,6 @@ describe('Feedback Object', function() {
         })
     });
 
-    it("can toggle read state", function(done) {
-        test_feedback.toggleReadByUser().then(function(){
-            expect(this.read_by_user).to.equal(false);
-            done();
-        }).catch(function(err){
-            done(err);
-        })
-    });
-
     it("can add a reply", function(done) {
         test_feedback.addReply('test', true, 'hsdz38').then(function(){
             return db('feedbacks').select().where({

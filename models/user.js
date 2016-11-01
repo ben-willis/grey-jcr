@@ -9,15 +9,25 @@ var User = function (data) {
     this.email = data.email;
     this.username = data.username;
     this.name = data.name;
+    this.last_login = new Date(data.last_login);
 }
 
 User.prototype.changeName = function (new_name) {
-    self = this;
     return db('users').where('username', this.username).update({
         name: new_name
     }).then(function() {
         self.name = new_name
-    })
+    }.bind(this))
+}
+
+User.prototype.updateLastLogin = function() {
+    var now = new Date();
+    return db('users').where('username', this.username).update({
+        last_login: now
+    }).then(function() {
+        this.last_login = now;
+        return;
+    }.bind(this))
 }
 
 User.prototype.delete = function(){

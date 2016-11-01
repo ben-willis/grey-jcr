@@ -10,6 +10,8 @@ html
 			include ../menu.pug
 			div(class="ui vertical segment items")
 				div(class="item")
+					div(class="ui tiny image")
+						img(src="/api/users/"+blog.author.username+"/avatar")
 					div(class="content")
 						div(class="header")= blog.title
 						div(class="meta")
@@ -42,5 +44,5 @@ html
 							$(this).next().text(current_count - 1);
 						}
 					});
-					
+
 		include ../footer.pug

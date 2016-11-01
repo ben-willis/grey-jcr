@@ -3,12 +3,15 @@ var router = express.Router();
 var fs = require('fs');
 var prettydate = require('pretty-date');
 var treeize   = require('treeize');
+var httpError = require('http-errors');
 
 var User = require('../models/user');
 var Folder = require('../models/folder')
 var Role = require('../models/role');
 var Event = require('../models/event');
-var Blog = require('../models/blog')
+var Blog = require('../models/blog');
+var Election = require('../models/election');
+var Feedback = require('../models/feedback');
 
 // The main site search
 router.get('/search/', function (req, res, next) {
@@ -46,7 +49,7 @@ router.get('/search/', function (req, res, next) {
 			}
 		});
 	}).catch( function (err) {
-		return res.json(err);
+		next(err);
 	})
 
 });
@@ -54,9 +57,9 @@ router.get('/search/', function (req, res, next) {
 // Needed for the calendar
 router.get('/events/:year/:month', function (req, res, next) {
 	Event.getByMonth(req.params.year, req.params.month).then(function (events) {
-			return res.json(events);
+			res.json(events);
 		}).catch(function (err) {
-			return res.json(err);
+			next(err);
 		});
 });
 
@@ -65,7 +68,7 @@ router.get('/roles/:role_id', function(req, res, next) {
 	Role.findById(req.params.role_id).then(function(role) {
 		res.json(role);
 	}).catch(function (err) {
-		res.json(err);
+		next(err);
 	});
 })
 
@@ -75,7 +78,7 @@ router.get('/users', function (req, res, next) {
 		.then(function (users) {
 			res.json({success: true, users: users});
 		}).catch(function (err) {
-			res.json(err);
+			next(err);
 		});
 });
 
@@ -105,7 +108,7 @@ router.get('/files/:folder_id', function (req, res, next) {
 	}).then(function (data) {
 		res.json({"current": current_folder, "folders": data[0], "files": data[1]});
 	}).catch(function (err) {
-		res.json(err);
+		next(err);
 	});
 });
 
@@ -121,8 +124,59 @@ router.get('/blogs/:blog_id/like', function(req, res, next) {
 	}).then(function() {
 		res.json({status: 'success'})
 	}).catch(function(err) {
-		res.json(err);
+		next(err);
 	})
 });
+
+// Needed for menu notifications
+router.get('/elections/:status', function(req,res,next) {
+	if (!req.user) return res.json({"error": "You must be logged in"});
+	Election.getByStatus(req.params.status).then(function(elections) {
+		return Promise.all(
+			elections.map(function(election) {
+				return User.findByUsername(req.user.username).then(function(user) {
+					return user.getVote(election.id);
+				}).then(function(votes) {
+					if (votes) {
+						election.voted = true;
+					} else {
+						election.voted = false;
+					}
+					return election;
+				})
+			})
+		)
+	}).then(function(elections) {
+		res.json(elections);
+	}).catch(function (err) {
+		next(err);
+	});
+});
+
+router.get('/blogs/unread', function(req, res, next) {
+	if (!req.user) return next(httpError(401));
+	Blog.getByDateRange(req.user.last_login, new Date()).then(function(blogs) {
+		res.json(blogs);
+	}).catch(function (err) {
+		next(err);
+	});
+})
+
+router.get('/feedbacks', function(req, res, next) {
+	if (!req.user) return res.json({"error": "You must be logged in"});
+	Feedback.getAllByUser(req.user.username).then(function(feedbacks) {
+		res.json(feedbacks);
+	}).catch(function (err) {
+		next(err);
+	});
+})
+
+router.use(function(err, req, res, next) {
+	error_status = err.status || 500;
+	return res.status(error_status).json({
+		status: error_status,
+		message: err.message
+	});
+})
 
 module.exports = router;

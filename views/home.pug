@@ -14,10 +14,13 @@ html
 			div(class="ui vertical segment")
 				div(class="ui divided padded stackable grid")
 					div(class="ten wide column")
-						h2(class="ui header") Latest News
+						h2(class="ui left floated header") Latest News
+						a(class="ui right floated basic button" href="/jcr/blog/") All News
 						div(class="ui divided items")
 							each blog in blogs
 								div(class="item")
+									div(class="ui tiny image")
+										img(src="/api/users/"+blog.author.username+"/avatar")
 									div(class="content")
 										a(class="header" href="/jcr/blog/"+blog.role.slug+"/"+blog.permalink)= blog.title
 										div(class="meta")
@@ -27,28 +30,39 @@ html
 											span(class="timestamp")
 												i(class="ui clock icon")
 												= prettydate.format(blog.updated)
-										div(class="article description")!= blog.message
+										div(class="article description" style="white-space: pre-line")!= blog.message
 										div(class="extra")
 											if (user)
 												i(class=(blog.hearts.indexOf(user.username) == -1)?"blog like icon":"active blog like icon" data-blog_id=blog.id)
 												span(class="blog likes")= blog.hearts.length + 2
 												| likes
 											a(class="right floated" href="/jcr/blog/"+blog.role.slug+"/"+blog.permalink) Read More
-						a(class="ui right floated button" href="/jcr/blog/") More News
 					div(class="six wide column")
-						h2(class="ui header") Upcoming Events
-						div(class="ui divided link items")
-							each event in events
-								a(class="item" href="/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug)
-									if (event.image)
-										div(class="ui tiny image")
-											img(src="/images/events/"+event.image)
-									div(class="middle aligned content")
-										div(class="header")= event.name
-										div(class="meta")= event.time.toDateString()
-						a(class="ui right floated button" href="/events/calendar/") More Events
+						div(class="ui vertical clearing segment")
+							h2(class="ui header") Upcoming Events
+							div(class="ui divided link items")
+								each event in events
+									a(class="item" href="/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug)
+										if (event.image)
+											div(class="ui tiny image")
+												img(src="/images/events/"+event.image)
+										div(class="middle aligned content")
+											div(class="header")= event.name
+											div(class="meta")= event.time.toDateString()
+							a(class="ui right floated basic button" href="/events/calendar/") All Events
+						div(class="ui vertical segment" id="exec")
+							h2(class="ui header") Executive Committee
+							div(class="ui tiny exec images")
+								each role in exec
+									each user in role.users
+										a(class="ui exec rounded image" data-title=user.name data-content=role.title href="/jcr/blog/"+role.slug)
+											img(src="/api/users/"+user.username+"/avatar")
+											div(class="ui red circular floating label" v-show="unread_posts_by_role['"+role.id+"']>0" style="display:none") {{unread_posts_by_role[#{role.id}]}}
 
 			script.
+				$('.exec.image').popup({
+					transition: "fade up"
+				});
 				$('.item .blog.like.icon')
 					.api({
 						url: '/api/blogs/{blog_id}/like'
@@ -63,5 +77,32 @@ html
 							$(this).next().text(current_count - 1);
 						}
 					});
+
+			script(type="text/javascript").
+				var exec = new Vue({
+					el: "#exec",
+					data: {
+						unread_posts_by_role: {}
+					},
+					methods: {
+						fetchBlogs: function() {
+							$.get('/api/blogs/unread', function(blogs) {
+								for (i=0; i < blogs.length; i++) {
+									if (this.unread_posts_by_role[blogs[i].role.id]) {
+										Vue.set(this.unread_posts_by_role, blogs[i].role.id, this.unread_posts_by_role[blogs[i].role.id] + 1);
+									} else {
+										Vue.set(this.unread_posts_by_role, blogs[i].role.id, 1);
+									}
+								}
+							}.bind(this), 'json');
+						}
+					},
+					created: function() {
+						this.fetchBlogs();
+					},
+					mounted: function() {
+						$('.exec.image').popup({transition: "fade up"});
+					}
+				})
 
 		include ./footer.pug
