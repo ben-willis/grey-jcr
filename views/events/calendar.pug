@@ -24,7 +24,7 @@ html
 					tbody
 						tr(v-for="n in weeks")
 							td(v-for="i in 7")
-								day(:cell-no="7*n + i + 1")
+								day(:cell-no="7*(n-1) + i")
 					tfoot: tr
 						th(colspan="7")
 							a(class="ui left floated button" @click.prevent='prevMonth' href="/events/calendar/"+((month==1)?(year-1)+"/12":year+"/"+(month-1)))
@@ -41,7 +41,7 @@ html
 				props: ['cellNo'],
 				computed: {
 					day: function () {return this.cellNo - this.$root.startNo + 1},
-					date: function () { return new Date(2016, this.$root.month - 1, this.day)},
+					date: function () { return new Date(this.$root.year, this.$root.month - 1, this.day)},
 					currentMonth: function () {return (this.date.getMonth() + 1 == this.$root.month)},
 					events: function () {
 						var day = this.day;
