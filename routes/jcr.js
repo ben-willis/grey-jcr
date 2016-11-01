@@ -41,11 +41,15 @@ router.get('/blog', function (req, res, next) {
 	if (req.user) {
 		req.user.updateLastLogin();
 	}
-	role_id = parseInt(req.query.role_id) || 0;
+	filters = {
+		role_id: parseInt(req.query.role_id) || 0,
+		year: parseInt(req.query.year) || 0,
+		month: parseInt(req.query.month) || 0
+	}
 	page = parseInt(req.query.page) || 1;
 	limit = parseInt(req.query.limit) || 10;
 	Promise.all([
-		Blog.get(role_id),
+		Blog.get(filters.role_id, filters.year, filters.month),
 		Role.getByType("exec"),
 		Role.getByType("officer")
 	]).then(function(data) {
@@ -56,7 +60,7 @@ router.get('/blog', function (req, res, next) {
 			page: page,
 			limit: limit,
 			total_pages: total_pages,
-			role_id: role_id,
+			filters: filters,
 			blogs: blogs.splice((page-1) * limit, page*limit),
 			roles: data[1].concat(data[2])
 		})

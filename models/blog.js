@@ -138,11 +138,17 @@ Blog.search = function(query) {
 }
 
 
-Blog.get = function(role_id) {
+Blog.get = function(role_id, year, month) {
     var blogs_promise = db('blogs').select().orderBy('updated', 'desc');
 
     if (role_id) {
         blogs_promise = blogs_promise.andWhere('role_id', role_id);
+    }
+    if (year && month) {
+        blogs_promise = blogs_promise.andWhereBetween('updated', [
+            new Date(year, month-1, 1),
+            new Date(year, month, 1)
+        ])
     }
 
     return blogs_promise.then(function(data_array) {

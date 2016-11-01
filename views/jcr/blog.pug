@@ -16,20 +16,38 @@ html
 					div(class="item") Filter By:
 					div(class="ui dropdown item")
 						input(type="hidden" name="filters")
-						i(class="user icon")
-						if (!role_id)
-							span(class="text") Position: Any
+						if (!filters.role_id)
+							span(class="text") Position
 						each role in roles
-							if (role.id == role_id)
-								span(class="text") Position: #{role.title}
+							if (role.id == filters.role_id)
+								span(class="text"): b #{role.title}
 						div(class="menu")
 							div(class="ui icon search input")
 								i(class="search icon")
 								input(type="text" placeholder="Search Positions...")
 							div(class="scrolling menu")
-								a(class=(role_id==0)?"active item":"item" href="/jcr/blog") Any
+								- base_url = (filters.month && filters.year) ? "/jcr/blog?year="+filters.year+"&month="+filters.month: "/jcr/blog?"
+								a(class=(!filters.role_id)?"active item":"item" href=base_url) Any
 								each role in roles
-									a(class=(role_id==role.id)?"active item":"item" href="/jcr/blog?role_id="+role.id)= role.title
+									a(class=(filters.role_id==role.id)?"active item":"item" href=base_url+"&role_id="+role.id)= role.title
+
+					- months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+					div(class="ui dropdown item")
+						if (!filters.year || !filters.month)
+							span(class="text") Year and Month
+						else
+							span(class="text"): b #{months[filters.month-1]} #{filters.year}
+						div(class="menu")
+							- base_url = (filters.role_id) ? "/jcr/blog?role_id="+filters.role_id: "/jcr/blog?"
+							a(class=(!filters.month || !filters.year)?"active item":"item" href=base_url) Any
+							- for (y = (new Date()).getFullYear(); y>2015; y--)
+								div(class="item")
+									i(class="dropdown icon")
+									span(class="text")= y
+									div(class="menu")
+										- for (m=0; m<12; m++)
+											a(class=(filters.month==(m+1) && filters.year==y)?"active item":"item" href=base_url+"&year="+y+"&month="+(m+1))= months[m]
+
 
 				div(class="ui divided items")
 					each blog in blogs
