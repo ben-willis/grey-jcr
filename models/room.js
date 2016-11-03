@@ -24,33 +24,48 @@ Room.prototype.delete = function () {
     return db('rooms').del().where({id: this.id});
 }
 
-Room.prototype.addBooking = function (name, start_time, duration, notes) {
+Room.prototype.addBooking = function (name, start_time, duration, username) {
     return db('room_bookings').insert({
         name: name,
         room_id: this.id,
-        notes: notes,
+        username: username,
         start_time: start_time,
         duration: duration
     });
 }
 
-Room.prototype.getBookingsByDate = function(date) {
+Room.prototype.getBookings = function(status, date) {
     return db('room_bookings').select().whereBetween('start_time', [
         date,
         new Date(date.getTime() + 24*60*60*1000)
-    ]).andWhere({'room_id': this.id}).orderBy('start_time', 'asc');
+    ]).andWhere({'room_id': this.id, status: status}).orderBy('start_time', 'asc');
 }
 
-Room.prototype.getFutureBookings = function() {
+Room.prototype.getFutureBookings = function(status) {
     return db('room_bookings')
         .select()
         .where('start_time', '>', new Date())
-        .andWhere({'room_id': this.id})
+        .andWhere({'room_id': this.id, status: status})
         .orderBy('start_time', 'asc');
 }
 
-Room.prototype.removeBooking = function (booking_id) {
-    return db('room_bookings').del().where({id: booking_id});
+Room.prototype.getUserBookings = function(username) {
+    return db('room_bookings')
+        .select()
+        .where('start_time', '>', new Date())
+        .andWhere({'room_id': this.id, username: username})
+        .orderBy('start_time', 'asc');
+}
+
+Room.prototype.updateBooking = function(booking_id, status, notes) {
+    return db('room_bookings').where({id: booking_id}).update({
+        status: status,
+        notes: notes
+    })
+}
+
+Room.prototype.removeBooking = function (booking_id, username) {
+    return db('room_bookings').del().where({id: booking_id, username: username});
 }
 
 /* Static Methods */

@@ -17,7 +17,7 @@ html
 			for room in rooms
 				div(class="ui bottom attached tab segment" data-tab=room.id)
 					p= room.description
-					h3 Bookings
+					h3 Accepted Bookings
 					table(class="ui eight column definition celled table")
 						thead
 							tr
@@ -56,6 +56,71 @@ html
 					a(class="ui right floated button" href="/services/rooms/?week_offset="+(week_offset+1)+"#"+room.id)
 						| Next Week
 						i(class="right arrow icon")
+
+					h3 Request Booking
+					form(class="ui form" method="POST" action="/services/rooms/"+room.id+"/bookings")
+						div(class="field")
+							label Name
+							input(type="text" name="name")
+						div(class="field")
+							label Date
+							input(type="text" name="date" value=(new Date()).getDate() + "-"+((new Date()).getMonth() + 1)+"-"+(new Date()).getFullYear())
+						div(class="two fields")
+							div(class="field")
+								label Start Time
+								select(class="ui dropdown" name="start")
+									- for (i=18; i<44; i++)
+										option(value=Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2))= Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2)
+							div(class="field")
+								label End Time
+								select(class="ui dropdown" name="end")
+									- for (i=19; i<45; i++)
+										option(value=(i*30))= Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2)
+						button(class="ui submit button" type="submit")
+							i(class="write icon")
+							| Create
+						div(class="ui error message")
+
+					script.
+						$(".dropdown").dropdown();
+						$('.form').form({
+							fields: {
+								name: 'empty',
+								date: 'regExp[/(0?[1-9]|[12][0-9]|3[01])[-](0?[1-9]|1[0-2])[-](19|20|21)[0-9]{2}/ig]'
+							}
+						});
+
+					h3 My Bookings
+					table(class="ui fixed table")
+						thead
+							tr
+								th Name
+								th Start
+								th Duration
+								th Actions
+						tbody
+							each booking in room.user_bookings
+								tr
+									td
+										if (booking.status == 0)
+											div(class="ui horizontal label")
+												i(class="minus circle icon")
+												| Pending
+										if (booking.status == 1)
+											div(class="ui horizontal green label")
+												i(class="check circle icon")
+												| Accepted
+										if (booking.status == 2)
+											div(class="ui horizontal red label")
+												i(class="remove circle icon")
+												| Rejected
+										= booking.name
+									td= booking.start_time
+									td= booking.duration
+									td
+										a(class="ui negative button" href="/services/rooms/"+room.id+"/bookings/"+booking.id+"/delete" onclick="return confirm('Are you sure you want to cancel this booking?');")
+											i(class="remove icon")
+											| Cancel
 
 			div(Class="ui basic segment")
 

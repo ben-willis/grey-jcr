@@ -55,36 +55,43 @@ router.get('/:room_id/delete', function (req, res, next) {
 /* GET room bookings page */
 router.get('/:room_id/bookings', function (req, res, next) {
 	var room;
-	Room.findById(req.params.room_id).then(function(data) {
-		room = data;
-		return room.getFutureBookings();
-	}).then(function(bookings) {
-		room.bookings = bookings;
-		res.render('admin/room_bookings', {room: room})
+	Room.findById(req.params.room_id).then(function(room) {
+		return Promise.all([
+			room,
+			room.getFutureBookings(0),
+			room.getFutureBookings(1),
+			room.getFutureBookings(2)
+		])
+	}).then(function(data) {
+		res.render('admin/room_bookings', {room: data[0], pending_bookings: data[1], accepted_bookings: data[2],  rejected_bookings: data[3]})
 	}).catch(next);
 });
 
-/* POST a new booking */
-router.post('/:room_id/bookings', function (req, res, next) {
-	var date = (req.body.date).split('-');
-	var time = (req.body.start).split(':');
-	var start = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
-	var duration = parseInt(req.body.end) - (60*parseInt(time[0])+parseInt(time[1]));
-
+/* GET a accept a room booking */
+router.get('/:room_id/bookings/:booking_id/accept', function (req, res, next) {
 	Room.findById(req.params.room_id).then(function(room) {
-		return room.addBooking(req.body.name, start, duration, req.body.notes)
+		return room.updateBooking(req.params.booking_id, 1);
 	}).then(function () {
 		res.redirect(303, '/admin/rooms/'+req.params.room_id+'/bookings');
 	}).catch(next);
 });
 
-/* GET a delete booking */
-router.get('/:room_id/bookings/:booking_id/delete', function (req, res, next) {
+/* GET a reject a room booking */
+router.get('/:room_id/bookings/:booking_id/reject', function (req, res, next) {
 	Room.findById(req.params.room_id).then(function(room) {
-		return room.removeBooking(req.params.booking_id)
+		return room.updateBooking(req.params.booking_id, 2);
 	}).then(function () {
 		res.redirect(303, '/admin/rooms/'+req.params.room_id+'/bookings');
 	}).catch(next);
-})
+});
+
+/* GET a revert a room booking */
+router.get('/:room_id/bookings/:booking_id/revert', function (req, res, next) {
+	Room.findById(req.params.room_id).then(function(room) {
+		return room.updateBooking(req.params.booking_id, 0);
+	}).then(function () {
+		res.redirect(303, '/admin/rooms/'+req.params.room_id+'/bookings');
+	}).catch(next);
+});
 
 module.exports = router;
