@@ -23,9 +23,7 @@ router.get('/', function (req, res, next) {
 
 /* GET calendar page. */
 router.get('/calendar/:year?/:month?', function (req, res, next) {
-	var year = (isNaN(req.params.year)) ? (new Date()).getFullYear() : parseInt(req.params.year);
-	var month = (isNaN(req.params.month)) ? (new Date()).getMonth()+1 : parseInt(req.params.month);
-	res.render('events/calendar', {month: month, year: year});
+	res.render('events/calendar');
 });
 
 /* GET the bookings page */
@@ -131,19 +129,19 @@ router.post('/:booking_id', function (req, res, next) {
 			ticket_price = (booking.username != null) ? ticket.price : ticket.price + ticket.guest_surcharge;
 			amount += ticket_price;
 			return Promise.all(
-				booking.choices.map(function(choice_id) {
+				booking_choices.map(function(choice_id) {
 					return booking.getChoiceDetailsById(choice_id).then(function(choice) {
 						return choice.price;
 					})
 				})
 			)
 		})
-		.then(function(choice_prices){
+		.then(function(choice_prices) {
 			amount += choice_prices.reduce((a,b) => a+b, 0);
 			username = (booking.username != null) ? booking.username : booking.booked_by;
 			return User.findByUsername(username);
 		})
-		.then(function(user){
+		.then(function(user) {
 			name = (booking.username != null) ? booking.username : booking.guestname;
 			return user.setDebtForBooking(ticket.name, "Ticket for "+name, amount, booking.id)
 		})
@@ -152,6 +150,8 @@ router.post('/:booking_id', function (req, res, next) {
 		})
 		.then(function(event){
 			res.redirect(303, "/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug+"/"+booking.ticket_id+"/booking?success");
+		}).catch(function(err) {
+			next(err);
 		});
 });
 
