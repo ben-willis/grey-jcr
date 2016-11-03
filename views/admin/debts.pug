@@ -9,7 +9,7 @@ html
 			include ./header.pug
 			include ./menu.pug
 			h2(class="ui header")= title
-			div(class="ui vertically padded grid")
+			div(class="ui vertically padded stackable grid")
 				div(class="eleven wide column")
 					h3(class="ui header") Top Debtors
 					table(class="ui fixed table")
@@ -35,6 +35,7 @@ html
 						div(class="ui statistic")
 							div(class="value")="£"+(total/100).toFixed(2)
 							div(class="label") Total Debt
+						br
 						a(class="ui button" href="/admin/debts/totals.csv")
 							i(class="download icon")
 							| Download All Debts
@@ -43,6 +44,21 @@ html
 						div(class="ui fluid input")
 							input(type="text" name="username" class="prompt" placeholder="Find a user...")
 						div(class="results")
+					h3(class="ui dividing header") Add Batch of Debts
+					p The file you upload should be a csv file. It should have two columns, one with usernames and one with the amount of debt in pence (in that order).
+					form(class="ui form" method="POST" action="/admin/debts" enctype="multipart/form-data")
+						div(class="field")
+							label Name
+							input(type="text" name="name")
+						div(class="field")
+							label Message
+							textarea(rows=2 name="message")
+						div(class="field")
+							label CSV File
+							input(type="file" name="debts")
+						button(type="submit" class="ui submit button")
+							i(class="upload icon")
+							| Upload
 
 					script.
 						$('.ui.search').search({
