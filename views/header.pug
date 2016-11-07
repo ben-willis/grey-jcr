@@ -67,7 +67,10 @@ div(class="ui stackable grid" id="top_menu")
 							a(class="item" href='/services/user/'+user.username) View Profile
 							a(class="item" href='/services/user/'+user.username+'/update') Update Profile
 							a(class="item" href='/services/debt')
-								| My Debt (£#{(user.debt/100).toFixed(2)})
+								if (user.debt > 0)
+									div(class="ui large red label") My Debt (£#{(user.debt/100).toFixed(2)})
+								else
+									| My Debt
 							a(class='item' href='/logout')
 								i(class='sign out icon')
 								| Log Out
