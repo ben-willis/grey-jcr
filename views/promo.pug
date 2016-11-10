@@ -1,7 +1,18 @@
 div(class="ui segment")
 	div(class="ui stackable grid")
-		div(class="seven wide middle aligned column")
-			div(class="ui header") Grey College JCR
-				div(class="sub header") "The community of students that make up the life and soul of Grey College."
-		div(class="nine wide column")
-			img(class="ui fluid image" src="/images/promos/grey.png")
+		if (!user)
+			div(class="seven wide middle aligned column")
+				div(class="ui header") Grey College JCR
+					div(class="sub header") "The community of students that make up the life and soul of Grey College."
+			div(class="nine wide column")
+				img(class="ui fluid image" src="/images/promos/grey.png")
+		else
+			div(class="seven wide middle aligned column")
+				div(class="ui header") Have opinions about the JCR?
+					div(class="sub header") Leave anonymous feedback to let the exec know how things are going
+				a(class="ui primary button" href="/services/feedback")
+					i(class="comment icon")
+					| Click Here
+			div(class="nine wide column")
+				img(class="ui fluid image" src="/images/promos/grey.png")
+
