@@ -18,6 +18,9 @@ div(class='ui stackable inverted menu')
 		a(class='item' href='/admin/rooms')
 			i(class="book icon")
 			| Room Booking
+		a(class='item' href='/admin/roles')
+			i(class="users icon")
+			| Roles
 	if (user.level > 4)
 		a(class='item' href='/admin/debts')
 			i(class="pound icon")
@@ -28,6 +31,3 @@ div(class='ui stackable inverted menu')
 		a(class='item' href='/admin/feedback')
 			i(class="comment icon")
 			| Feedback
-		a(class='item' href='/admin/roles')
-			i(class="users icon")
-			| Roles
