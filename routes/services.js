@@ -41,10 +41,17 @@ router.get('/rooms/', function (req, res, next) {
 			rooms.map(function(room){
 				return Promise.all(
 					week_dates.map(function(date){
-						return room.getBookingsByDate(date);
+						return room.getBookings(1, date);
 					})
 				).then(function(bookings) {
 					room.bookings = bookings;
+					return Promise.all([
+						room,
+						room.getUserBookings(req.user.username)
+					])
+				}).then(function(data){
+					room = data[0];
+					room.user_bookings = data[1];
 					return room;
 				})
 			})
@@ -53,6 +60,30 @@ router.get('/rooms/', function (req, res, next) {
 		res.render('services/rooms', {rooms: rooms, week_start: week_dates[0]})
 	}).catch(next);
 });
+
+/* POST a new booking */
+router.post('/rooms/:room_id/bookings', function (req, res, next) {
+	var date = (req.body.date).split('-');
+	var time = (req.body.start).split(':');
+	var start = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
+	var duration = parseInt(req.body.end) - (60*parseInt(time[0])+parseInt(time[1]));
+	if (duration <= 0) return next(httpError(400, "Start time must be before end time"))
+
+	Room.findById(req.params.room_id).then(function(room) {
+		return room.addBooking(req.body.name, start, duration, req.user.username)
+	}).then(function () {
+		res.redirect(303, '/services/rooms#'+req.params.room_id);
+	}).catch(next);
+});
+
+/* GET a delete booking */
+router.get('/rooms/:room_id/bookings/:booking_id/delete', function (req, res, next) {
+	Room.findById(req.params.room_id).then(function(room) {
+		return room.removeBooking(req.params.booking_id, req.user.username)
+	}).then(function () {
+		res.redirect(303, '/services/rooms#'+req.params.room_id);
+	}).catch(next);
+})
 
 /* GET user page. */
 router.get('/user/:username', function (req, res, next) {
