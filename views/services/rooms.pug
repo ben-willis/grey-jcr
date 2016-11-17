@@ -9,7 +9,6 @@ html
 			include ../header.pug
 			include ../menu.pug
 			h2= title
-			p(class="ui message") Please contact the Services Manager or JCR President if you wish to make a room booking
 			div(class="ui top attached tabular rooms menu")
 				for room in rooms
 					a(class="item" data-tab=room.id)= room.name
@@ -58,6 +57,7 @@ html
 						i(class="right arrow icon")
 
 					h3 Request Booking
+					p You can request a room booking using the below form. Your request will then be either accepted or rejected by the services manager. Please note your booking will not show up on the above timetable until your request has been accepted.
 					form(class="ui form" method="POST" action="/services/rooms/"+room.id+"/bookings")
 						div(class="field")
 							label Name
