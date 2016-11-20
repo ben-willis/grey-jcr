@@ -67,6 +67,21 @@ router.get('/:room_id/bookings', function (req, res, next) {
 	}).catch(next);
 });
 
+/* POST a new room booking */
+router.post('/:room_id/bookings', function (req, res, next) {
+	var date = (req.body.date).split('-');
+	var time = (req.body.start).split(':');
+	var start = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
+	var duration = parseInt(req.body.end) - (60*parseInt(time[0])+parseInt(time[1]));
+	if (duration <= 0) return next(httpError(400, "Start time must be before end time"))
+
+	Room.findById(req.params.room_id).then(function(room) {
+		return room.addBooking(req.body.name, start, duration, req.user.username, 1)
+	}).then(function () {
+		res.redirect(303, '/admin/rooms/'+req.params.room_id+'/bookings');
+	}).catch(next);
+});
+
 /* GET a accept a room booking */
 router.get('/:room_id/bookings/:booking_id/accept', function (req, res, next) {
 	Room.findById(req.params.room_id).then(function(room) {

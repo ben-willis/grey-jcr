@@ -24,13 +24,14 @@ Room.prototype.delete = function () {
     return db('rooms').del().where({id: this.id});
 }
 
-Room.prototype.addBooking = function (name, start_time, duration, username) {
+Room.prototype.addBooking = function (name, start_time, duration, username, status) {
     return db('room_bookings').insert({
         name: name,
         room_id: this.id,
         username: username,
         start_time: start_time,
-        duration: duration
+        duration: duration,
+        status: status
     });
 }
 

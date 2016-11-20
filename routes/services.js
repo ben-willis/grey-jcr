@@ -70,7 +70,7 @@ router.post('/rooms/:room_id/bookings', function (req, res, next) {
 	if (duration <= 0) return next(httpError(400, "Start time must be before end time"))
 
 	Room.findById(req.params.room_id).then(function(room) {
-		return room.addBooking(req.body.name, start, duration, req.user.username)
+		return room.addBooking(req.body.name, start, duration, req.user.username, 0)
 	}).then(function () {
 		res.redirect(303, '/services/rooms#'+req.params.room_id);
 	}).catch(next);
