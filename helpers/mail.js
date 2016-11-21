@@ -13,14 +13,14 @@ var transporter = nodemailer.createTransport({
 var mail = {
 	send: function(to, subject, text) {
 		var mailOptions = {
-			from: "Grey College JCR",
+			from: "noreply <grey.jcr@durham.ac.uk>",
 			to: to,
 			subject: subject,
 			text: text
 		}
 
 		transporter.sendMail(mailOptions, function(err, info) {
-			if (err) console.err(err)
+			if (err) console.log(err);
 		})
 
 	}
