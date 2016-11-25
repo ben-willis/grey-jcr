@@ -31,6 +31,11 @@ PAYPAL_CLIENT_SECRET=EClusMEUk8e9ihI7ZdVLF5cZ6y0SFdVsY9183IvxFyZp
 CIS_USERNAME=hsdz38
 CIS_NAME=Ben Willis
 CIS_EMAIL=b.c.willis@durham.ac.uk
+
+EMAIL_HOST=smtp.dur.ac.uk
+EMAIL_PORT=587
+EMAIL_USERNAME=hsdz38
+EMAIL_PASSWORD=password
 ```
 
 #### Create tables and add data to the database

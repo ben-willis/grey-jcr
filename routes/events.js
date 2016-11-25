@@ -4,6 +4,7 @@ var validator = require('validator');
 var httpError = require('http-errors');
 
 var BookingManager = require('../helpers/bookings');
+var Mail = require('../helpers/mail');
 
 var Event = require('../models/event');
 var Ticket = require('../models/ticket');
@@ -47,28 +48,48 @@ router.post('/:event_id/:ticket_id/book', function (req, res, next) {
 	});
 
 	var bookings = null;
+	var ticket = null;
+	var event = null;
 
 	BookingManager.createBooking(parseInt(req.params.ticket_id), parseInt(req.params.event_id), req.user.username, booking_names)
 		.then(function(data) {
 			bookings = data;
-			return Ticket.findById(parseInt(req.params.ticket_id));
+			return Promise.all([
+				Ticket.findById(parseInt(req.params.ticket_id)),
+				Event.findById(parseInt(req.params.event_id))
+			]);
 		})
-		.then(function(ticket) {
+		.then(function(data) {
+			ticket = data[0];
+			event = data[1];
 			return Promise.all(
 				bookings.map(function(booking) {
 					username = (booking.username != null) ? booking.username : booking.booked_by;
 					return User.findByUsername(username).then(function(user){
 						amount = (booking.username != null) ? ticket.price : (ticket.price + ticket.guest_surcharge);
-						name = (booking.username != null) ? booking.username : booking.guestname;
+						name = (booking.username != null) ? user.name : booking.guestname;
+
+						// Send Email
+						var email_text = "Dear "+user.name+"," +
+										 "\n\n" +
+										 "Thank you for booking on to "+event.name+"!" +
+										 "\n\n" +
+										 "Name: "+name+"\nTicket: "+ticket.name+"\nBase Price: £"+(amount/100).toFixed(2) +
+										 "\n\n" +
+										 "Please make sure you fill out drink options and any dietary requirements at www.greyjcr.com/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug+"/"+ticket.id+"/booking if you are required to." +
+										 "\n\n" +
+										 "A debt of £"+(amount/100).toFixed(2)+" has been added to your account, please pay this debt off promptly. You can pay your debt off at: www.greyjcr.com/services/debt. If you have any queries regarding your debt email grey.treasurer@durham.ac.uk."+
+										 "\n\n" + 
+										 "Hope you have a Greyt time!"
+						Mail.send(user.email, event.name+" Booking Confirmation", email_text)
+
+						// Set Debt
 						return user.setDebtForBooking(ticket.name, "Ticket for "+name, amount, booking.id);
 					});
 				})
 			)
 		})
-		.then(function(){
-			return Event.findById(parseInt(req.params.event_id))
-		})
-		.then(function(event) {
+		.then(function() {
 			res.redirect(303, "/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug+"/"+req.params.ticket_id+"/booking?success")
 		})
 		.catch(function(err) {

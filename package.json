@@ -66,6 +66,7 @@
     "morgan": "~1.6.1",
     "multer": "^1.1.0",
     "mv": "^2.1.1",
+    "nodemailer": "^2.6.4",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "paypal-rest-sdk": "^1.6.8",
