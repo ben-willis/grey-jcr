@@ -194,7 +194,7 @@ User.authorize = function(username, password) {
 
 User.getDebtors = function() {
     return db('debts')
-        .select('users.username', 'users.name', 'users.email').sum('debts.amount')
+        .select('users.username', 'users.name', 'users.email').sum('debts.amount').max('debts.debt_added')
         .join('users', 'users.username', '=', 'debts.username')
         .groupBy('users.username')
         .havingRaw('SUM(debts.amount) != 0')
@@ -203,6 +203,7 @@ User.getDebtors = function() {
             return debtors.map(function(debtor_data) {
                 debtor = new User(debtor_data);
                 debtor.total_debt = parseInt(debtor_data.sum);
+                debtor.last_debt = debtor_data.max
                 return debtor;
             })
         })

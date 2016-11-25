@@ -37,7 +37,7 @@ router.get('/totals.csv', function (req, res, next) {
 				username: 'Username',
 				name: 'Name',
 				email: 'Email',
-				sum: 'Amount'
+				total_debt: 'Amount'
 			}
 			csv.stringify(debtors, {header: true, columns: columns}, function (err, output) {
 				if (err) throw err;
@@ -84,7 +84,6 @@ router.post('/:username', function (req, res, next) {
 /* POST a batch of debts */
 router.post('/', upload.single('debts'), function(req, res, next){
 	if (!req.file) return next(httpError(400, "No file uploaded"));
-	if (req.file.mimetype != 'text/csv') return next(httpError(400, "File must be a csv"));
 	fs.readFile(req.file.path, 'utf8', function(err, data) {
 		if (err) return next(err);
 		csv.parse(data, function(err, data) {
