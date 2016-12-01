@@ -4,7 +4,7 @@ doctype html
 html
 	head
 		include ../head.pug
-		script(src="/javascripts/countdown.js")
+		script(src="/javascripts/countdown.min.js")
 	body
 		div(class='ui container')
 			include ../header.pug
@@ -27,24 +27,9 @@ html
 						else if (ticket.sold == ticket.stock)
 							p Tickets have sold out.
 						else if (ticket.open_booking > (new Date()))
-							p Booking opens in: <br/>
-								span(class="countdown" data-seconds=Math.floor((ticket.open_booking - new Date())/1000))
-							a(class="ui primary transition hidden booking button" href="/events/"+event.id+"/"+ticket.id+"/book" ) Book Now!
-							script.
-								$(".countdown").kkcountdown({
-									dayText: ' day, ',
-									daysText: ' days, ',
-									hoursText: ' hours, ',
-									minutesText: ' minutes and ',
-									secondsText: ' seconds!',
-									displayDays : true,
-									displayZeroDays : true,
-									callback: function() {
-										$('.countdown').parent().transition('fade out', function(){
-											$('.booking.button').transition('fade in');
-										});
-									}
-								});
+							p Booking opens in 
+								span(data-milliseconds=Math.floor(ticket.open_booking - new Date()))
+							a(class="ui primary transition hidden booking button" href="/events/"+event.id+"/"+ticket.id+"/book") Book Now!
 						else if (ticket.stock - ticket.sold <= Math.max(ticket.stock/10,15))
 							a(class="ui labeled button" href="/events/"+event.id+"/"+ticket.id+"/book")
 								div(class="ui primary button" )
@@ -55,4 +40,19 @@ html
 							a(class="ui primary button" href="/events/"+event.id+"/"+ticket.id+"/book")
 								i(class="ticket icon")
 								| Buy Ticket
+
+				script.
+					$('[data-milliseconds]').each(function() {
+						var $this = $(this);
+						var now = new Date();
+						var finalDate = new Date(now.getTime() + $(this).data('milliseconds'));
+						$this.countdown(finalDate, function(event) {
+							$this.html(event.strftime('%-I hour%!I, %-M minute%!M and %-S second%!S'));
+						}).on('finish.countdown', function() {
+							$this.parent().transition('fade out', function(){
+								$this.parent().siblings('.booking.button').transition('fade in');
+							});
+						});
+					});
+
 		include ../footer.pug
