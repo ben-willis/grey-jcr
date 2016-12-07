@@ -10,4 +10,9 @@ router.get('/menus', function (req, res, next){
 	res.render('info/menus', {week: currWeek});
 });
 
+/* GET the trust page */
+router.get('/trust', function (req, res, next){
+	res.render('info/trust');
+});
+
 module.exports = router;
