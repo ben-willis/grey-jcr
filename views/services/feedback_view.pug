@@ -43,10 +43,10 @@ html
 					each reply in replies
 						div(class="comment")
 							span(class="avatar")
-								img(src=(!feedback.anonymous || feedback.exec) ? "/api/users/"+reply.author.username+"/avatar" : "/api/users/anon/avatar")
+								img(src=(!feedback.anonymous || reply.exec) ? "/api/users/"+reply.author.username+"/avatar" : "/api/users/anon/avatar")
 							div(class="content")
 								if (reply.exec)
-									span(class="author") Exec
+									span(class="author") Exec (#{reply.author.name})
 								else if (!feedback.anonymous)
 									span(class="author")= reply.author.name
 								else

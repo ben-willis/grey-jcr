@@ -155,7 +155,7 @@ router.get('/feedback/:feedback_id', function (req, res, next) {
 				return Promise.all(
 					replies.map(function(reply) {
 						return User.findByUsername(reply.author).then(function(user) {
-							reply.author = (feedback.anonymous) ? null: user;
+							reply.author = (!feedback.anonymous || reply.exec) ? user : null;
 							return reply;
 						})
 					})
