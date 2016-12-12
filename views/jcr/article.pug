@@ -4,6 +4,9 @@ doctype html
 html
 	head
 		include ../head.pug
+		meta(property="og:url" content="https://greyjcr.com/jcr/blog/"+blog.role.slug+"/"+blog.permalink)
+		meta(property="og:type" content="article")
+		meta(property="og:title" content=blog.title)
 	body
 		div(class='ui container')
 			include ../header.pug
