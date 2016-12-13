@@ -38,8 +38,9 @@ router.get('/', function (req, res, next) {
 		for (blog of blogs) {
 			blog.message = htmlToText.fromString(blog.message, {
 				wordwrap: false,
-				ignoreHref: true
-			}).slice(0, 250) + "...";
+				ignoreHref: true,
+				ignoreImage: true
+			}).slice(0, 200) + "...";
 		}
 		res.render('home', {blogs: blogs, events: data[1], exec: data[2]});
 	}).catch(function (err) {
