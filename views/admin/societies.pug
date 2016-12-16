@@ -1,0 +1,65 @@
+- var title = 'Societies'
+
+doctype html
+html
+	head
+		include ./head.pug
+	body
+		div(class='ui container')
+			include ./header.pug
+			include ./menu.pug
+			h2= title
+			div(class="ui vertical segment")
+				h3 Create a new society
+				form(class="ui form" method="POST" action="/admin/societies")
+					div(class="field")
+						label Name
+						input(type="text" name="name")
+					div(class="field")
+						label Type
+						input(type="text" name="type")
+					button(type="submit" class="ui submit button")
+						i(class="write icon")
+						| Create
+
+			div(class="ui vertical segment")
+				h3 Sports
+
+				table(class="ui fixed table")
+					thead
+						tr
+							th Name
+							th Actions
+					tbody
+						each sport in sports
+							tr
+								td= sport.name
+								td
+									div(class="ui buttons")
+										a(class="ui edit button" href="/admin/societies/"+sport.id)
+											i(class="edit icon")
+											| Edit
+										a(class="ui negative button" href="/admin/societies/"+sport.id+"/delete" onclick="return confirm('Are you sure you want to delete this sport?');")
+											i(class="remove icon")
+											| Delete
+
+			div(class="ui vertical segment")
+				h3 Societies
+
+				table(class="ui fixed table")
+					thead
+						tr
+							th Name
+							th Actions
+					tbody
+						each society in societies
+							tr
+								td= society.name
+								td
+									div(class="ui buttons")
+										a(class="ui edit button" href="/admin/societies/"+society.id)
+											i(class="edit icon")
+											| Edit
+										a(class="ui negative button" href="/admin/societies/"+society.id+"/delete" onclick="return confirm('Are you sure you want to delete this society?');")
+											i(class="remove icon")
+											| Delete

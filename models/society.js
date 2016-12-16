@@ -6,19 +6,19 @@ var slug = require('slug');
 /* Society Object */
 var Society = function (data) {
     this.id = data.id;
-    this.title = data.title;
+    this.name = data.name;
     this.slug = data.slug
     this.type = data.type;
     this.description = data.description;
     this.facebook = data.facebook;
     this.twitter = data.twitter;
-    this.email = data.description;
+    this.email = data.email;
 }
 
-Society.prototype.update = function(title, description, facebook, twitter, email, type) {
+Society.prototype.update = function(name, description, facebook, twitter, email, type) {
     return db('societies').where({'id': this.id}).update({
-        title: title,
-        slug: slug(title),
+        name: name,
+        slug: slug(name),
         description: description,
         facebook: facebook,
         twitter: twitter,
@@ -33,16 +33,16 @@ Society.prototype.delete = function(){
 
 /* Static Methods */
 
-Society.create = function (title, type) {
+Society.create = function (name, type) {
     return db('societies').insert({
-        title: title,
-        slug: slug(title),
+        name: name,
+        slug: slug(name),
         type: type
     }).returning("id").then(function(id){
         return new Society({
             id: id[0],
-            title: title,
-            slug: slug(title),
+            name: name,
+            slug: slug(name),
             description: null,
             facebook: null,
             twitter: null,

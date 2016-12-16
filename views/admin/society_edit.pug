@@ -1,0 +1,45 @@
+- var title = 'Edit Society'
+
+doctype html
+html
+	head
+		include ./head.pug
+	body
+		div(class='ui container')
+			include ./header.pug
+			include ./menu.pug
+			h2= title
+			form(class="ui edit form" method="POST" action="/admin/societies/"+society.id)
+				h4(class="ui dividing header") Ticket Details
+				div(class="field")
+					label Name
+					input(type="text" name="name" value=society.name)
+				div(class="field")
+					label Type
+					input(type="text" name="type" value=society.type)
+				div(class="field")
+					label Description
+					input(type="text" name="description" value=society.description)
+				div(class="three fields")
+					div(class="field")
+						label Facebook
+						input(type="text" name="facebook" value=society.facebook)
+					div(class="field")
+						label Twitter
+						input(type="text" name="twitter" value=society.twitter)
+					div(class="field")
+						label Email
+						input(type="text" name="email" value=society.email)
+
+				button(type="submit" class="ui right floated submit button")
+					i(class="save icon")
+					| Save
+				div(class="ui error message")
+
+
+			script.
+				$('.edit.form').form({
+					fields: {
+						name: 'empty'
+					}
+				})

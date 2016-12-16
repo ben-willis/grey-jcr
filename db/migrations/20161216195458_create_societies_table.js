@@ -1,10 +1,10 @@
 
 exports.up = function(knex, Promise) {
-    return knex.schema.createTable('society', function(t) {
+    return knex.schema.createTable('societies', function(t) {
         t.increments('id').primary();
         t.integer('type').comment('0: society, 1: sport');
-        t.string('title');
-        t.text('description');
+        t.string('name');
+        t.text('description').nullable();
         t.text('facebook').nullable();
         t.text('twitter').nullable();
         t.text('email').nullable();
@@ -14,5 +14,5 @@ exports.up = function(knex, Promise) {
 };
 
 exports.down = function(knex, Promise) {
-    return knex.schema.dropTable('society');
+    return knex.schema.dropTable('societies');
 };

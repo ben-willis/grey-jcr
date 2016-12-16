@@ -15,12 +15,13 @@ router.use(function (req, res, next) {
 router.get('/', function (req, res, next) {
 	Promise.all([
 		Society.getByType('society').then(function(society_data){
-			return new Society(society_data)
+			return society_data.map(function(data){ return new Society(data) });
 		}),
 		Society.getByType('sport').then(function(sport_data){
-			return new Society(sport_data)
+			return sport_data.map(function(data){ return new Society(data) });
 		})
 	]).then(function (data) {
+		console.log(data);
 		return res.render('admin/societies', {societies: data[0], sports: data[1]});
 	}).catch(function (err) {
 		return next(err);
@@ -29,7 +30,7 @@ router.get('/', function (req, res, next) {
 
 /* POST a new society */
 router.post('/', function (req, res, next) {
-	Society.create(req.body.title, req.body.type).then(function (society){
+	Society.create(req.body.name, req.body.type).then(function (society){
 		return res.redirect('/admin/societies/edit/'+society.id)
 	}).catch(function (err) {
 		return next(err);
@@ -37,7 +38,7 @@ router.post('/', function (req, res, next) {
 });
 
 /* GET edit society page. */
-router.get('/:society_id/edit', function (req, res, next) {
+router.get('/:society_id', function (req, res, next) {
 	Society.findById(parseInt(req.params.society_id)).then(function (society) {
 		return res.render('admin/society_edit', {society: society});
 	}).catch(function (err) {
@@ -46,10 +47,10 @@ router.get('/:society_id/edit', function (req, res, next) {
 });
 
 /* POST and update to a society */
-router.post('/:society_id/edit', function (req, res, next) {
+router.post('/:society_id', function (req, res, next) {
 	Society.findById(parseInt(req.params.society_id)).then(function (society) {
 		return society.update(
-			req.body.title,
+			req.body.name,
 			req.body.description,
 			req.body.facebook,
 			req.body.twitter,
