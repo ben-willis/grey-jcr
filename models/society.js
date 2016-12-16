@@ -53,7 +53,7 @@ Society.create = function (name, type) {
 }
 
 Society.getAll = function () {
-    return db('societies').select().then(function(societies) {
+    return db('societies').select().orderBy('name', 'DESC').then(function(societies) {
         return societies.map(function(data) {
             return new Society(data);
         })
@@ -91,7 +91,7 @@ Society.getByType = function (type) {
             break;
 
     }
-    return promise.then(function(societies) {
+    return promise.orderBy('name', 'DESC').then(function(societies) {
         return societies.map(function(society_data) {
             return new Society(society_data);
         })

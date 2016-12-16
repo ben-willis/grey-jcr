@@ -10,16 +10,23 @@ html
 			include ./menu.pug
 			h2= title
 			form(class="ui edit form" method="POST" action="/admin/societies/"+society.id)
-				h4(class="ui dividing header") Ticket Details
-				div(class="field")
+				div(class="required field")
 					label Name
 					input(type="text" name="name" value=society.name)
-				div(class="field")
+				div(class="required field")
 					label Type
-					input(type="text" name="type" value=society.type)
+					select(name="type")
+						if (society.type == 0)
+							option(value="0" selected) Society
+						else
+							option(value="0") Society
+						if (society.type == 1)
+							option(value="1" selected) Sport
+						else
+							option(value="1") Sport
 				div(class="field")
 					label Description
-					input(type="text" name="description" value=society.description)
+					textarea(rows="5" name="description" id="editor1")=society.description
 				div(class="three fields")
 					div(class="field")
 						label Facebook
@@ -38,6 +45,7 @@ html
 
 
 			script.
+				CKEDITOR.replace( 'editor1' );
 				$('.edit.form').form({
 					fields: {
 						name: 'empty'

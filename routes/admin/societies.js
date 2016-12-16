@@ -31,7 +31,7 @@ router.get('/', function (req, res, next) {
 /* POST a new society */
 router.post('/', function (req, res, next) {
 	Society.create(req.body.name, req.body.type).then(function (society){
-		return res.redirect('/admin/societies/edit/'+society.id)
+		return res.redirect('/admin/societies/'+society.id)
 	}).catch(function (err) {
 		return next(err);
 	});
