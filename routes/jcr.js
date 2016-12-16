@@ -99,6 +99,9 @@ router.get('/blog/:role_slug', function (req, res, next) {
 });
 
 router.get('/blog/:role/:year/:month/:date/:slug', function (req, res, next) {
+	if (req.user) {
+		req.user.updateLastLogin();
+	}
 	Blog.findBySlugAndDate(req.params.slug, new Date(req.params.year, parseInt(req.params.month)-1, req.params.date)).then(function (blog) {
 		res.render('jcr/article', { blog: blog });
 	}).catch(function (err) {
