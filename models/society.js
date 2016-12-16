@@ -16,7 +16,7 @@ var Society = function (data) {
 }
 
 Society.prototype.update = function(title, description, facebook, twitter, email, type) {
-    return db('sports_and_socs').where({'id': this.id}).update({
+    return db('societies').where({'id': this.id}).update({
         title: title,
         slug: slug(title),
         description: description,
@@ -28,36 +28,32 @@ Society.prototype.update = function(title, description, facebook, twitter, email
 }
 
 Society.prototype.delete = function(){
-    return db('sports_and_socs').where({'id': this.id}).del();
+    return db('societies').where({'id': this.id}).del();
 }
 
 /* Static Methods */
 
-Society.create = function (title, level) {
-    return db('sports_and_socs').insert({
+Society.create = function (title, type) {
+    return db('societies').insert({
         title: title,
         slug: slug(title),
-        description: description,
-        facebook: facebook,
-        twitter: twitter,
-        email: email,
         type: type
     }).returning("id").then(function(id){
         return new Society({
             id: id[0],
             title: title,
             slug: slug(title),
-            description: description,
-            facebook: facebook,
-            twitter: twitter,
-            email: email,
+            description: null,
+            facebook: null,
+            twitter: null,
+            email: null,
             type: type
         });
     })
 }
 
 Society.getAll = function () {
-    return db('sports_and_socs').select().then(function(societies) {
+    return db('societies').select().then(function(societies) {
         return societies.map(function(data) {
             return new Society(data);
         })
@@ -65,7 +61,7 @@ Society.getAll = function () {
 }
 
 Society.findById = function (id) {
-    return db('sports_and_socs')
+    return db('societies')
         .where({'id': id})
         .first()
         .then(function(data) {
@@ -75,7 +71,7 @@ Society.findById = function (id) {
 }
 
 Society.findBySlug = function (slug) {
-    return db('sports_and_socs')
+    return db('societies')
         .where({'slug': slug})
         .first()
         .then(function(data) {
@@ -85,7 +81,7 @@ Society.findBySlug = function (slug) {
 }
 
 Society.getByType = function (type) {
-    promise = db('sports_and_socs').select();
+    promise = db('societies').select();
     switch(type) {
         case "sport":
             promise = promise.where("type", "=", 1);
