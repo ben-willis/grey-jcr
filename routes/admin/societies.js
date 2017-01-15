@@ -21,7 +21,6 @@ router.get('/', function (req, res, next) {
 			return sport_data.map(function(data){ return new Society(data) });
 		})
 	]).then(function (data) {
-		console.log(data);
 		return res.render('admin/societies', {societies: data[0], sports: data[1]});
 	}).catch(function (err) {
 		return next(err);

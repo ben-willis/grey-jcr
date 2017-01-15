@@ -8,45 +8,51 @@ html
 			include ../header.pug
 			- var current="sportsandsocs";
 			include ../menu.pug
-			h2(class="ui header")= title
-			h3(class="ui dividing header") Sports
-			div(class="ui stackable cards")
-				each sport in sports
-					a(class="card" href="/sportsandsocs/"+sport.slug)
-						div(class="content")
-							div(class="header")= sport.name
-							if (sport.description)
-							div(class="description")= sport.description
-						if(sport.facebook || sport.twitter || sport.email)
-							div(class="extra content")
-								div(class="right floated icons")
-									if(sport.facebook)
-										i(class="facebook icon")
-									if(sport.twitter)
-										i(class="twitter icon")
-									if(sport.email)
-										i(class="mail icon")
+
+			div(class="ui vertical segment")
+				h2(class="ui header")= title
+				p At Grey, we offer one of the widest range of Sports and Societies (more commonly referred to as 'Sport and Socs') out of any other colleges in Durham. From the mainstream, to the downright bizarre, we are confident that there will be at least one to suit your taste!
+
+			div(class="ui vertical segment")
+				h3(class="ui header") Sports
+				div(class="ui four wide stackable cards")
+					each sport in sports
+						a(class="card" href="/sportsandsocs/"+sport.slug)
+							div(class="content")
+								div(class="header")= sport.name
+								if (sport.description != 'null...')
+									div(class="description")= sport.description
+							if(sport.facebook || sport.twitter || sport.email)
+								div(class="extra content")
+									div(class="right floated icons")
+										if(sport.facebook)
+											i(class="facebook icon")
+										if(sport.twitter)
+											i(class="twitter icon")
+										if(sport.email)
+											i(class="mail icon")
 		
-			h3(class="ui dividing header") Societies
-			div(class="ui stackable cards")
-				each society in societies
-					a(class="card" href="/sportsandsocs/"+society.slug)
-						div(class="content")
-							div(class="header")= society.name
-							if (society.description != 'null...')
-								div(class="description")= society.description
-						if(society.facebook || society.twitter || society.email)
-							div(class="extra content")
-								div(class="right floated icons")
-									if(society.facebook)
-										i(class="facebook icon")
-									if(society.twitter)
-										i(class="twitter icon")
-									if(society.email)
-										i(class="mail icon")
+			div(class="ui vertical segment")
+				h3(class="ui header") Societies
+				div(class="ui stackable cards")
+					each society in societies
+						a(class="card" href="/sportsandsocs/"+society.slug)
+							div(class="content")
+								div(class="header")= society.name
+								if (society.description != 'null...')
+									div(class="description")= society.description
+							if(society.facebook || society.twitter || society.email)
+								div(class="extra content")
+									div(class="right floated icons")
+										if(society.facebook)
+											i(class="facebook icon")
+										if(society.twitter)
+											i(class="twitter icon")
+										if(society.email)
+											i(class="mail icon")
 
-
-			h3(class="ui dividing header") Start your own
-			p If you want to start your own society or sport team then you just need to register it with the JCR and you can apply for a budget based upon your needs and number of members.
+			div(class="ui vertical segment")
+				h3(class="ui header") Start your own
+				p If you want to start your own society or sport team then you just need to register it with the JCR and you can apply for a budget based upon your needs and number of members.
 
 		include ../footer.pug
