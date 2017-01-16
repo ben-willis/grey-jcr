@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET the menus page */
 router.get('/menus', function (req, res, next){
-	start = new Date(2016, 10-1, 3);
+	start = new Date(2017, 1-1, 16);
 	now = new Date();
 	week = 7*24*60*60*1000;
 	currWeek = (req.query.week) ? parseInt(req.query.week) : Math.floor((now-start)/week) + 1;
