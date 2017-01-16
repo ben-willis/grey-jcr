@@ -18,7 +18,7 @@ html
 							if(society.twitter)
 								a(class="ui twitter icon button" href=society.twitter): i(class="twitter icon")
 							if(society.email)
-								a(class="ui icon button" href=society.email): i(class="mail icon")
+								a(class="ui icon button" href="malito:"+society.email): i(class="mail icon")
 
 			div(class="ui vertical segment")
 				h3(class="ui header")= (society.type==0) ? "More Societies" : "More Sports"
