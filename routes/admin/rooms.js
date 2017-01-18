@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var validator = require('validator');
 var httpError = require('http-errors');
+var moment = require('moment');
 
 var Room = require('../../models/room');
 
@@ -75,8 +76,20 @@ router.post('/:room_id/bookings', function (req, res, next) {
 	var duration = parseInt(req.body.end) - (60*parseInt(time[0])+parseInt(time[1]));
 	if (duration <= 0) return next(httpError(400, "Start time must be before end time"))
 
+	var repeats = req.body.repeats
+	var occurrences = (repeats == 0) ? 1 : req.body.occurrences
+
+
 	Room.findById(req.params.room_id).then(function(room) {
-		return room.addBooking(req.body.name, start, duration, req.user.username, 1)
+		var booking_promises = []
+		for (var i = 0; i < occurrences; i++) {
+			var startWrapper = moment(start)
+			startWrapper.add(i*repeats, 'days')
+			booking_promises.push(
+				room.addBooking(req.body.name, startWrapper.toDate(), duration, req.user.username, 1)
+			)
+		}
+		return Promise.all(booking_promises)
 	}).then(function () {
 		res.redirect(303, '/admin/rooms/'+req.params.room_id+'/bookings');
 	}).catch(next);

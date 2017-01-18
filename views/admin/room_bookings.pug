@@ -29,16 +29,17 @@ html
 							select(class="ui dropdown" name="end")
 								- for (i=19; i<45; i++)
 									option(value=(i*30))= Math.floor(i/2) + ':' + ("0"+(i%2 * 30)).slice(-2)
-					//- div(class="two fields")
-					//- 	div(class="field")
-					//- 		label Recurs
-					//- 		select(class="ui dropdown" name="recurs")
-					//- 			option(value=1) Daily
-					//- 			option(value=7) Weekly
-					//- 			option(value=14) Fortnightly
-					//- 	div(class="field")
-					//- 		label Occurences
-					//- 		input(type="number" name="occurences")
+					div(class="two fields")
+						div(class="field")
+							label Repeats
+							select(class="ui dropdown" name="repeats")
+								option(value=0 selected) None
+								option(value=1) Daily
+								option(value=7) Weekly
+								option(value=14) Fortnightly
+						div(class="field")
+							label Occurrences
+							input(type="number" name="occurrences" value="1")
 					button(class="ui submit button" type="submit")
 						i(class="write icon")
 						| Create
