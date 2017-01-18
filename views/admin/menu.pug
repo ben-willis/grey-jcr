@@ -12,6 +12,9 @@ div(class='ui stackable inverted menu')
 		a(class='item' href='/admin/tickets')
 			i(class="ticket icon")
 			| Tickets
+		a(class='item' href='/admin/societies')
+			i(class="users icon")
+			| Societies
 		a(class='item' href='/admin/files')
 			i(class="folder open icon")
 			| Files
@@ -19,7 +22,7 @@ div(class='ui stackable inverted menu')
 			i(class="book icon")
 			| Room Booking
 		a(class='item' href='/admin/roles')
-			i(class="users icon")
+			i(class="sitemap icon")
 			| Roles
 	if (user.level > 4)
 		a(class='item' href='/admin/debts')

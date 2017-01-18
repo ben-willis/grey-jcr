@@ -1,0 +1,40 @@
+- var title = society.name
+doctype html
+html
+	head
+		include ../head.pug
+	body
+		div(class='ui padded container')
+			include ../header.pug
+			include ../menu.pug
+			div(class="ui vertical segment")
+				h2(class="ui header")= society.name
+				div!= society.description
+					if(society.facebook || society.twitter || society.email)
+						p Find us on:
+						div
+							if(society.facebook)
+								a(class="ui facebook icon button" href=society.facebook): i(class="facebook icon")
+							if(society.twitter)
+								a(class="ui twitter icon button" href=society.twitter): i(class="twitter icon")
+							if(society.email)
+								a(class="ui icon button" href="malito:"+society.email): i(class="mail icon")
+
+			div(class="ui vertical segment")
+				h3(class="ui header")= (society.type==0) ? "More Societies" : "More Sports"
+				div(class="ui four wide stackable cards")
+					each society in others
+						a(class="card" href="/sportsandsocs/"+society.slug)
+							div(class="content")
+								div(class="header")= society.name
+									if(society.facebook || society.twitter || society.email)
+										div(class="right floated icons")
+											if(society.facebook)
+												i(class="facebook small grey icon")
+											if(society.twitter)
+												i(class="twitter small grey icon")
+											if(society.email)
+												i(class="mail small grey icon")
+
+
+		include ../footer.pug

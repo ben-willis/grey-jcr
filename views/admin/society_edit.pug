@@ -1,0 +1,53 @@
+- var title = 'Edit Society'
+
+doctype html
+html
+	head
+		include ./head.pug
+	body
+		div(class='ui container')
+			include ./header.pug
+			include ./menu.pug
+			h2= title
+			form(class="ui edit form" method="POST" action="/admin/societies/"+society.id)
+				div(class="required field")
+					label Name
+					input(type="text" name="name" value=society.name)
+				div(class="required field")
+					label Type
+					select(name="type")
+						if (society.type == 0)
+							option(value="0" selected) Society
+						else
+							option(value="0") Society
+						if (society.type == 1)
+							option(value="1" selected) Sport
+						else
+							option(value="1") Sport
+				div(class="field")
+					label Description
+					textarea(rows="5" name="description" id="editor1")=society.description
+				div(class="three fields")
+					div(class="field")
+						label Facebook
+						input(type="text" name="facebook" value=society.facebook)
+					div(class="field")
+						label Twitter
+						input(type="text" name="twitter" value=society.twitter)
+					div(class="field")
+						label Email
+						input(type="text" name="email" value=society.email)
+
+				button(type="submit" class="ui right floated submit button")
+					i(class="save icon")
+					| Save
+				div(class="ui error message")
+
+
+			script.
+				CKEDITOR.replace( 'editor1' );
+				$('.edit.form').form({
+					fields: {
+						name: 'empty'
+					}
+				})
