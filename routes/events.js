@@ -11,6 +11,8 @@ var Ticket = require('../models/ticket');
 var Booking = require('../models/booking');
 var User = require('../models/user');
 
+var valentines = require('./valentines');
+
 /* GET home page. */
 router.get('/', function (req, res, next) {
 	Event.getFutureEvents()
@@ -21,6 +23,8 @@ router.get('/', function (req, res, next) {
 			next(err);
 		});
 });
+
+router.use('/valentines', valentines);
 
 /* GET calendar page. */
 router.get('/calendar/:year?/:month?', function (req, res, next) {
