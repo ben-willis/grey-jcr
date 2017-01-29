@@ -11,6 +11,7 @@ var shortid = require('shortid');
 
 var Event = require('../../models/event');
 var Ticket = require('../../models/ticket');
+var valentines = require('../../models/valentines');
 
 /* GET events page. */
 router.get('/', function (req, res, next) {
@@ -35,6 +36,22 @@ router.post('/new', function (req, res, next) {
 		next(err);
 	});
 });
+
+router.get('/valentines/open', function(req, res, next) {
+	valentines.setStatus(true).then(function() {
+		res.redirect('/admin/events')
+	}).catch(function (err) {
+		return next(err);
+	});
+})
+
+router.get('/valentines/close', function(req, res, next) {
+	valentines.setStatus(false).then(function() {
+		res.redirect('/admin/events')
+	}).catch(function (err) {
+		return next(err);
+	});
+})
 
 /* GET edit events page. */
 router.get('/:event_id/edit', function (req, res, next) {
