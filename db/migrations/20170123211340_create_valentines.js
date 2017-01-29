@@ -15,6 +15,13 @@ exports.up = function(knex, Promise) {
             t.timestamp('created').defaultTo(knex.fn.now());
             t.integer('cost').defaultTo(0);
         });
+    }).then(function() {
+        return knex.schema.createTable('valentines_status', function(t) {
+            t.boolean("open");
+            t.timestamp('updated').defaultTo(knex.fn.now());
+        })
+    }).then(function() {
+        return knex('valentines_status').insert({open: false});
     })
 
 };

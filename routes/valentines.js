@@ -6,13 +6,18 @@ var io = require('socket.io')(8081);
 var valentines = require('../models/valentines')
 
 router.use(function (req, res, next) {
-	if (req.isAuthenticated()) {
-		req.io = io;
-		next();
-	} else {
-		req.session.redirect_to = req.originalUrl;
-		res.redirect(401, '/login?unauthorised');
-	}
+	valentines.getStatus().then(function(status){
+		valentines.open = status;
+
+		if (req.isAuthenticated()) {
+			req.io = io;
+			next();
+		} else {
+			req.session.redirect_to = req.originalUrl;
+			res.redirect(401, '/login?unauthorised');
+		}
+	})
+	
 });
 
 function max(a,b) {
@@ -31,13 +36,16 @@ router.get('/', function (req, res, next) {
 			pairs: data[0],
 			swaps: data[1],
 			debt: data[2],
-			total: data[3]
+			total: data[3],
+			open: valentines.open
 		})
 	})
 });
 
 /* Post a swap */
 router.post('/', function (req, res, next) {
+	if (!valentines.open) return next(httpError(400, 'Swapping is Closed'));
+
 	var pairA = parseInt(req.body.pairA);
 	var pairB = parseInt(req.body.pairB);
 	var swap_cost = 0;
