@@ -37,7 +37,7 @@ router.get('/', function (req, res, next) {
 			swaps: data[1],
 			debt: data[2],
 			total: data[3],
-			open: valentines.open
+			swapping_open: valentines.open
 		})
 	})
 });

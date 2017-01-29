@@ -209,4 +209,13 @@ User.getDebtors = function() {
         })
 }
 
+User.addDebtToUsername = function(username, name, message, amount) {
+    return db('debts').insert({
+        username: username,
+        name: name,
+        message: message,
+        amount: amount
+    })
+}
+
 module.exports = User;

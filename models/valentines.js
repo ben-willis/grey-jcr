@@ -3,6 +3,16 @@ var httpError = require('http-errors');
 
 var Valentines = {};
 
+Valentines.getStatus = function() {
+	return db('valentines_status').select().first().then(function(data) {
+		return data.open
+	});
+}
+
+Valentines.setStatus = function(open) {
+	return db('valentines_status').update({open: open, updated: new Date()});
+}
+
 Valentines.getPairs = function() {
 	return db('valentines_pairs').select().orderBy('position', 'ASC');
 }
@@ -28,6 +38,20 @@ Valentines.getSwaps = function(limit) {
 		});
 }
 
+
+Valentines.clearPairs = function() {
+	return db('valentines_pairs').delete();
+}
+
+Valentines.clearSwaps = function() {
+	return db('valentines_swaps').delete();
+}
+
+Valentines.createPair = function(lead, partner, position) {
+	return db('valentines_pairs')
+		.insert({lead: lead, partner: partner, position: position})
+}
+
 Valentines.getDebt = function(username) {
 	return db('valentines_swaps')
 		.sum('cost')
@@ -45,6 +69,14 @@ Valentines.getTotalRaised = function() {
 		.then(function(data) {
 			return data.sum
 		});
+}
+
+Valentines.getDebts = function() {
+	return db.select('username', db.raw('SUM(cost) AS debt')).from('valentines_swaps').groupBy('username');
+}
+
+Valentines.clearDebts = function() {
+	return db('valentines_swaps').update({username: null});
 }
 
 Valentines.createSwap = function(paira_id, pairb_id, username, value) {
