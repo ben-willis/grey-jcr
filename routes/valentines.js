@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var httpError = require('http-errors');
-var io = require('socket.io')(8081);
 
 var valentines = require('../models/valentines')
 
@@ -10,7 +9,6 @@ router.use(function (req, res, next) {
 		valentines.open = status;
 
 		if (req.isAuthenticated()) {
-			req.io = io;
 			next();
 		} else {
 			req.session.redirect_to = req.originalUrl;

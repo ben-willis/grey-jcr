@@ -6,6 +6,7 @@ var logger = require('morgan');
 var bodyParser = require('body-parser');
 var flash = require('connect-flash');
 var passport = require('passport');
+var io = require('socket.io')(8081);
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 var LocalStrategy = require('passport-local').Strategy;
@@ -109,6 +110,7 @@ app.use(function (req, res, next) {
   res.locals.user = req.user;
   res.locals.query = req.query;
   res.locals.prettydate = prettydate;
+  req.io = io;
   next();
 });
 

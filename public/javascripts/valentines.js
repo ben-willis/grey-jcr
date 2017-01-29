@@ -3,6 +3,8 @@ var socket = io.connect('localhost:8081');
 $('.green.help.icon').popup();
 $('.sticky').sticky({offset: 10});
 
+swapping_open = true;
+
 function updateTotal(addition) {
 	currentTotal = $("#totalRaised").text().split(".");
 	currentTotal = parseInt(currentTotal[0])*100 + parseInt(currentTotal[1]);
@@ -11,8 +13,10 @@ function updateTotal(addition) {
 	$("#totalRaised").parent().transition("tada");
 }
 
-socket.on('message', function(data) {
-	console.log(data)
+//
+socket.on('close_swapping', function(data) {
+	$('#swapping_form').transition('scale');
+	swapping_open = false;
 })
 
 // Recieve Swap
@@ -44,7 +48,7 @@ socket.on('swap', function(data) {
 
 // Select Positions
 $(".pair").on("click", function(e) {
-	lock = true;
+	if (!swapping_open) return;
 	// Set position A and B to be the values of the hidden inputs
 	pairA = $('#pairA').val();
 	pairB = $('#pairB').val();
@@ -100,7 +104,7 @@ $(".search").on("change keyup paste mouseup", function (e) {
 		return;
 	}
 	for (var i = 0; i < 128; i++) {
-		pair = $("[data-position='"+i%totalSeats+"']")
+		pair = $("[data-position='"+i+"']")
 		lead = pair.find('.lead').first().text().toLowerCase();
 		partner = pair.find('.partner').first().text().toLowerCase();
 

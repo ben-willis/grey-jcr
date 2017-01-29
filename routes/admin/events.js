@@ -55,7 +55,7 @@ router.post('/valentines/pairs', upload.single('pairs'), function(req, res, next
 				return Promise.all(
 					data.map(function(row, index){
 						if (row.length != 2) return httpError(400, "CSV should have two columns");
-						return valentines.createPair(row[0], row[1], index+1)
+						return valentines.createPair(row[0], row[1], index)
 					})
 				)
 			}).then(function(){
@@ -77,6 +77,7 @@ router.get('/valentines/open', function(req, res, next) {
 
 router.get('/valentines/close', function(req, res, next) {
 	valentines.setStatus(false).then(function() {
+		req.io.emit('close_swapping');
 		res.redirect('/admin/events')
 	}).catch(function (err) {
 		return next(err);

@@ -41,48 +41,54 @@ html
 													span(class="price")= (pairs[position_id].value/100).toFixed(2)
 			div(class="four wide column")
 				div(class="ui sticky")
-					div(class="ui two mini statistics")
-						div(class="statistic")
-							div(class="value" ) £
-								span(id="balance")= (debt/100).toFixed(2)
-							div(class="label") You Owe
-						div(class="statistic")
-							div(class="value" ) £
-								span(id="totalRaised")= (total/100).toFixed(2)
-							div(class="label") Raised
-					div(Class="ui divider")
+					div(class="ui center aligned  vertical segment")
+						if (debt > 0)
+							div(class="ui two small statistics")
+								div(class="statistic")
+									div(class="value" ) £
+										span(id="totalRaised")= (total/100).toFixed(2)
+									div(class="label") Raised so far
+								div(class="statistic")
+									div(class="value" ) £
+										span(id="balance")= (debt/100).toFixed(2)
+									div(class="label") You Owe
+						else
+							div(class="ui statistic")
+								div(class="value" ) £
+									span(id="totalRaised")= (total/100).toFixed(2)
+								div(class="label") Raised so far
 
-					div(class="ui fluid icon input")
-						input(type="text" class="search" placeholder="Search by name here...")
-						i(class="search icon")
-					div(class="ui divider")
+					div(class="ui vertical segment")
+						div(class="ui fluid icon input")
+							input(type="text" class="search" placeholder="Search by name here...")
+							i(class="search icon")
+					
 
 					if (swapping_open)
-						div(class="ui header") Make a swap
-							i(class="ui help circle green icon" data-title="How it works" data-content="To make a swap, simply select any two pairs and click swap! By clicking swap you are agreeing to donate the higher of the two prices to the British Heart Foundation.")
-						b(id="swapA") Swap a pair
-						| <br/>with<br/>
-						b(id="swapB") any other pair!
-						form(method="POST" action="/events/valentines" id="swapForm")
-							input(type="text" name="pairA" id="pairA" hidden)
-							input(type="text" name="pairB" id="pairB" hidden)
-							button(type="submit" class="ui swap red compact disabled submit button")
-								i(class="ui refresh icon")
-								| Swap
-						div(Class="ui divider")
+						div(class="ui vertical segment" id="swapping_form")
+							div(class="ui header") Make a swap
+								i(class="ui help circle green icon" data-title="How it works" data-content="To make a swap, simply select any two pairs and click swap! By clicking swap you are agreeing to donate the higher of the two prices to the British Heart Foundation.")
+							b(id="swapA") Swap a pair
+							| <br/>with<br/>
+							b(id="swapB") any other pair!
+							form(method="POST" action="/events/valentines" id="swapForm")
+								input(type="text" name="pairA" id="pairA" hidden)
+								input(type="text" name="pairB" id="pairB" hidden)
+								button(type="submit" class="ui swap red compact disabled submit button")
+									i(class="ui refresh icon")
+									| Swap
 
-					div(class="ui header") Swap Stream
-					div(class="ui feed")
-						- var i = 0
-						while i < Math.min(5, swaps.length)
-							div(class="event")
-								div(class="label"): i(Class="refresh icon")
-								div(class="content")
-									div(class="date")= swaps[i].created.toLocaleTimeString()
-									= swaps[i].paira.lead+" and "+swaps[i].paira.partner
-									|  were swapped with 
-									= swaps[i].pairb.lead+" and "+swaps[i].pairb.partner
-							- i++
+					div(class="ui vertical segment")
+						div(class="ui header") Swap Stream
+						div(class="ui feed")
+							for swap in swaps
+								div(class="event")
+									div(class="label"): i(Class="refresh icon")
+									div(class="content")
+										div(class="date")= swap.created.toLocaleTimeString()
+										= swap.paira.lead+" and "+swap.paira.partner
+										|  were swapped with 
+										= swap.pairb.lead+" and "+swap.pairb.partner
 
 		
 		script(type="text/javascript", src="https://cdn.socket.io/socket.io-1.4.5.js")
