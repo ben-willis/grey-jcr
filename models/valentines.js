@@ -90,7 +90,7 @@ Valentines.createSwap = function(paira_id, pairb_id, username, value) {
 
 Valentines.swapPairs = function(paira_id, pairb_id) {
 	// I'm not proud of this query but it swaps the position of two pairs and updates their values
-	return db.raw('UPDATE valentines_pairs vp1 SET position = vp2.position, value = vp2.value+50 FROM valentines_pairs vp2 WHERE vp1.id IN(?,?) AND vp2.id IN(?,?) AND vp1.id<>vp2.id RETURNING vp1.id, vp1.value', [paira_id, pairb_id, paira_id, pairb_id])
+	return db.raw('UPDATE valentines_pairs vp1 SET position = vp2.position, value = vp1.value+50 FROM valentines_pairs vp2 WHERE vp1.id IN(?,?) AND vp2.id IN(?,?) AND vp1.id<>vp2.id RETURNING vp1.id, vp1.value', [paira_id, pairb_id, paira_id, pairb_id])
 }
 
 module.exports = Valentines;

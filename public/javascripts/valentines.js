@@ -9,7 +9,7 @@ function updateTotal(addition) {
 	currentTotal = $("#totalRaised").text().split(".");
 	currentTotal = parseInt(currentTotal[0])*100 + parseInt(currentTotal[1]);
 	currentTotal += addition
-	$("#totalRaised").text(Math.floor(currentTotal/100) +'.'+ ('00'+currentTotal%100).slice(-2));
+	$("#totalRaised").text((currentTotal/100).toFixed(2));
 	$("#totalRaised").parent().transition("tada");
 }
 
@@ -40,7 +40,10 @@ socket.on('swap', function(data) {
 	pairB.html(pairAHTML);
 
 	// Add to the swap stream
-	$(".ui.feed").prepend("<div class='event hidden'><div class='label'><i class='refresh icon'></i></div><div class='content'><div class='date'>"+(new Date()).toLocaleTimeString('en-US')+"</div>"+pairA.find('.lead').first().text()+" and "+pairA.find('.partner').first().text()+" were swapped with "+pairB.find('.lead').first().text()+" and "+pairB.find('.partner').first().text()+"</div></div>").children(".event:first").transition("fade in");
+	$(".ui.feed")
+		.prepend("<div class='event hidden'><div class='label'><i class='refresh icon'></i></div><div class='content'><div class='date'>"+(new Date()).toLocaleTimeString('en-US')+"</div>"+pairA.find('.lead').first().text()+" and "+pairA.find('.partner').first().text()+" were swapped with "+pairB.find('.lead').first().text()+" and "+pairB.find('.partner').first().text()+"</div></div>")
+		.children(".event:first")
+		.transition("fade in");
 
 	// Update the total raised
 	updateTotal(data.cost)
