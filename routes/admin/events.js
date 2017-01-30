@@ -8,17 +8,23 @@ var mime = require('mime');
 var csv = require('csv');
 var slug = require('slug');
 var shortid = require('shortid');
+var fs = require('fs');
+var httpError = require('http-errors');
 
 var Event = require('../../models/event');
 var Ticket = require('../../models/ticket');
+var User = require('../../models/user');
+var valentines = require('../../models/valentines');
+
 
 /* GET events page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
 		Event.getFutureEvents(),
-		Event.getPastEvents()
+		Event.getPastEvents(),
+		valentines.getStatus()
 	]).then(function (data) {
-		res.render('admin/events', {future_events: data[0], past_events: data[1]});
+		res.render('admin/events', {future_events: data[0], past_events: data[1], valentines_swapping_open: data[2]});
 	}).catch(function (err) {
 		next(err);
 	});
@@ -33,6 +39,62 @@ router.post('/new', function (req, res, next) {
 		res.redirect('/admin/events/'+event.id+'/edit')
 	}).catch(function (err) {
 		next(err);
+	});
+});
+
+router.post('/valentines/pairs', upload.single('pairs'), function(req, res, next) {
+	if (!req.file) return next(httpError(400, "No file uploaded"));
+	fs.readFile(req.file.path, 'utf8', function(err, data) {
+		if (err) return next(err);
+		csv.parse(data, function(err, data) {
+			if (err) return next(err);
+			Promise.all([
+				valentines.clearPairs(),
+				valentines.clearSwaps()
+			]).then(function() {
+				return Promise.all(
+					data.map(function(row, index){
+						if (row.length != 2) return httpError(400, "CSV should have two columns");
+						return valentines.createPair(row[0], row[1], index)
+					})
+				)
+			}).then(function(){
+				res.redirect(303, '/admin/events')
+			}).catch(function(err){
+				return next(err);
+			})
+		})
+	})
+})
+
+router.get('/valentines/open', function(req, res, next) {
+	valentines.setStatus(true).then(function() {
+		res.redirect('/admin/events')
+	}).catch(function (err) {
+		return next(err);
+	});
+});
+
+router.get('/valentines/close', function(req, res, next) {
+	valentines.setStatus(false).then(function() {
+		req.io.emit('close_swapping');
+		res.redirect('/admin/events')
+	}).catch(function (err) {
+		return next(err);
+	});
+});
+
+router.get('/valentines/debts', function(req, res, next) {
+	valentines.getDebts().then(function(debtors) {
+		Promise.all(debtors.map(function(debtor) {
+			return User.addDebtToUsername(debtor.username, 'Valentines Swapping', '', debtor.debt);
+		}))
+	}).then(function(){
+		return valentines.clearDebts()
+	}).then(function(){
+		res.redirect('/admin/events')
+	}).catch(function (err) {
+		return next(err);
 	});
 });
 
