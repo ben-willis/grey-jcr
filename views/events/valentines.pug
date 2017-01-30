@@ -10,7 +10,7 @@ html
 			include ../menu.pug
 
 			h2 Valentines Formal Swapping
-			p Every year, we raise money for charity by allowing members of the JCR to swap around table plans at Valentine's Formal for a small contribution. Anyone can participate, even those not attending formal!
+			p Every year, we raise money for charity by allowing members of the JCR to swap around table plans at Valentine's Formal for a small contribution. Anyone can participate, even those not attending formal! If you are in the hot seats (in bold) at the end of swapping, there will be a forfeit... That forfeit will only be told once swapping is closed.
 
 		div(class="ui divided stackable padded grid")
 			div(class="twelve wide column")
@@ -22,7 +22,7 @@ html
 									tr
 										each j in [0,1,2,3]
 											- var position_id = ((i*8)+j)%(pairs.length)
-											td(data-position=position_id, data-pair=pairs[position_id].id, class="pair") 
+											td(data-position=position_id, data-pair=pairs[position_id].id, class="pair", style=(position_id == 51 || position_id == 56)?"font-weight:bold; border: 1px black solid;":"") 
 												span(class="lead")= pairs[position_id].lead
 												br
 												span(class="partner")= pairs[position_id].partner
@@ -32,7 +32,7 @@ html
 									tr
 										each j in [4,5,6,7]
 											- var position_id = ((i*8)+j)%(pairs.length)
-											td(data-position=position_id, data-pair=pairs[position_id].id, class="pair")
+											td(data-position=position_id, data-pair=pairs[position_id].id, class="pair", style=(position_id == 51 || position_id == 56)?"font-weight:bold; border: 1px black solid;":"")
 												span(class="lead")= pairs[position_id].lead
 												br
 												span(class="partner")= pairs[position_id].partner
@@ -67,7 +67,7 @@ html
 					if (swapping_open)
 						div(class="ui vertical segment" id="swapping_form")
 							div(class="ui header") Make a swap
-								i(class="ui help circle green icon" data-title="How it works" data-content="To make a swap, simply select any two pairs and click swap! By clicking swap you are agreeing to donate the higher of the two prices to the British Heart Foundation.")
+								i(class="ui help circle green icon" data-title="How it works" data-content="To make a swap, simply select any two pairs and click swap! By clicking swap you are agreeing to donate the higher of the two prices to the Cardiac Risk in the Young.")
 							b(id="swapA") Swap a pair
 							| <br/>with<br/>
 							b(id="swapB") any other pair!
