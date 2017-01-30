@@ -1,4 +1,4 @@
-var socket = io.connect('https://greyjcr.com:8082');
+var socket = io.connect('');
 
 $('.green.help.icon').popup();
 $('.sticky').sticky({offset: 10});

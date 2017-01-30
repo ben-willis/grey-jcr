@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var io = require('../helpers/socketApi.js').io;
 var httpError = require('http-errors');
 
 var valentines = require('../models/valentines')
@@ -66,7 +67,7 @@ router.post('/', function (req, res, next) {
 		swap_cost = (pairA_cost > pairB_cost) ? pairA_cost : pairB_cost;
 		return valentines.createSwap(pairA, pairB, req.user.username, swap_cost)
 	}).then(function() {
-		req.io.emit('swap', {paira: pairA, pairb: pairB, cost: swap_cost});
+		io.emit('swap', {paira: pairA, pairb: pairB, cost: swap_cost});
 		res.redirect(303, '/events/valentines');
 	}).catch(function(err) {
 		next(err);

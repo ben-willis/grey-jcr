@@ -110,7 +110,6 @@ app.use(function (req, res, next) {
   res.locals.user = req.user;
   res.locals.query = req.query;
   res.locals.prettydate = prettydate;
-  req.io = io;
   next();
 });
 

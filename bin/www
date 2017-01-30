@@ -5,6 +5,7 @@
  */
 
 var app = require('../app');
+var socketApi = require('../helpers/socketApi');
 var debug = require('debug')('grey:server');
 var http = require('http');
 
@@ -20,6 +21,9 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+var io = socketApi.io;
+io.attach(server);
+
 
 /**
  * Listen on provided port, on all network interfaces.

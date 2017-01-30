@@ -11,6 +11,9 @@ var shortid = require('shortid');
 var fs = require('fs');
 var httpError = require('http-errors');
 
+
+var io = require('../../helpers/socketApi.js').io;
+
 var Event = require('../../models/event');
 var Ticket = require('../../models/ticket');
 var User = require('../../models/user');
@@ -77,7 +80,7 @@ router.get('/valentines/open', function(req, res, next) {
 
 router.get('/valentines/close', function(req, res, next) {
 	valentines.setStatus(false).then(function() {
-		req.io.emit('close_swapping');
+		io.emit('close_swapping');
 		res.redirect('/admin/events')
 	}).catch(function (err) {
 		return next(err);
