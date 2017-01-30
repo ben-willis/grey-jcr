@@ -17,7 +17,7 @@ var valentines = require('./valentines');
 router.get('/', function (req, res, next) {
 	Event.getFutureEvents()
 		.then(function (events) {
-			res.render('events/index', {events: events.splice(0,4)});
+			res.render('events/index', {events: events.splice(0,6)});
 		})
 		.catch(function (err) {
 			next(err);
