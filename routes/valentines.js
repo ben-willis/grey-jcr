@@ -37,8 +37,20 @@ router.get('/', function (req, res, next) {
 			total: data[3],
 			swapping_open: valentines.open
 		})
+	}).catch(function(err){
+		next(err)
 	})
 });
+
+router.get('/stats.json', function(req,res, next) {
+	valentines.getTotalRaised().then(function(total){
+		res.json({
+			"totalRaised": total
+		})
+	}).catch(function(err){
+		next(err)
+	})
+})
 
 /* Post a swap */
 router.post('/', function (req, res, next) {
