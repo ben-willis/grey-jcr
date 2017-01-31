@@ -1,6 +1,7 @@
 var express = require('express');
 var htmlToText = require('html-to-text');
 var router = express.Router();
+var httpError = require('http-errors');
 
 var Blog = require('../models/blog');
 var Event = require('../models/event');
@@ -47,6 +48,14 @@ router.get('/', function (req, res, next) {
 		next(err);
 	})
 });
+
+/* GET offline page */
+router.get('/offline', function(req,res,next) {
+	res.render('error', {
+		message: "Disconnected",
+		error: {status: "We were unable to load the page you requested. Please check your network connection and try again."}
+	})
+})
 
 router.use('/', auth);
 router.use('/jcr/', jcr);

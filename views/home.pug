@@ -102,6 +102,11 @@ html
 					mounted: function() {
 						$('.exec.image').popup({transition: "fade up"});
 					}
-				})
+				});
+
+			script.
+				if ('serviceWorker' in navigator) {
+					navigator.serviceWorker.register('javascripts/sw.js');
+				}
 
 		include ./footer.pug
