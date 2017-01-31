@@ -3,17 +3,17 @@
   "name": "Grey College JCR",
   "icons": [
     {
-      "src": "/images/icons/launcher-icon-2x.png",
+      "src": "/images/icons/96-android.png",
       "sizes": "96x96",
       "type": "image/png"
     },
     {
-      "src": "/images/icons/launcher-icon-3x.png",
+      "src": "/images/icons/144-android.png",
       "sizes": "144x144",
       "type": "image/png"
     },
     {
-      "src": "/images/icons/launcher-icon-4x.png",
+      "src": "/images/icons/192-android.png",
       "sizes": "192x192",
       "type": "image/png"
     }
