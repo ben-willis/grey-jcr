@@ -44,6 +44,7 @@ socket.on('swap', function(data) {
 		.prepend("<div class='event hidden'><div class='label'><i class='refresh icon'></i></div><div class='content'><div class='date'>"+(new Date()).toLocaleTimeString('en-US')+"</div>"+pairA.find('.lead').first().text()+" and "+pairA.find('.partner').first().text()+" were swapped with "+pairB.find('.lead').first().text()+" and "+pairB.find('.partner').first().text()+"</div></div>")
 		.children(".event:first")
 		.transition("fade in");
+	$(".ui.feed").children(".event:last").transition("fade out");
 
 	// Update the total raised
 	updateTotal(data.cost)
