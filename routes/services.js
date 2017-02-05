@@ -15,15 +15,6 @@ var Room = require('../models/room');
 
 require('dotenv').config();
 
-router.use(function (req, res, next) {
-	if (req.isAuthenticated()) {
-		next();
-	} else {
-		req.session.redirect_to = req.originalUrl;
-		res.redirect(401, '/login?unauthorised');
-	}
-});
-
 /* GET room booking page */
 router.get('/rooms/', function (req, res, next) {
 	var week_offset = (req.query.week_offset) ? req.query.week_offset : 0;
@@ -37,28 +28,52 @@ router.get('/rooms/', function (req, res, next) {
 
 	var room = null;
 	Room.getAll().then(function(rooms) {
-		return Promise.all(
-			rooms.map(function(room){
-				return Promise.all(
-					week_dates.map(function(date){
-						return room.getBookings(1, date);
+		if (req.user) {
+			return Promise.all(
+				rooms.map(function(room){
+					return Promise.all(
+						week_dates.map(function(date){
+							return room.getBookings(1, date);
+						})
+					).then(function(bookings) {
+						room.bookings = bookings;
+						return Promise.all([
+							room,
+							room.getUserBookings(req.user.username)
+						])
+					}).then(function(data){
+						room = data[0];
+						room.user_bookings = data[1];
+						return room;
 					})
-				).then(function(bookings) {
-					room.bookings = bookings;
-					return Promise.all([
-						room,
-						room.getUserBookings(req.user.username)
-					])
-				}).then(function(data){
-					room = data[0];
-					room.user_bookings = data[1];
-					return room;
 				})
-			})
-		)
+			)
+		} else {
+			return Promise.all(
+				rooms.map(function(room){
+					return Promise.all(
+						week_dates.map(function(date){
+							return room.getBookings(1, date);
+						})
+					).then(function(bookings) {
+						room.bookings = bookings;
+						return room
+					})
+				})
+			)
+		}
 	}).then(function(rooms) {
 		res.render('services/rooms', {rooms: rooms, week_start: week_dates[0]})
 	}).catch(next);
+});
+
+router.use(function (req, res, next) {
+	if (req.isAuthenticated()) {
+		next();
+	} else {
+		req.session.redirect_to = req.originalUrl;
+		res.redirect(401, '/login?unauthorised');
+	}
 });
 
 /* POST a new booking */
