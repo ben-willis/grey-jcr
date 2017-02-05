@@ -105,11 +105,8 @@ router.get('/:election_id/:position_id/results', function (req, res, next) {
 			}
 			var loser = null;
 			for (var nominee_id in nominee_totals) {
-				console.log(loser)
 				if (nominee_totals.hasOwnProperty(nominee_id)) {
 					result += nominee_names[nominee_id] + ": "+nominee_totals[nominee_id]+"<br/>"
-					console.log(nominee_totals[nominee_id])
-					console.log(nominee_totals[loser])
 					if (nominee_totals[nominee_id] < nominee_totals[loser] || loser === null) {
 						loser = nominee_id;
 					}
