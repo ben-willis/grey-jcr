@@ -105,8 +105,11 @@ router.get('/:election_id/:position_id/results', function (req, res, next) {
 			}
 			var loser = null;
 			for (var nominee_id in nominee_totals) {
+				console.log(loser)
 				if (nominee_totals.hasOwnProperty(nominee_id)) {
 					result += nominee_names[nominee_id] + ": "+nominee_totals[nominee_id]+"<br/>"
+					console.log(nominee_totals[nominee_id])
+					console.log(nominee_totals[loser])
 					if (nominee_totals[nominee_id] < nominee_totals[loser] || loser === null) {
 						loser = nominee_id;
 					}
@@ -123,11 +126,17 @@ router.get('/:election_id/:position_id/results', function (req, res, next) {
 				delete nominee_totals[loser];
 				for (ballot of ballots) {
 					for (var i = 0; i < ballot.length; i++) {
+						ballot[i].preference = i+1;
 						if (ballot[i].nominee_id == loser) {
 							ballot.splice(i, 1);
 							i--;
 						}
-						ballot[i].preference = i+1;
+					}
+				}
+				// reset counts
+				for (var nominee_id in nominee_totals) {
+					if (nominee_totals.hasOwnProperty(nominee_id)) {
+						nominee_totals[nominee_id] = 0;
 					}
 				}
 			}
