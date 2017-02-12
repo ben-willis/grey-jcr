@@ -29,5 +29,7 @@ exports.up = function(knex, Promise) {
 exports.down = function(knex, Promise) {
     return knex.schema.dropTable('valentines_swaps').then(function() {
         return knex.schema.dropTable('valentines_pairs');
+    }).then(function() {
+        return knex.schema.dropTable('valentines_status');
     });
 };

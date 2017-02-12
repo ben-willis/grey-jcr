@@ -31,10 +31,13 @@ html
 												= prettydate.format(blog.updated)
 										div(class="article description" style="white-space: pre-line")!= blog.message
 										div(class="extra")
-											if (user)
-												i(class=(blog.hearts.indexOf(user.username) == -1)?"blog like icon":"active blog like icon" data-blog_id=blog.id)
-												span(class="blog likes")= blog.hearts.length + 2
-												| likes
+											- url = "https://greyjcr.com/jcr/blog/"+blog.role.slug+"/"+blog.permalink
+											a(class="ui mini facebook share button" data-href=url)
+												i(class="facebook icon")
+												| Share
+											a(class="ui mini twitter tweet button" target="_blank" href="https://twitter.com/share?url="+encodeURIComponent(url))
+												i(class="twitter icon")
+												| Tweet
 											a(class="right floated" href="/jcr/blog/"+blog.role.slug+"/"+blog.permalink) Read More
 					div(class="six wide column")
 						div(class="ui vertical clearing segment")
@@ -62,20 +65,6 @@ html
 				$('.exec.image').popup({
 					transition: "fade up"
 				});
-				$('.item .blog.like.icon')
-					.api({
-						url: '/api/blogs/{blog_id}/like'
-					})
-					.state({
-						onActivate: function() {
-							var current_count = parseInt($(this).next().text());
-							$(this).next().text(current_count + 1);
-						},
-						onDeactivate: function() {
-							var current_count = parseInt($(this).next().text());
-							$(this).next().text(current_count - 1);
-						}
-					});
 
 			script(type="text/javascript").
 				var exec = new Vue({
@@ -108,5 +97,31 @@ html
 				if ('serviceWorker' in navigator) {
 					navigator.serviceWorker.register('/sw.js');
 				}
+
+			script.
+				window.fbAsyncInit = function() {
+					FB.init({
+						appId      : '634847773365124',
+						version    : 'v2.8'
+					});
+				};
+
+				(function(d, s, id){
+					var js, fjs = d.getElementsByTagName(s)[0];
+					if (d.getElementById(id)) {return;}
+					js = d.createElement(s); js.id = id;
+					js.src = "//connect.facebook.net/en_US/sdk.js";
+					fjs.parentNode.insertBefore(js, fjs);
+				}(document, 'script', 'facebook-jssdk'));
+
+				$('.facebook.share.button').click(function() {
+					FB.ui({
+						method: 'share',
+						display: 'popup',
+						href: this.getAttribute("data-href"),
+					}, function(response){
+						console.log(response)
+					});
+				})
 
 		include ./footer.pug

@@ -112,22 +112,6 @@ router.get('/files/:folder_id', function (req, res, next) {
 	});
 });
 
-// Needed for blog liking
-router.get('/blogs/:blog_id/like', function(req, res, next) {
-	if (!req.user) return res.json({"error": "You must be logged in"});
-	Blog.findById(req.params.blog_id).then(function(blog) {
-		if (blog.hearts.indexOf(req.user.username) == -1) {
-			return blog.addHeart(req.user.username);
-		} else {
-			return blog.removeHeart(req.user.username);
-		}
-	}).then(function() {
-		res.json({status: 'success'})
-	}).catch(function(err) {
-		next(err);
-	})
-});
-
 // Needed for menu notifications
 router.get('/elections/:status', function(req,res,next) {
 	if (!req.user) return res.json({"error": "You must be logged in"});
