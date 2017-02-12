@@ -29,7 +29,7 @@ html
 								| #{prettydate.format(blog.updated)}
 						div(class="article description")!= blog.message
 						div(class="extra")
-							a(class="ui facebook share button")
+							a(class="ui mini facebook share button" data-href="https://greyjcr.com/jcr/blog/"+blog.role.slug+"/"+blog.permalink)
 								i(class="facebook icon")
 								| Share
 							if (user)
@@ -74,7 +74,7 @@ html
 					FB.ui({
 						method: 'share',
 						display: 'popup',
-						href: 'https://developers.facebook.com/docs/',
+						href: this.getAttribute("data-href"),
 					}, function(response){
 						console.log(response)
 					});
