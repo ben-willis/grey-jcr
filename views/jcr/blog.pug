@@ -78,10 +78,6 @@ html
 									a(class="ui mini twitter tweet button" target="_blank" href="https://twitter.com/share?url="+encodeURIComponent(url))
 										i(class="twitter icon")
 										| Tweet
-									if (user)
-										i(class=(blog.hearts.indexOf(user.username) == -1)?"blog like icon":"active blog like icon" data-blog_id=blog.id)
-										span(class="blog likes")= blog.hearts.length + 2
-										| likes
 
 				div(class="ui pagination menu")
 					a(class=(page<=1)?"disabled item":"item" href="/jcr/blog?page="+(page-1)) Prev
@@ -92,21 +88,6 @@ html
 
 			script.
 				$('.filter.menu .dropdown').dropdown();
-
-				$('.item .blog.like.icon')
-					.api({
-						url: '/api/blogs/{blog_id}/like'
-					})
-					.state({
-						onActivate: function() {
-							var current_count = parseInt($(this).next().text());
-							$(this).next().text(current_count + 1);
-						},
-						onDeactivate: function() {
-							var current_count = parseInt($(this).next().text());
-							$(this).next().text(current_count - 1);
-						}
-					});
 
 			script.
 				window.fbAsyncInit = function() {
