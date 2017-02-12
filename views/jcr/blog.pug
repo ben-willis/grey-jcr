@@ -74,6 +74,9 @@ html
 									a(class="ui mini facebook share button" data-href="https://greyjcr.com/jcr/blog/"+blog.role.slug+"/"+blog.permalink)
 										i(class="facebook icon")
 										| Share
+									a(class="ui mini twitter tweet button" target="_blank" href="https://twitter.com/share?url="+encodeURIComponent(url))
+										i(class="twitter icon")
+										| Tweet
 									if (user)
 										i(class=(blog.hearts.indexOf(user.username) == -1)?"blog like icon":"active blog like icon" data-blog_id=blog.id)
 										span(class="blog likes")= blog.hearts.length + 2
