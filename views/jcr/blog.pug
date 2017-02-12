@@ -71,7 +71,8 @@ html
 										| #{prettydate.format(blog.updated)}
 								div(class="article description")!= blog.message
 								div(class="extra")
-									a(class="ui mini facebook share button" data-href="https://greyjcr.com/jcr/blog/"+blog.role.slug+"/"+blog.permalink)
+									- url = "https://greyjcr.com/jcr/blog/"+blog.role.slug+"/"+blog.permalink
+									a(class="ui mini facebook share button" data-href=url)
 										i(class="facebook icon")
 										| Share
 									a(class="ui mini twitter tweet button" target="_blank" href="https://twitter.com/share?url="+encodeURIComponent(url))

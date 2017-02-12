@@ -31,6 +31,13 @@ html
 												= prettydate.format(blog.updated)
 										div(class="article description" style="white-space: pre-line")!= blog.message
 										div(class="extra")
+											- url = "https://greyjcr.com/jcr/blog/"+blog.role.slug+"/"+blog.permalink
+											a(class="ui mini facebook share button" data-href=url)
+												i(class="facebook icon")
+												| Share
+											a(class="ui mini twitter tweet button" target="_blank" href="https://twitter.com/share?url="+encodeURIComponent(url))
+												i(class="twitter icon")
+												| Tweet
 											if (user)
 												i(class=(blog.hearts.indexOf(user.username) == -1)?"blog like icon":"active blog like icon" data-blog_id=blog.id)
 												span(class="blog likes")= blog.hearts.length + 2
@@ -108,5 +115,31 @@ html
 				if ('serviceWorker' in navigator) {
 					navigator.serviceWorker.register('/sw.js');
 				}
+
+			script.
+				window.fbAsyncInit = function() {
+					FB.init({
+						appId      : '634847773365124',
+						version    : 'v2.8'
+					});
+				};
+
+				(function(d, s, id){
+					var js, fjs = d.getElementsByTagName(s)[0];
+					if (d.getElementById(id)) {return;}
+					js = d.createElement(s); js.id = id;
+					js.src = "//connect.facebook.net/en_US/sdk.js";
+					fjs.parentNode.insertBefore(js, fjs);
+				}(document, 'script', 'facebook-jssdk'));
+
+				$('.facebook.share.button').click(function() {
+					FB.ui({
+						method: 'share',
+						display: 'popup',
+						href: this.getAttribute("data-href"),
+					}, function(response){
+						console.log(response)
+					});
+				})
 
 		include ./footer.pug
