@@ -19,22 +19,6 @@ Blog.prototype.getRole = function () {
     return db('roles').first().where({id: this.role_id});
 };
 
-Blog.prototype.getHearts = function () {
-    return db('blog_hearts').select('username').where({blog_id: this.id}).then(function(hearts) {
-        return hearts.map(function(data){
-            return data.username;
-        })
-    });
-}
-
-Blog.prototype.addHeart = function(username) {
-    return db('blog_hearts').insert({username: username, blog_id: this.id});
-}
-
-Blog.prototype.removeHeart = function(username) {
-    return db('blog_hearts').del().where({username: username, blog_id: this.id});
-}
-
 Blog.prototype.getAuthor = function () {
     return db('users').first().where({username: this.author});
 };
@@ -82,14 +66,12 @@ Blog.findById = function(id) {
         return Promise.all([
             blog,
             blog.getRole(),
-            blog.getAuthor(),
-            blog.getHearts()
+            blog.getAuthor()
         ])
     }).then(function(data) {
         blog = data[0];
         blog.role = data[1];
         blog.author = data[2];
-        blog.hearts = data[3];
         return blog;
     });
 }
@@ -104,14 +86,12 @@ Blog.findBySlugAndDate = function(slug, date) {
         return Promise.all([
             blog,
             blog.getRole(),
-            blog.getAuthor(),
-            blog.getHearts()
+            blog.getAuthor()
         ])
     }).then(function(data) {
         blog = data[0];
         blog.role = data[1];
         blog.author = data[2];
-        blog.hearts = data[3];
         return blog;
     });
 }
@@ -157,13 +137,11 @@ Blog.get = function(role_id, year, month) {
                 blog = new Blog(blog_data)
                 return Promise.all([
                     blog.getRole(),
-                    blog.getAuthor(),
-                    blog.getHearts()
+                    blog.getAuthor()
                 ]).then(function(data) {
                     blog = new Blog(blog_data);
                     blog.role = data[0];
                     blog.author = data[1];
-                    blog.hearts = data[2];
                     return blog;
                 })
             })
@@ -186,13 +164,11 @@ Blog.getByDateRange = function(start_date, end_date) {
                     blog = new Blog(blog_data)
                     return Promise.all([
                         blog.getRole(),
-                        blog.getAuthor(),
-                        blog.getHearts()
+                        blog.getAuthor()
                     ]).then(function(data) {
                         blog = new Blog(blog_data);
                         blog.role = data[0];
                         blog.author = data[1];
-                        blog.hearts = data[2];
                         return blog;
                     })
                 })
