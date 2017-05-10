@@ -214,6 +214,9 @@ router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
 							email: user.email,
 							notes: booking.notes
 						}
+						
+						if (ticket.options == []) return booking_data;
+
 						for (choice of booking.choices) {
 							option_id = choices[choice];
 							booking_data[option_id] = options[option_id][choice]
