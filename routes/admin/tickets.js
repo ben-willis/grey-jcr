@@ -190,15 +190,13 @@ router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
 				email: "Email",
 				notes: "Notes"
 			}
-			return ticket.getOptionsAndChoices();
-		})
-		.then(function(data) {
-			for (var i = 0; i < data.length; i++) {
-				columns[data[i].id] = data[i].name;
-				options[data[i].id] = {};
-				for (choice of data[i].choices) {
-					choices[choice.id] = data[i].id;
-					options[data[i].id][choice.id] = choice.name;
+
+			for (option of ticket.options) {
+				columns[option.id] = option.name;
+				options[option.id] = {};
+				for (choice of option.choices) {
+					choices[choice.id] = option.id;
+					options[option.id][choice.id] = choice.name;
 				}
 			}
 			return Booking.getByTicketId(req.params.ticket_id);
