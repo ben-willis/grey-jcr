@@ -53,6 +53,37 @@ html
 											i(class="remove icon")
 											| Delete
 
+			if (user.level > 4)
+				div(class="ui vertical segment")
+					h3 Seating Planner
+					div(class="ui divided grid")
+
+						div(class="five wide column")
+							p CSV should have three columns and no headers:
+							ul
+								li First column says which group the user is in (e.g booked_by)
+								li Second column is the users name
+								li Final column is for details (e.g dietary)
+							
+						div(class="eleven wide column")
+							form(class="ui edit form" method="POST" action="/admin/events/tableplanner" enctype="multipart/form-data")
+								div(class="fields")
+									div(class="eight wide field")
+										label Number of Tables
+										input(type="text" name="no_tables" value=17)
+							
+									div(class="eight wide field")
+										label Seats per Table
+										input(type="text" name="no_seats" value=16)
+
+								div(class="field")
+									label CSV file
+									input(type="file" name="bookings")
+
+								button(type="submit" class="ui submit button")
+									i(class="upload icon")
+									| Upload
+
 			if (user.level > 5)
 				div(class="ui vertical segment")
 					h3 Valentines Functions
@@ -80,8 +111,8 @@ html
 
 						div(class="column")
 							h4 Debts
-							p There unsorted debts
-							a(class="ui button" href="/admin/events/valentines/debts") Sort Debts
+							p When swapping is finished and the seating plan is finalised use this to add debts
+							a(class="ui button" href="/admin/events/valentines/debts") Add Debts
 
 		script.
 			CKEDITOR.replace( 'editor1' );

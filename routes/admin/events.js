@@ -159,4 +159,30 @@ router.get('/:event_id/delete', function (req, res, next) {
 	})
 });
 
+router.post('/tableplanner', upload.single('bookings'), function(req, res, next) {
+	if (!req.file) return next(httpError(400, "No file uploaded"));
+	fs.readFile(req.file.path, 'utf8', function(err, data) {
+		if (err) return next(err);
+		csv.parse(data, {columns:["booked_by","name","details"]}, function(err, data) {
+			if (err) return next(err);
+			data.sort(compare);
+			group = 0;
+			for (var i = 0; i < data.length; i++) {
+				if (i==0 || data[i].booked_by != data[i-1].booked_by)
+					group++
+				data[i].group = group
+			}
+			res.render('admin/events_tableplanner', {no_tables: req.body.no_tables, no_seats: req.body.no_seats, bookings:data});
+		})
+	})
+
+	function compare(a,b) {
+	  if (a.booked_by < b.booked_by)
+	    return -1;
+	  if (a.booked_by > b.booked_by)
+	    return 1;
+	  return 0;
+	}
+});
+
 module.exports = router;

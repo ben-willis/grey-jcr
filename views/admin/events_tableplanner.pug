@@ -1,0 +1,181 @@
+doctype html
+
+html
+	head
+		style.
+			body {
+				font-family: arial;
+				margin: 0px;
+			}
+
+			/* add bottom margin between tables */
+			table {
+				margin-bottom: 0px; /* 20px */
+			}
+			/* drag container */
+			#drag {
+				margin: auto;
+				width: 100%;
+			}
+
+			/* set border for images inside DRAG region - exclude image margin inheritance */
+			/* my WordPress theme had some funny margin settings */
+			#drag img {
+				margin: 1px;
+			}
+
+			/* drag objects (DIV inside table cells) */
+			.drag {
+				cursor: move;
+				margin: auto;
+				margin-bottom: 1px;
+				margin-top: 1px;
+				z-index: 10;
+				background-color: white;
+				text-align: center;
+				font-size: 10pt; /* needed for cloned object */
+				width: 85px; /* 147 */
+				height: 37px;
+				line-height: 20px;
+				vertical-align: center;
+				/* round corners */
+				border-radius: 4px; /* Opera, Chrome */
+				font-weight: bold;
+			}
+
+
+			/* drag objects border for the first table */
+			.t0 {
+				border: 2px solid #499B33;
+			}
+			/* drag object border for the second table */
+			.t1 {
+				border: 2px solid SteelBlue;
+			}
+			/* cloned objects - third table */
+			.t2 {
+				border: 2px solid #FF8A58;
+			}
+			/* allow / deny access to cells marked with 'mark' class name */
+			.mark {
+				color: white;
+				background-color: #9B9EA2;
+			}
+			/* trash cell */
+			.trash {
+				color: white;
+				background-color: #2D4B7A;
+			}
+
+			/* tables */
+			div#drag table {
+				background-color: #e0e0e0;
+				border-collapse: collapse;
+			}
+
+
+			/* input elements in dragging container */
+			div#drag input {
+				cursor: auto;
+			}
+				/* height for input text in DIV element */
+				div#drag #d13 input {
+					height: 13px;
+				}
+				/* height for dropdown menu in DIV element */
+				div#drag #d5 select {
+					height: 20px;
+				}
+
+			/* table cells */
+			div#drag td {
+				height: 32px;
+				border: 1px solid white;
+				text-align: center;
+				font-size: 10pt;
+				padding: 2px;
+			}
+
+			/* "Click" button */
+			.button {
+				margin-bottom: 2px;
+				background-color: #6A93D4;
+				color: white; 
+				border-width: 1px;
+				width: 44px;
+				padding: 0px;
+			}
+
+
+			/* toggle checkboxes at the bottom */
+			.checkbox {
+				margin-left: 13px;
+				margin-right: 14px;
+				width: 13px; /* needed for IE ?! */
+			}
+
+
+			/* message cell */
+			.message_line {
+				padding-left: 10px;
+				margin-bottom: 3px;
+				font-size: 10pt;
+				color: #888;
+			}
+		meta(http-equiv="Content-Type" content="text/html; charset=UTF-8")
+		meta(name="viewport" content="width=device-width, user-scalable=no")
+		script(type="text/javascript" src="/javascripts/seatplanner.js")
+		title Formal Table Plan
+	body
+		div
+			div(style="background-color:#eee;padding:10px;text-align:center;font-size:20px;font-weight:bold;margin-bottom:10px") Formal Table Plan
+		div(style="width: 100%;")
+			button(onclick="gcr_show_names();" style="margin: 10px;" title="Show Names") Show Name
+			button(onclick="gcr_show_details();" style="margin: 10px;" title="Show Details") Show Details
+		div(id="drag")
+			div(id="tables" style="margin-left:200px;")
+				- var table_number = 0
+				while table_number < no_tables
+					table(id="table"+table_number, class="formal-table" data-table-number=table_number)
+						colgroup
+							- var seat_number = 0
+							while seat_number < no_seats/2
+								col(width="100")
+								-seat_number++
+						tbody
+							tr
+								td(class="mark" colspan="8")="Table "+(table_number+1)
+							tr(style="background-color: #eee")
+								- var seat_number = 0
+								while seat_number < no_seats/2
+									td(id=table_number+"-1-"+seat_number)
+									-seat_number++
+							tr
+								- var seat_number = 0
+								while seat_number < no_seats/2
+									td(id=table_number+"-2-"+seat_number)
+									-seat_number++
+					- table_number++
+
+						
+			table(id="unused" style="position: absolute; top: 92px;")
+				colgroup
+					col(width="200")
+				tbody
+					tr
+						td(class="mark")
+							a(href="" class="uplink") ^
+							|  Unused Names 
+							a(href="" class="downlink") v
+					tr
+						td(class="mark")
+							input(type="text" id="filter")
+				
+					- var i = 0
+					for booking in bookings
+						- i++
+						tr(style=(i%2)?"background-color: #eee":"")
+							td(class="unused" id="td15764")
+								div(class="drag t"+(booking.group%3) data-name=booking.name data-details=booking.details style="border-style: solid; cursor: move;")=booking.name
+			
+			div(id="redips_clone" style="height: 1px; width: 1px;")
