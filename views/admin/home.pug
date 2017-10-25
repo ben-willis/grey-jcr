@@ -65,5 +65,14 @@ html
 							div(class="header") Feedback
 							div(class="description") Read and reply to feedback. Archive feedback to mark it as "dealt with".
 
+			if (user.level > 4)
+				h3 Add User
+				form(class="ui edit form" method="POST" action="/admin/adduser")
+					div(class="field")
+						label Username
+						input(name="username")
+					button(type="submit" class="ui submit button")
+						| Add
+
 			h3 Issues/Requests
 			p If you have any issues with the website or have any features you want added feel free to email me (michael.s.xin@durham.ac.uk) and I'll see what I can do!

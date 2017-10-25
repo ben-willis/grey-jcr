@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var httpError = require('http-errors');
 
+var User = require('../../models/user');
+
 var roles = require('./roles');
 var blog = require('./blog');
 var feedback = require('./feedback');
@@ -29,6 +31,12 @@ router.use(function (req, res, next) {
 router.get('/', function (req, res, next) {
 	res.render('admin/home');
 });
+
+router.post('/adduser', function(req, res, next) {
+	User.create(req.body.username).then(function(user) {
+		res.json({success: true, user: user})
+	}).catch(next)
+})
 
 router.use('/roles', roles);
 router.use('/blog', blog);
