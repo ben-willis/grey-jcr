@@ -23,7 +23,7 @@ router.get('/', function (req, res, next) {
 			return Promise.all(
 				exec_members.map(function(exec_member) {
 					return exec_member.getUsers().then(function(users) {
-						exec_member.users = users;
+						exec_member.users = users.filter(user => (user.username != "hsdz38"));
 						return exec_member;
 					});
 				})
