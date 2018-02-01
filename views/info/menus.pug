@@ -11,22 +11,22 @@ html
 			- var currWeek = ((week-1)%3)+1
 			h2 Week #{week} #{title}
 			p Here you can find this week's menu.
-			div(Class="ui clearing vertical segment")
-				if (week > 1)
-					a(class="ui left floated button" href="/info/menus?week="+(week-1))
-						i(class="left arrow icon")
-						| Last Week
-				if (week < 10)
-					a(class="ui right floated button" href="/info/menus?week="+(week+1))
-						| Next Week
-						i(class="right arrow icon")
-				
+
 			div(class="ui vertical clearing segment")
 				h3 Lunch
 				img(class="ui fluid image" src="/images/menus/w"+currWeek+"l.jpg")
 				h3 Dinner
 				img(class="ui fluid image" src="/images/menus/w"+currWeek+"d.jpg")
-				
+
+			div(class="ui two column padded grid")
+				div(Class="column")
+					h3 Sandwiches
+					img(class="ui large image" src="/images/menus/sandwich.jpg")
+				div(Class="column")
+					h3 Salad
+					img(class="ui large image" src="/images/menus/salad.jpg")
+
+			div(class="ui vertical clearing segment")
 				if (week > 1)
 					a(class="ui left floated button" href="/info/menus?week="+(week-1))
 						i(class="left arrow icon")
@@ -35,13 +35,5 @@ html
 					a(class="ui right floated button" href="/info/menus?week="+(week+1))
 						| Next Week
 						i(class="right arrow icon")
-						
-			div(Class="ui horizontal segments")
-				div(Class="ui segment")
-					h3 Sandwiches
-					img(class="ui large image" src="/images/menus/sandwich.jpg")
-				div(Class="ui segment")
-					h3 Salad
-					img(class="ui large image" src="/images/menus/salad.jpg")
 
 		include ../footer.pug
