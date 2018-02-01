@@ -94,7 +94,7 @@ User.prototype.getRoles = function() {
     return db('user_roles')
         .where({'username': this.username})
         .join('roles', 'user_roles.role_id', '=', 'roles.id')
-        .select('roles.id', 'roles.title', 'roles.slug', 'roles.level');
+        .select('roles.id', 'roles.title', 'roles.slug', 'roles.level', 'roles.description');
 }
 
 User.prototype.removeRole = function(role_id) {

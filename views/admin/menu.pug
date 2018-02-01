@@ -1,7 +1,4 @@
 div(class='ui stackable small inverted menu')
-	a(class='item' href='/admin')
-		i(class="home icon")
-		| Home
 	a(class='item' href='/admin/events')
 		i(class="calendar icon")
 		| Events
@@ -21,9 +18,14 @@ div(class='ui stackable small inverted menu')
 		a(class='item' href='/admin/rooms')
 			i(class="book icon")
 			| Room Booking
-		a(class='item' href='/admin/roles')
-			i(class="sitemap icon")
-			| Roles
+		if (!user.roles[0].description)
+			a(class='item' href='/admin/roles' data-content="Your role doesn't have a description. Why not add one?" data-position="bottom center")
+				i(class="sitemap icon")
+				| Roles
+		else
+			a(class='item' href='/admin/roles')
+				i(class="sitemap icon")
+				| Roles
 	if (user.level > 4)
 		a(class='item' href='/admin/debts')
 			i(class="pound icon")
@@ -34,3 +36,6 @@ div(class='ui stackable small inverted menu')
 		a(class='item' href='/admin/feedback')
 			i(class="comment icon")
 			| Feedback
+
+	script.
+		$('.small.inverted.menu a.item').popup();
