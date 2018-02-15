@@ -8,7 +8,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development node ./bin/www",
     "test": "cross-env NODE_ENV=testing mocha --reporter spec --recursive",
-    "start-forever": "cross-env NODE_ENV=production forever start --minUptime 1000 --spinSleepTime 1000 -e ./err.log ./bin/www",
+    "start-forever": "cross-env NODE_ENV=production forever start --uid grey-jcr --append --minUptime 1000 --spinSleepTime 1000 -e ./err.log ./bin/www",
     "migrate-postgres": "knex migrate:latest --env development",
     "seed-postgres": "knex seed:run --env development",
     "migrate-sqlite": "knex migrate:latest --env testing"

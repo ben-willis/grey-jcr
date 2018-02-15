@@ -38,6 +38,7 @@ jspm_packages
 
 # Redis
 *.rbd
+*.rdb
 
 # Sessions
 sessions
