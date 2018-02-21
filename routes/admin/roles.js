@@ -7,7 +7,7 @@ var Role = require('../../models/role');
 var Folder = require('../../models/folder');
 
 router.use(function (req, res, next) {
-	if (req.user.level < 4) {
+	if (req.user.level < 3) {
 		return next(httpError(403));
 	} else {
 		return next();
