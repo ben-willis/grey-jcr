@@ -22,6 +22,12 @@ html
 					div(class="content")
 						div(class="header") Blog
 						div(class="description") Post news to the homepage. Visible to anyone who vists the website.
+				if (user.level >2)
+					div(class="item")
+						i(class="large sitemap middle aligned icon")
+						div(class="content")
+							div(class="header") Roles
+							div(class="description") Manage JCR roles and assign users to positions.
 				if (user.level > 3)
 					div(class="item")
 						i(class="large ticket middle aligned icon")
@@ -43,11 +49,6 @@ html
 						div(class="content")
 							div(class="header") Room Booking
 							div(class="description") Create rooms and add bookings. Please be careful not to double book otherwise things will break.
-					div(class="item")
-						i(class="large sitemap middle aligned icon")
-						div(class="content")
-							div(class="header") Roles
-							div(class="description") Manage JCR roles and assign users to positions.
 				if (user.level > 4)
 					div(class="item")
 						i(class="large pound middle aligned icon")
