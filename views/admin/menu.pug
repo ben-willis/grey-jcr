@@ -7,13 +7,13 @@ div(class='ui stackable small inverted menu')
 		| Blog
 	if (user.level > 2)
 		if (!user.roles[0].description)
-				a(class='item' href='/admin/roles' data-content="Your role doesn't have a description. Why not add one?" data-position="bottom center")
-					i(class="sitemap icon")
-					| Roles
-			else
-				a(class='item' href='/admin/roles')
-					i(class="sitemap icon")
-					| Roles
+			a(class='item' href='/admin/roles' data-content="Your role doesn't have a description. Why not add one?" data-position="bottom center")
+				i(class="sitemap icon")
+				| Roles
+		else
+			a(class='item' href='/admin/roles')
+				i(class="sitemap icon")
+				| Roles
 	if (user.level > 3)
 		a(class='item' href='/admin/tickets')
 			i(class="ticket icon")
