@@ -38,12 +38,12 @@ router.get('/totals.csv', function (req, res, next) {
 				name: 'Name',
 				email: 'Email',
 				total_debt: 'Amount'
-			}
+			};
 			csv.stringify(debtors, {header: true, columns: columns}, function (err, output) {
 				if (err) throw err;
 				res.set('Content-Type', 'text/csv');
 				res.status(200).send(output);
-			})
+			});
 		})
 		.catch(function (err) {
 			next(err);
@@ -78,7 +78,7 @@ router.post('/:username', function (req, res, next) {
 		})
 		.catch(function (err){
 			next(err);
-		})
+		});
 });
 
 /* POST a batch of debts */
@@ -101,16 +101,16 @@ router.post('/', upload.single('debts'), function(req, res, next){
 					data.map(function(row){
 						return User.findByUsername(row[0]).then(function(user){
 							return user.addDebt(req.body.name, req.body.message, row[1]);
-						})
+						});
 					})
-				)
+				);
 			}).then(function(){
-				res.redirect(303, '/admin/debts/?post-success')
+				res.redirect(303, '/admin/debts/?post-success');
 			}).catch(function(err){
 				return next(err);
-			})
-		})
-	})
+			});
+		});
+	});
 });
 
 module.exports = router;

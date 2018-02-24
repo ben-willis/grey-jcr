@@ -20,7 +20,7 @@ bookings_manager = {
 
 		Ticket.findById(curr_booking.ticket_id)
 			.then(function(){
-				return this.checkBookingValid(curr_booking)
+				return this.checkBookingValid(curr_booking);
 			}.bind(this))
 			.then(function(){
 				return Booking.create(curr_booking.ticket_id, curr_booking.event_id, curr_booking.booker, curr_booking.users)
@@ -85,7 +85,7 @@ bookings_manager = {
 							return;
 						}
 					})
-				)
+				);
 			})
 			.then(function() {
 				return Booking.countByTicketId(ticket.id);
@@ -95,7 +95,7 @@ bookings_manager = {
 					throw httpError(400, "No more spaces")
 				}
 				return;
-			})
+			});
     },
     createBooking: function(ticket_id, event_id, username, users) {
     	return new Promise(function(resolve, reject) {
@@ -112,8 +112,8 @@ bookings_manager = {
     		if (!this.processing) {
     			this.processQueue();
     		}
-        }.bind(this))
+        }.bind(this));
     }
-}
+};
 
 module.exports = bookings_manager;

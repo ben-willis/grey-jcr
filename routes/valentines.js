@@ -37,21 +37,21 @@ router.get('/', function (req, res, next) {
 			debt: data[2],
 			total: data[3],
 			swapping_open: valentines.open
-		})
+		});
 	}).catch(function(err){
-		next(err)
-	})
+		next(err);
+	});
 });
 
 router.get('/stats.json', function(req,res, next) {
 	valentines.getTotalRaised().then(function(total){
 		res.json({
 			"totalRaised": total
-		})
+		});
 	}).catch(function(err){
-		next(err)
-	})
-})
+		next(err);
+	});
+});
 
 /* Post a swap */
 router.post('/', function (req, res, next) {
@@ -62,16 +62,16 @@ router.post('/', function (req, res, next) {
 	var swap_cost = 0;
 
 	valentines.swapPairs(pairA, pairB).then(function(data) {
-		var pairA_cost = data.rows[0].value - 50
-		var pairB_cost = data.rows[1].value - 50
+		var pairA_cost = data.rows[0].value - 50;
+		var pairB_cost = data.rows[1].value - 50;
 		swap_cost = (pairA_cost > pairB_cost) ? pairA_cost : pairB_cost;
-		return valentines.createSwap(pairA, pairB, req.user.username, swap_cost)
+		return valentines.createSwap(pairA, pairB, req.user.username, swap_cost);
 	}).then(function() {
 		io.emit('swap', {paira: pairA, pairb: pairB, cost: swap_cost});
 		res.redirect(303, '/events/valentines');
 	}).catch(function(err) {
 		next(err);
-	})
-})
+	});
+});
 
 module.exports = router;

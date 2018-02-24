@@ -25,9 +25,9 @@ router.get('/', function (req, res, next) {
 				}).then(function(user) {
 					feedback.author = (feedback.anonymous) ? null : user;
 					return feedback;
-				})
+				});
 			})
-		)
+		);
 	}).then(function (feedbacks) {
 		res.render('admin/feedback', {feedbacks: feedbacks, archive: false});
 	}).catch(function (err) {
@@ -45,9 +45,9 @@ router.get('/archive', function (req, res, next) {
 				}).then(function(user) {
 					feedback.author = (feedback.anonymous) ? null : user;
 					return feedback;
-				})
+				});
 			})
-		)
+		);
 	}).then(function (feedbacks) {
 		res.render('admin/feedback', {feedbacks: feedbacks, archive: true});
 	}).catch(function (err) {
@@ -66,9 +66,9 @@ router.get('/:feedback_id', function (req, res, next) {
 						return User.findByUsername(reply.author).then(function(user) {
 							reply.author = (feedback.anonymous && !reply.exec) ? null: user;
 							return reply;
-						})
+						});
 					})
-				)
+				);
 			}),
 			User.findByUsername(feedback.author).then(function(user) {
 				return (feedback.anonymous) ? null: user;
@@ -87,7 +87,7 @@ router.get('/:feedback_id/toggle-archive', function (req, res, next) {
 	Feedback.findById(parseInt(req.params.feedback_id)).then(function(feedback) {
 		return feedback.toggleArchived();
 	}).then(function (feedback) {
-		res.redirect(303, '/admin/feedback/?archive-success')
+		res.redirect(303, '/admin/feedback/?archive-success');
 	}).catch(function (err) {
 		next(err);
 	});
@@ -98,7 +98,7 @@ router.post('/:feedback_id', function (req, res, next) {
 	Feedback.findById(parseInt(req.params.feedback_id)).then(function(feedback) {
 		return feedback.addReply(req.body.message, true, req.user.username);
 	}).then(function () {
-		res.redirect(303, '/admin/feedback/'+req.params.feedback_id)
+		res.redirect(303, '/admin/feedback/'+req.params.feedback_id);
 	}).catch(function (err) {
 		next(err);
 	});

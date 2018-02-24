@@ -17,10 +17,10 @@ User.prototype.changeName = function (new_name) {
     return db('users').where('username', this.username).update({
         name: new_name
     }).then(function() {
-        self.name = new_name
-    }.bind(this))
+        self.name = new_name;
+    }.bind(this));
 }
-
+;
 User.prototype.updateLastLogin = function() {
     var now = new Date();
     return db('users').where('username', this.username).update({
@@ -28,12 +28,12 @@ User.prototype.updateLastLogin = function() {
     }).then(function() {
         this.last_login = now;
         return;
-    }.bind(this))
-}
+    }.bind(this));
+};
 
 User.prototype.delete = function(){
     return db('users').del().where('username', this.username);
-}
+};
 
 User.prototype.getDebt = function() {
     return db('debts')
@@ -44,14 +44,14 @@ User.prototype.getDebt = function() {
             if(!data['total_debt']) return 0;
             return parseInt(data['total_debt']);
         });
-}
+};
 
 User.prototype.getDebts = function() {
     return db('debts')
         .select()
         .orderBy('debt_added', 'desc')
         .where('username', this.username);
-}
+};
 
 User.prototype.addDebt = function(name, message, amount) {
     return db('debts').insert({
@@ -59,8 +59,8 @@ User.prototype.addDebt = function(name, message, amount) {
         name: name,
         message: message,
         amount: amount
-    })
-}
+    });
+};
 
 User.prototype.payDebt = function(name, message, amount) {
     return db('debts').insert({
@@ -68,8 +68,8 @@ User.prototype.payDebt = function(name, message, amount) {
         name: name,
         message: message,
         amount: -amount
-    })
-}
+    });
+};
 
 User.prototype.setDebtForBooking = function(name, message, amount, booking_id) {
     return db('debts').del().where({booking_id: booking_id}).then(function() {
@@ -79,34 +79,34 @@ User.prototype.setDebtForBooking = function(name, message, amount, booking_id) {
             message: message,
             amount: amount,
             booking_id: booking_id
-        })
-    }.bind(this))
-}
+        });
+    }.bind(this));
+};
 
 User.prototype.assignRole = function(role_id) {
     return db('user_roles').insert({
         username: this.username,
         role_id: role_id
     });
-}
+};
 
 User.prototype.getRoles = function() {
     return db('user_roles')
         .where({'username': this.username})
         .join('roles', 'user_roles.role_id', '=', 'roles.id')
         .select('roles.id', 'roles.title', 'roles.slug', 'roles.level', 'roles.description');
-}
+};
 
 User.prototype.removeRole = function(role_id) {
     return db('user_roles').where({
         username: this.username,
         role_id: role_id
     }).del();
-}
+};
 
 User.prototype.getBlogs = function() {
-    return db('blogs').select().where({author: this.username})
-}
+    return db('blogs').select().where({author: this.username});
+};
 
 User.prototype.getVote = function(election_id) {
     votes = {};
@@ -119,8 +119,8 @@ User.prototype.getVote = function(election_id) {
                 votes[vote.nominee_id] = vote.preference;
             }
             return votes;
-        })
-}
+        });
+};
 
 /* Static Methods */
 
@@ -136,15 +136,15 @@ User.create = function(username) {
         }).returning(['username','email', 'name']);
 
     }).then(function(data) {
-        return new User(data[0])
+        return new User(data[0]);
     });
-}
+};
 
 User.fetch_details = function(username) {
     return new Promise(function(resolve, reject) {
         var options = {
             url: 'https://community.dur.ac.uk/grey.jcr/itsuserdetailsjson.php?username=' + username
-        }
+        };
 
         request(options, function(err, response, body) {
             if (response.statusCode == 400) {
@@ -154,7 +154,7 @@ User.fetch_details = function(username) {
             }
         });
     });
-}
+};
 
 User.findByUsername = function (username) {
     return db('users')
@@ -162,16 +162,16 @@ User.findByUsername = function (username) {
         .where({'username': username})
         .then(function(data) {
             if (!data) throw httpError(404, "Username '"+username+"' not found in local database");
-            return new User(data)
+            return new User(data);
         });
-}
+};
 
 User.search = function(query) {
     return db('users')
         .select(["name", "email", "username"])
         .whereRaw("LOWER(name) LIKE '%' || LOWER(?) || '%' ", query)
         .orWhereRaw("LOWER(username) LIKE '%' || LOWER(?) || '%' ", query);
-}
+};
 
 User.authorize = function(username, password) {
     return new Promise(function(resolve, reject) {
@@ -182,7 +182,7 @@ User.authorize = function(username, password) {
             headers: {
                 'Authorization': 'Basic ' + new Buffer(username + ':' + password).toString('base64')
             }
-        }
+        };
 
         request(options, function(err, response, body) {
             if (response.statusCode == 401) {
@@ -193,7 +193,7 @@ User.authorize = function(username, password) {
         });
     });
 
-}
+};
 
 User.getDebtors = function() {
     return db('debts')
@@ -208,9 +208,9 @@ User.getDebtors = function() {
                 debtor.total_debt = parseInt(debtor_data.sum);
                 debtor.last_debt = debtor_data.max
                 return debtor;
-            })
-        })
-}
+            });
+        });
+};
 
 User.addDebtToUsername = function(username, name, message, amount) {
     return db('debts').insert({
@@ -218,7 +218,7 @@ User.addDebtToUsername = function(username, name, message, amount) {
         name: name,
         message: message,
         amount: amount
-    })
-}
+    });
+};
 
 module.exports = User;

@@ -39,7 +39,7 @@ router.post('/new', function (req, res, next) {
 	var time = (req.body.time).split(':');
 	var time = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 	Event.create(req.body.name, req.body.description, time, null).then(function (event){
-		res.redirect('/admin/events/'+event.id+'/edit')
+		res.redirect('/admin/events/'+event.id+'/edit');
 	}).catch(function (err) {
 		next(err);
 	});
@@ -62,7 +62,7 @@ router.post('/valentines/pairs', upload.single('pairs'), function(req, res, next
 					})
 				)
 			}).then(function(){
-				res.redirect(303, '/admin/events')
+				res.redirect(303, '/admin/events');
 			}).catch(function(err){
 				return next(err);
 			})
@@ -72,7 +72,7 @@ router.post('/valentines/pairs', upload.single('pairs'), function(req, res, next
 
 router.get('/valentines/open', function(req, res, next) {
 	valentines.setStatus(true).then(function() {
-		res.redirect('/admin/events')
+		res.redirect('/admin/events');
 	}).catch(function (err) {
 		return next(err);
 	});
@@ -81,7 +81,7 @@ router.get('/valentines/open', function(req, res, next) {
 router.get('/valentines/close', function(req, res, next) {
 	valentines.setStatus(false).then(function() {
 		io.emit('close_swapping');
-		res.redirect('/admin/events')
+		res.redirect('/admin/events');
 	}).catch(function (err) {
 		return next(err);
 	});
@@ -93,9 +93,9 @@ router.get('/valentines/debts', function(req, res, next) {
 			return User.addDebtToUsername(debtor.username, 'Valentines Swapping', '', debtor.debt);
 		}))
 	}).then(function(){
-		return valentines.clearDebts()
+		return valentines.clearDebts();
 	}).then(function(){
-		res.redirect('/admin/events')
+		res.redirect('/admin/events');
 	}).catch(function (err) {
 		return next(err);
 	});
@@ -111,7 +111,7 @@ router.get('/:event_id/edit', function (req, res, next) {
 			Ticket.getAll()
 		])
 	}).then(function (data) {
-		event.tickets = data[0]
+		event.tickets = data[0];
 		res.render('admin/events_edit', {event: event, tickets: data[1]});
 	}).catch(function (err) {
 		next(err);
@@ -156,7 +156,7 @@ router.get('/:event_id/delete', function (req, res, next) {
 		res.redirect('/admin/events');
 	}).catch(function (err) {
 		next(err);
-	})
+	});
 });
 
 router.post('/tableplanner', upload.single('bookings'), function(req, res, next) {
@@ -168,13 +168,12 @@ router.post('/tableplanner', upload.single('bookings'), function(req, res, next)
 			data.sort(compare);
 			group = 0;
 			for (var i = 0; i < data.length; i++) {
-				if (i==0 || data[i].booked_by != data[i-1].booked_by)
-					group++
-				data[i].group = group
+				if (i==0 || data[i].booked_by != data[i-1].booked_by) group++;
+				data[i].group = group;
 			}
 			res.render('admin/events_tableplanner', {no_tables: req.body.no_tables, no_seats: req.body.no_seats, bookings:data});
-		})
-	})
+		});
+	});
 
 	function compare(a,b) {
 	  if (a.booked_by < b.booked_by)

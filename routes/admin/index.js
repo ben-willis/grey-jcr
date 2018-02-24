@@ -34,9 +34,9 @@ router.get('/', function (req, res, next) {
 
 router.post('/adduser', function(req, res, next) {
 	User.create(req.body.username).then(function(user) {
-		res.json({success: true, user: user})
-	}).catch(next)
-})
+		res.json({success: true, user: user});
+	}).catch(next);
+});
 
 router.use('/roles', roles);
 router.use('/blog', blog);

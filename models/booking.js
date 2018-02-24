@@ -19,19 +19,19 @@ Booking.prototype.updateNotes = function(notes) {
         notes: notes
     }).then(function(id){
         this.notes = notes;
-    })
-}
+    });
+};
 
 Booking.prototype.getChoices = function() {
     return db('booking_choices').select('choice_id').where({booking_id: this.id}).then(function(choices) {
         this.choices = choices.map(function(choice) { return choice.choice_id });
         return this.choices;
-    }.bind(this))
-}
+    }.bind(this));
+};
 
 Booking.prototype.getChoiceDetailsById = function(choice_id) {
     return db('ticket_option_choices').first().where({id: choice_id});
-}
+};
 
 Booking.prototype.setChoices = function(choices) {
     self = this;
@@ -47,8 +47,8 @@ Booking.prototype.setChoices = function(choices) {
     }).then(function() {
         this.choices = choices;
         return;
-    })
-}
+    });
+};
 
 
 /* Static Methods */
@@ -66,10 +66,10 @@ Booking.create = function(ticket_id, event_id, booked_by, names) {
                 guestname: guestname
             }).returning('id').then(function(id){
                 return Booking.findById(id[0]);
-            })
+            });
         })
-    )
-}
+    );
+};
 
 Booking.findById = function(booking_id) {
     var booking = null;
@@ -78,8 +78,8 @@ Booking.findById = function(booking_id) {
         return booking.getChoices();
     }).then(function() {
         return booking;
-    })
-}
+    });
+};
 
 Booking.getByTicketIdAndUsername = function(ticket_id, username) {
     return db('bookings').select().where({ticket_id: ticket_id, username: username}).orWhere({ticket_id: ticket_id, booked_by: username}).then(function(data) {
@@ -87,8 +87,8 @@ Booking.getByTicketIdAndUsername = function(ticket_id, username) {
         return data.map(function(booking_data) {
             return new Booking(booking_data);
         });
-    })
-}
+    });
+};
 
 Booking.getByTicketId = function(ticket_id) {
     return db('bookings').select().where({ticket_id: ticket_id}).then(function(data){
@@ -101,14 +101,14 @@ Booking.getByTicketId = function(ticket_id) {
                     return booking;
                 });
             })
-        )
+        );
     });
-}
+};
 
 Booking.countByTicketId = function(ticket_id) {
     return db('bookings').count().where({ticket_id: ticket_id}).first().then(function(data) {
         return parseInt(data.count);
-    })
-}
+    });
+};
 
 module.exports = Booking;

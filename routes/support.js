@@ -13,7 +13,7 @@ router.get('/', function (req, res, next) {
 						return role;
 					});
 				})
-			)
+			);
 		}).then(function (reps) {
 			res.render('support/index', {reps: reps});
 		}).catch(function (err) {

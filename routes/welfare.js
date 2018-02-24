@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-var Role = require('../models/role')
+var Role = require('../models/role');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -13,7 +13,7 @@ router.get('/', function (req, res, next) {
 						return role;
 					});
 				})
-			)
+			);
 		}).then(function (roles) {
 			res.render('welfare/index', {welfare: roles});
 		}).catch(function (err) {

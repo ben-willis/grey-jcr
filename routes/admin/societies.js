@@ -30,7 +30,7 @@ router.get('/', function (req, res, next) {
 /* POST a new society */
 router.post('/', function (req, res, next) {
 	Society.create(req.body.name, req.body.type).then(function (society){
-		return res.redirect('/admin/societies/'+society.id)
+		return res.redirect('/admin/societies/'+society.id);
 	}).catch(function (err) {
 		return next(err);
 	});
@@ -55,9 +55,9 @@ router.post('/:society_id', function (req, res, next) {
 			req.body.twitter,
 			req.body.email,
 			req.body.type
-		)
+		);
 	}).then(function () {
-		return res.redirect('/admin/societies')
+		return res.redirect('/admin/societies');
 	}).catch(function (err) {
 		return next(err);
 	});
@@ -66,12 +66,12 @@ router.post('/:society_id', function (req, res, next) {
 /* GET a delete society post */
 router.get('/:society_id/delete', function (req, res, next) {
 	Society.findById(parseInt(req.params.society_id)).then(function (society) {
-		return society.delete()
+		return society.delete();
 	}).then(function () {
-		return res.redirect('/admin/societies')
+		return res.redirect('/admin/societies');
 	}).catch(function (err) {
 		return next(err);
 	});
-})
+});
 
 module.exports = router;

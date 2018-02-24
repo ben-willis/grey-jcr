@@ -7,13 +7,13 @@ var slug = require('slug');
 var Society = function (data) {
     this.id = data.id;
     this.name = data.name;
-    this.slug = data.slug
+    this.slug = data.slug;
     this.type = data.type;
     this.description = data.description;
     this.facebook = data.facebook;
     this.twitter = data.twitter;
     this.email = data.email;
-}
+};
 
 Society.prototype.update = function(name, description, facebook, twitter, email, type) {
     return db('societies').where({'id': this.id}).update({
@@ -25,11 +25,11 @@ Society.prototype.update = function(name, description, facebook, twitter, email,
         email: email,
         type: type
     });
-}
+};
 
 Society.prototype.delete = function(){
     return db('societies').where({'id': this.id}).del();
-}
+};
 
 /* Static Methods */
 
@@ -49,16 +49,16 @@ Society.create = function (name, type) {
             email: null,
             type: type
         });
-    })
-}
+    });
+};
 
 Society.getAll = function () {
     return db('societies').select().orderBy('name', 'ASC').then(function(societies) {
         return societies.map(function(data) {
             return new Society(data);
-        })
-    })
-}
+        });
+    });
+};
 
 Society.findById = function (id) {
     return db('societies')
@@ -66,9 +66,9 @@ Society.findById = function (id) {
         .first()
         .then(function(data) {
             if (!data) throw httpError(404, "Society not found");
-            return new Society(data)
+            return new Society(data);
         });
-}
+};
 
 Society.findBySlug = function (slug) {
     return db('societies')
@@ -76,9 +76,9 @@ Society.findBySlug = function (slug) {
         .first()
         .then(function(data) {
             if (!data) throw httpError(404, "Society not found");
-            return new Society(data)
+            return new Society(data);
         });
-}
+};
 
 Society.getByType = function (type) {
     promise = db('societies').select();
@@ -94,8 +94,8 @@ Society.getByType = function (type) {
     return promise.orderBy('name', 'ASC').then(function(societies) {
         return societies.map(function(society_data) {
             return new Society(society_data);
-        })
+        });
     });
-}
+};
 
 module.exports = Society;

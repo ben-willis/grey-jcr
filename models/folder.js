@@ -20,7 +20,7 @@ Folder.prototype.createSubfolder = function(name) {
             name: name,
             owner: this.owner,
             parent_id: this.parent_id
-        })
+        });
     });
 };
 
@@ -31,12 +31,12 @@ Folder.prototype.getSubfolders = function() {
                 return new Folder(subfolder);
             })
         );
-    })
+    });
 };
 
 Folder.prototype.removeSubfolder = function(subfolder_id) {
     return db('folders').where({id: subfolder_id}).del();
-}
+};
 
 Folder.prototype.createFile = function(name, description, path) {
     return db('files').insert({
@@ -51,7 +51,7 @@ Folder.prototype.createFile = function(name, description, path) {
             folder_id: this.id,
             description: description,
             path: path
-        }
+        };
     });
 };
 
@@ -61,7 +61,7 @@ Folder.prototype.getFiles = function() {
 
 Folder.prototype.removeFile = function(file_id) {
     return db('files').where({id: file_id}).del();
-}
+};
 
 /* Static Methods */
 
@@ -69,14 +69,14 @@ Folder.findById = function(folder_id) {
     return db('folders').first().where({id: folder_id}).then(function(data) {
         return new Folder(data);
     });
-}
+};
 
 Folder.findForRole = function(role_id) {
     return db('folders').first().where({owner: role_id}).then(function(data) {
         if (!data) return {};
         return new Folder(data);
     });
-}
+};
 
 Folder.create = function(name, owner) {
     return db('folders').insert({
@@ -88,8 +88,8 @@ Folder.create = function(name, owner) {
             name: name,
             owner: owner,
             parent_id: 0
-        })
+        });
     });
-}
+};
 
 module.exports = Folder;

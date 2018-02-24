@@ -32,7 +32,7 @@ router.get('/', function (req, res, next) {
 						return exec_member;
 					});
 				})
-			)
+			);
 		})
 	]).then(function (data){
 		blogs = data[0].splice(0,9);
@@ -46,7 +46,7 @@ router.get('/', function (req, res, next) {
 		res.render('home', {blogs: blogs, events: data[1], exec: data[2]});
 	}).catch(function (err) {
 		next(err);
-	})
+	});
 });
 
 /* GET offline page */
@@ -54,8 +54,8 @@ router.get('/offline', function(req,res,next) {
 	res.render('error', {
 		message: "Disconnected",
 		error: {status: "We were unable to load the page you requested. Please check your network connection and try again."}
-	})
-})
+	});
+});
 
 router.use('/', auth);
 router.use('/jcr/', jcr);

@@ -10,39 +10,39 @@ var Role = function (data) {
     this.slug = data.slug;
     this.description = data.description;
     this.level = data.level;
-}
+};
 
 Role.prototype.setDescription = function(description) {
     return db('roles').where({'id': this.id}).update({
         description: description
     });
-}
+};
 
 Role.prototype.delete = function(){
     return db('roles').where({'id': this.id}).del();
-}
+};
 
 Role.prototype.assignUser = function(username) {
     return db('user_roles')
         .insert({
             username: username,
             role_id: this.id
-        })
-}
+        });
+};
 
 Role.prototype.removeUser = function(username) {
     return db('user_roles').where({
         username: username,
         role_id: this.id
     }).del();
-}
+};
 
 Role.prototype.getUsers = function() {
     return db('user_roles')
         .where({'role_id': this.id})
         .join('users', 'user_roles.username', '=', 'users.username')
         .select('users.name', 'users.email', 'users.username');
-}
+};
 
 Role.prototype.getBlogs = function() {
     return db('blogs')
@@ -52,9 +52,9 @@ Role.prototype.getBlogs = function() {
         .then(function(blogs) {
             return blogs.map(function(data) {
                 return data.id;
-            })
+            });
         });
-}
+};
 
 /* Static Methods */
 
@@ -70,16 +70,16 @@ Role.create = function (title, level) {
             slug: slug(title),
             level: level
         });
-    })
-}
+    });
+};
 
 Role.getAll = function () {
     return db('roles').select().then(function(roles) {
         return roles.map(function(data) {
             return new Role(data);
-        })
-    })
-}
+        });
+    });
+};
 
 Role.findById = function (id) {
     return db('roles')
@@ -87,9 +87,9 @@ Role.findById = function (id) {
         .first()
         .then(function(data) {
             if (!data) throw httpError(404, "Role not found");
-            return new Role(data)
+            return new Role(data);
         });
-}
+};
 
 Role.findBySlug = function (slug) {
     return db('roles')
@@ -97,9 +97,9 @@ Role.findBySlug = function (slug) {
         .first()
         .then(function(data) {
             if (!data) throw httpError(404, "Role not found");
-            return new Role(data)
+            return new Role(data);
         });
-}
+};
 
 Role.getByType = function (type) {
     promise = db('roles').select();
@@ -124,8 +124,8 @@ Role.getByType = function (type) {
     return promise.then(function(roles) {
         return roles.map(function(role_data) {
             return new Role(role_data);
-        })
+        });
     });
-}
+};
 
 module.exports = Role;
