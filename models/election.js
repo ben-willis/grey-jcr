@@ -120,7 +120,7 @@ Election.prototype.getFirstPreference = function(ballot) {
 Election.prototype.cleanseBallot = function(ballot) {
     var preference_counts = {};
     // filter out non integers and non negatives
-    for (let i = ballot.length-1; i>-1; i--) {
+    for (i = ballot.length-1; i>-1; i--) {
         var preference = ballot[i].preference;
         if (!(preference % 1 === 0  && preference > 0)) {
             ballot.splice(i, 1);
@@ -129,7 +129,7 @@ Election.prototype.cleanseBallot = function(ballot) {
         }
     }
     // Filter out repeats
-    for (let i = ballot.length-1; i>-1; i--) {
+    for (i = ballot.length-1; i>-1; i--) {
         if (preference_counts[ballot[i].preference] != 1){
             ballot.splice(i, 1);
         }
@@ -139,7 +139,7 @@ Election.prototype.cleanseBallot = function(ballot) {
         return vote_a.preference - vote_b.preference;
     });
     // And then we run through checking order
-    for (let i = 0; i < ballot.length; i++) {
+    for (i = 0; i < ballot.length; i++) {
         if (ballot[i].preference != i+1) {
             ballot.splice(i);
             break;
@@ -188,9 +188,10 @@ Election.create = function(election_name) {
 };
 
 Election.findById = function(election_id) {
+    var election;
     return db('elections').first().where({id: election_id}).then(function(data){
         if (!data) return httpError(404, "Election not found");
-        var election = new Election(data);
+        election = new Election(data);
         return election.getPositions();
     }).then(function(positions) {
         election.positions = positions;

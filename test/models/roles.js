@@ -11,17 +11,17 @@ describe('Static Methods', function() {
             slug: "test-role",
             description: "test",
             level: 5
-        }).returning(["id"]).then(function(id) {
+        }).returning("id").then(function(id) {
             created_role_id = id[0];
             done();
-        })
+        }).catch(done);
     });
 
     afterEach(function(done) {
         db('roles').del().then(function() {
             created_role_id = null;
             done();
-        })
+        }).catch(done);
     });
 
     it("should create new roles", function(done){
@@ -30,7 +30,7 @@ describe('Static Methods', function() {
             expect(role.slug).to.equal("Test-Role-2");
             expect(role.level).to.equal(2);
             done();
-        })
+        }).catch(done);
     });
 
     it("should find roles by id", function(done) {
@@ -42,7 +42,7 @@ describe('Static Methods', function() {
             done();
         }).catch(function(err){
             done(err);
-        })
+        }).catch(done);
     });
 
     it("should find roles by slug", function(done) {
@@ -139,10 +139,10 @@ describe('Role Object', function() {
 
     it("should assign a user", function(done) {
         current_role.assignUser(fake_username).then(function() {
-            return db('user_roles').select({
+            return db('user_roles').select().where({
                 username: fake_username,
                 role_id: current_role.id
-            })
+            });
         }).then(function(data){
             expect(data).to.have.length(1);
             done();

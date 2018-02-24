@@ -5,7 +5,8 @@ var slug = require('slug');
 var expect = require("chai").expect;
 
 describe('Static Blog Methods', function() {
-    created_blog_id = null;
+    var test_role_id = null;
+    var created_blog_id = null;
 
     beforeEach(function(done) {
         // Create fake user and role
@@ -22,13 +23,14 @@ describe('Static Blog Methods', function() {
                 name: "Abc Def"
             }).returning('username')
         ]).then(function(ids) {
+            test_role_id = ids[0][0];
             // Create fake blog post
             return db('blogs').insert({
                 title: "Test",
                 slug: "Test",
                 message: "Test Message",
                 author: "abcd12",
-                role_id: ids[0][0]
+                role_id: test_role_id
             }).returning('id');
         }).then(function(id) {
             created_blog_id = id[0];
@@ -44,6 +46,7 @@ describe('Static Blog Methods', function() {
             db('roles').del(),
             db('users').del()
         ]).then(function() {
+            test_role_id = null;
             created_blog_id = null;
             done();
         }).catch(function(err){
@@ -57,7 +60,7 @@ describe('Static Blog Methods', function() {
             slug: "Test 2",
             message: "Test 2 Message",
             author: "abcd12",
-            role_id: 1
+            role_id: test_role_id
         }).then(function(blog) {
             expect(blog.title).to.equal("Test 2");
             done();
@@ -88,7 +91,8 @@ describe('Static Blog Methods', function() {
 });
 
 describe('Blog Object', function() {
-    blog = null;
+    var test_role_id = null;
+    var blog = null;
 
     beforeEach(function(done) {
         // Create fake user and role
@@ -105,13 +109,14 @@ describe('Blog Object', function() {
                 name: "Abc Def"
             }).returning('username')
         ]).then(function(ids) {
+            test_role_id = ids[0][0]
             // Create fake blog post
             return db('blogs').insert({
                 title: "Test",
                 slug: "Test",
                 message: "Test Message",
                 author: "abcd12",
-                role_id: ids[0][0]
+                role_id: test_role_id
             }).returning('id');
         }).then(function(id) {
             return db('blogs').first().where({id: id[0]});
@@ -129,6 +134,7 @@ describe('Blog Object', function() {
             db('roles').del(),
             db('users').del()
         ]).then(function() {
+            test_role_id = null;
             blog = null;
             done();
         }).catch(function(err){
