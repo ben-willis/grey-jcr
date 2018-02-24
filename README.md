@@ -22,6 +22,8 @@ DB_NAME=grey
 DB_USERNAME=grey
 DB_PASSWORD=password
 
+DB_TEST=grey-test
+
 SESSION_SECRET=supersecretphrase
 
 PAYPAL_MODE=sandbox
@@ -45,7 +47,7 @@ First you need to run `npm run migrate-postgres`. This will create the required 
 Use the command `npm run start` to start the website then visit "localhost:3000" in your browser
 
 ## Tests
-Tests are currently lacking at the moment. To run the tests that do exist you then need to create the tables using the command `npm run migrate-sqlite`.
+Tests are currently lacking at the moment. To run the tests that do exist you then need to create the tables using the command `npm run migrate-test`.
 
 You also need to install mocha globally with the command `npm install mocha -g`.
 

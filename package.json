@@ -11,7 +11,7 @@
     "start-forever": "cross-env NODE_ENV=production forever start --uid grey-jcr --append --minUptime 1000 --spinSleepTime 1000 -e ./err.log ./bin/www",
     "migrate-postgres": "knex migrate:latest --env development",
     "seed-postgres": "knex seed:run --env development",
-    "migrate-sqlite": "knex migrate:latest --env testing"
+    "migrate-test": "knex migrate:latest --env testing"
   },
   "dependencies": {
     "async": "^1.5.2",
@@ -19,9 +19,6 @@
     "better-console": "^0.2.4",
     "body-parser": "~1.13.2",
     "capitalize": "^1.0.0",
-    "chai": "^2.1.2",
-    "chai-as-promised": "^5.3.0",
-    "chai-datetime": "^1.4.1",
     "compression": "^1.6.1",
     "connect-flash": "^0.1.1",
     "connect-redis": "^3.0.2",
@@ -84,8 +81,14 @@
     "shortid": "^2.2.6",
     "slug": "^0.9.1",
     "socket.io": "^1.7.2",
-    "sqlite3": "^3.1.4",
     "validator": "^5.1.0",
     "yamljs": "^0.2.6"
+  },
+  "devDependencies": {
+    "chai": "^2.1.2",
+    "chai-as-promised": "^5.3.0",
+    "chai-datetime": "^1.4.1",
+    "jshint": "^2.9.5",
+    "sqlite3": "^3.1.4"
   }
 }
