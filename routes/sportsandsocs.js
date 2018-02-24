@@ -38,7 +38,7 @@ router.get('/:society_slug', function(req, res, next) {
 	var society;
 	Society.findBySlug(req.params.society_slug).then(function(data) {
 		society = data;
-		var type = (data.type==0) ? "society" : "sport";
+		var type = (data.type === 0) ? "society" : "sport";
 		return Society.getByType(type);
 	}).then(function(other_societies) {
 		other_societies = shuffle(other_societies);

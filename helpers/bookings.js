@@ -16,14 +16,14 @@ bookings_manager = {
             this.processing = true;
         }
 
-		curr_booking = this.queue.shift();
+		var curr_booking = this.queue.shift();
 
 		Ticket.findById(curr_booking.ticket_id)
 			.then(function(){
 				return this.checkBookingValid(curr_booking);
 			}.bind(this))
 			.then(function(){
-				return Booking.create(curr_booking.ticket_id, curr_booking.event_id, curr_booking.booker, curr_booking.users)
+				return Booking.create(curr_booking.ticket_id, curr_booking.event_id, curr_booking.booker, curr_booking.users);
 			})
 			.then(function(bookings) {
 	            curr_booking.promise.resolve(bookings);
@@ -52,10 +52,10 @@ bookings_manager = {
 					throw httpError(400, "Booking is closed");
 				}
 				if (booking.users.length < ticket.min_booking) {
-					throw httpError(400, "You must book on at least "+ticket.min_booking+" people")
+					throw httpError(400, "You must book on at least "+ticket.min_booking+" people");
 				}
 				if (booking.users.length < ticket.min_booking) {
-					throw httpError(400, "You can only book on up to "+ticket.max_booking+" people")
+					throw httpError(400, "You can only book on up to "+ticket.max_booking+" people");
 				}
 				return;
 			})
@@ -70,13 +70,13 @@ bookings_manager = {
 								return user.getDebt();
 							}).then(function(debt){
 								if (debt > 0 && !ticket.allow_debtors) {
-									throw httpError(400, user.name+" is a debtor and debtors are blocked")
+									throw httpError(400, user.name+" is a debtor and debtors are blocked");
 								}
 								return Booking.getByTicketIdAndUsername(ticket.id, user.username);
 							}).then(function(bookings) {
 								if (!bookings) return;
 								for (var i = 0; i < bookings.length; i++) {
-									if (bookings[i].username == user.username) throw httpError(user.name+" is already booked on")
+									if (bookings[i].username == user.username) throw httpError(user.name+" is already booked on");
 								}
 							});
 						} else if (!ticket.allow_guests) {
@@ -92,7 +92,7 @@ bookings_manager = {
 			})
 			.then(function(bookings_so_far) {
 				if (ticket.stock - bookings_so_far < booking.users.length) {
-					throw httpError(400, "No more spaces")
+					throw httpError(400, "No more spaces");
 				}
 				return;
 			});

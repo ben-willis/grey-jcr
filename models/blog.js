@@ -12,7 +12,7 @@ var Blog = function (data) {
     this.role_id = data.role_id;
     this.updated = new Date(data.updated);
 
-    this.permalink = this.updated.getFullYear()+"/"+(this.updated.getMonth()+1)+"/"+this.updated.getDate()+"/"+this.slug
+    this.permalink = this.updated.getFullYear()+"/"+(this.updated.getMonth()+1)+"/"+this.updated.getDate()+"/"+this.slug;
 };
 
 Blog.prototype.getRole = function () {
@@ -62,14 +62,14 @@ Blog.create = function(data) {
 Blog.findById = function(id) {
     return db('blogs').first().where({id: id}).then(function(data) {
         if (!data) throw httpError(404, "Blog not found");
-        blog = new Blog(data);
+        var blog = new Blog(data);
         return Promise.all([
             blog,
             blog.getRole(),
             blog.getAuthor()
         ]);
     }).then(function(data) {
-        blog = data[0];
+        var blog = data[0];
         blog.role = data[1];
         blog.author = data[2];
         return blog;
@@ -82,19 +82,19 @@ Blog.findBySlugAndDate = function(slug, date) {
         new Date(date.getTime() + 24*60*60*1000)
     ]).andWhere({slug: slug}).then(function(data) {
         if (!data) throw httpError(404, "Blog not found");
-        blog = new Blog(data);
+        var blog = new Blog(data);
         return Promise.all([
             blog,
             blog.getRole(),
             blog.getAuthor()
-        ])
+        ]);
     }).then(function(data) {
-        blog = data[0];
+        var blog = data[0];
         blog.role = data[1];
         blog.author = data[2];
         return blog;
     });
-}
+};
 
 Blog.search = function(query) {
     return db('blogs')
@@ -103,7 +103,7 @@ Blog.search = function(query) {
         .then(function(data){
             return Promise.all(
                 data.map(function(blog_data) {
-                    blog = new Blog(blog_data);
+                    var blog = new Blog(blog_data);
                     return blog.getRole().then(function(role) {
                         return {
                             title: blog_data.title,
@@ -134,7 +134,7 @@ Blog.get = function(role_id, year, month) {
     return blogs_promise.then(function(data_array) {
         return Promise.all(
             data_array.map(function(blog_data) {
-                blog = new Blog(blog_data);
+                var blog = new Blog(blog_data);
                 return Promise.all([
                     blog.getRole(),
                     blog.getAuthor()
@@ -161,7 +161,7 @@ Blog.getByDateRange = function(start_date, end_date) {
         .then(function(data_array) {
             return Promise.all(
                 data_array.map(function(blog_data) {
-                    blog = new Blog(blog_data)
+                    var blog = new Blog(blog_data);
                     return Promise.all([
                         blog.getRole(),
                         blog.getAuthor()

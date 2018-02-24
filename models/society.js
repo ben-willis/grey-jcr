@@ -81,7 +81,7 @@ Society.findBySlug = function (slug) {
 };
 
 Society.getByType = function (type) {
-    promise = db('societies').select();
+    var promise = db('societies').select();
     switch(type) {
         case "sport":
             promise = promise.where("type", "=", 1);

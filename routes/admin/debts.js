@@ -33,7 +33,7 @@ router.get('/', function (req, res, next) {
 router.get('/totals.csv', function (req, res, next) {
 	User.getDebtors()
 		.then(function (debtors) {
-			columns = {
+			var columns = {
 				username: 'Username',
 				name: 'Name',
 				email: 'Email',
@@ -68,13 +68,13 @@ router.get('/:username', function (req, res, next) {
 
 /* POST a new debt */
 router.post('/:username', function (req, res, next) {
-	amount = Math.floor(req.body.amount*100);
+	var amount = Math.floor(req.body.amount*100);
 	User.findByUsername(req.params.username)
 		.then(function(user) {
 			return user.addDebt(req.body.name, req.body.message, amount);
 		})
 		.then(function() {
-			res.redirect(303, '/admin/debts/'+req.params.username+'?post-success')
+			res.redirect(303, '/admin/debts/'+req.params.username+'?post-success');
 		})
 		.catch(function (err){
 			next(err);

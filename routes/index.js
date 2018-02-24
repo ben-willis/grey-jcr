@@ -35,7 +35,7 @@ router.get('/', function (req, res, next) {
 			);
 		})
 	]).then(function (data){
-		blogs = data[0].splice(0,9);
+		var blogs = data[0].splice(0,9);
 		for (blog of blogs) {
 			blog.message = htmlToText.fromString(blog.message, {
 				wordwrap: false,

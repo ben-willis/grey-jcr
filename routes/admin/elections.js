@@ -67,8 +67,8 @@ router.get('/:election_id/:position_id/results', function (req, res, next) {
 		election = data;
 		return election.getBallotsByPosition(parseInt(req.params.position_id));
 	}).then(function(ballots) {
-		nominee_totals = {};
-		nominee_names = {};
+		var nominee_totals = {};
+		var nominee_names = {};
 		for (position of election.positions) {
 			if (position.id == parseInt(req.params.position_id)) {
 				for (nominee of position.nominees) {
@@ -87,7 +87,7 @@ router.get('/:election_id/:position_id/results', function (req, res, next) {
 			// Clean ballots
 			for (var i = ballots.length-1; i >=0; i--) {
 				ballots[i] = election.cleanseBallot(ballots[i]);
-				if (ballots[i].length == 0) {
+				if (ballots[i].length === 0) {
 					ballots.splice(i, 1);
 				}
 			}

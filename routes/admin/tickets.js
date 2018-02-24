@@ -74,11 +74,11 @@ router.post('/:ticket_id', function (req, res, next) {
 	var close_booking = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 
 	if (close_booking < open_booking) {
-		err = new Error("Close of booking must be after open of booking");
+		let err = new Error("Close of booking must be after open of booking");
 		err.status(400);
 		next(err);
 	} else if (req.body.max_booking < req.body.min_booking) {
-		err = new Error("Max booking must be greater than or equal to min booking");
+		let err = new Error("Max booking must be greater than or equal to min booking");
 		err.status(400);
 		next(err);
 	}
@@ -89,10 +89,11 @@ router.post('/:ticket_id', function (req, res, next) {
 	var price = Math.round(req.body.price*100);
 	var guest_surcharge = req.body.guest_surcharge*100;
 
-	if (!req.body.options)
-		req.body.options = []
+	if (!req.body.options) req.body.options = [];
 	for (var i = 0; i < req.body.options.length; i++) {
-		req.body.options[i].choices = req.body.options[i].choices.filter(function(choice){ return choice != undefined });
+		req.body.options[i].choices = req.body.options[i].choices.filter(function(choice){
+			return choice !== undefined;
+		});
 		for (var j = 0; j < req.body.options[i].choices.length; j++) {
 			req.body.options[i].choices[j].price = req.body.options[i].choices[j].price * 100;
 		}
@@ -109,7 +110,7 @@ router.post('/:ticket_id', function (req, res, next) {
 	        price: price,
 	        guest_surcharge: guest_surcharge,
 			stock: Math.max(req.body.stock, 0)
-		})
+		});
 	}).then(function () {
 		res.redirect(303, '/admin/tickets');
 	}).catch(function (err) {
@@ -146,7 +147,7 @@ router.get('/:ticket_id/options/:option_id/delete', function(req, res, next) {
 
 /* POST a new choice */
 router.post('/:ticket_id/options/:option_id/choices', function(req, res, next) {
-	price = Math.floor(parseFloat(req.body.price)*100);
+	var price = Math.floor(parseFloat(req.body.price)*100);
 	Ticket.findById(req.params.ticket_id).then(function(ticket) {
 		return ticket.addChoice(req.params.option_id, req.body.name, price);
 	}).then(function () {
@@ -156,7 +157,7 @@ router.post('/:ticket_id/options/:option_id/choices', function(req, res, next) {
 
 /* POST update a choice */
 router.post('/:ticket_id/options/:option_id/choices/:choice_id', function(req, res, next) {
-	price = Math.floor(parseFloat(req.body.price)*100);
+	var price = Math.floor(parseFloat(req.body.price)*100);
 	Ticket.findById(req.params.ticket_id).then(function(ticket) {
 		return ticket.updateChoice(req.params.choice_id, req.body.name, price);
 	}).then(function () {
@@ -204,13 +205,13 @@ router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
 		.then(function(bookings) {
 			return Promise.all(
 				bookings.map(function(booking) {
-					var username = (booking.username == null) ? booking.booked_by : booking.username;
+					var username = (booking.username === null) ? booking.booked_by : booking.username;
 					return User.findByUsername(username).then(function(user) {
-						var name = (booking.username == null) ? booking.guestname : user.name;
-						booking_data = {
+						var name = (booking.username === null) ? booking.guestname : user.name;
+						var booking_data = {
 							booked_by: booking.booked_by,
 							name: name,
-							guest: (booking.username == null),
+							guest: (booking.username === null),
 							email: user.email,
 							notes: booking.notes
 						};

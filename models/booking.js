@@ -12,7 +12,7 @@ var Booking = function (data) {
     this.ticket_id = data.ticket_id;
     this.choices = [];
 
-}
+};
 
 Booking.prototype.updateNotes = function(notes) {
     return db('bookings').where({id: this.id}).update({
@@ -24,7 +24,9 @@ Booking.prototype.updateNotes = function(notes) {
 
 Booking.prototype.getChoices = function() {
     return db('booking_choices').select('choice_id').where({booking_id: this.id}).then(function(choices) {
-        this.choices = choices.map(function(choice) { return choice.choice_id });
+        this.choices = choices.map(function(choice) {
+            return choice.choice_id;
+        });
         return this.choices;
     }.bind(this));
 };
@@ -34,14 +36,14 @@ Booking.prototype.getChoiceDetailsById = function(choice_id) {
 };
 
 Booking.prototype.setChoices = function(choices) {
-    self = this;
+    var self = this;
     return db('booking_choices').where({booking_id: self.id}).del().then(function() {
         return db('booking_choices').insert(
             choices.map(function(choice) {
                 return {
                     booking_id: self.id,
                     choice_id: choice
-                }
+                };
             })
         );
     }).then(function() {
@@ -56,8 +58,8 @@ Booking.prototype.setChoices = function(choices) {
 Booking.create = function(ticket_id, event_id, booked_by, names) {
     return Promise.all(
         names.map(function(name) {
-            username = (name.match(/^[A-Za-z]{4}[0-9]{2}$/gi)) ? name.toLowerCase() : null;
-            guestname = (name.match(/^[A-Za-z]{4}[0-9]{2}$/gi)) ? null : name;
+            var username = (name.match(/^[A-Za-z]{4}[0-9]{2}$/gi)) ? name.toLowerCase() : null;
+            var guestname = (name.match(/^[A-Za-z]{4}[0-9]{2}$/gi)) ? null : name;
             return db('bookings').insert({
                 ticket_id: ticket_id,
                 event_id: event_id,
@@ -94,7 +96,7 @@ Booking.getByTicketId = function(ticket_id) {
     return db('bookings').select().where({ticket_id: ticket_id}).then(function(data){
         return Promise.all(
             data.map(function(booking_data) {
-                booking = new Booking(booking_data);
+                var booking = new Booking(booking_data);
                 return booking.getChoices().then(function(choices) {
                     booking = new Booking(booking_data);
                     booking.choices = choices;

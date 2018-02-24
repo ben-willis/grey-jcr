@@ -11,16 +11,16 @@ var User = function (data) {
     this.username = data.username;
     this.name = data.name;
     this.last_login = new Date(data.last_login);
-}
+};
 
 User.prototype.changeName = function (new_name) {
     return db('users').where('username', this.username).update({
         name: new_name
     }).then(function() {
-        self.name = new_name;
+        this.name = new_name;
     }.bind(this));
-}
-;
+};
+
 User.prototype.updateLastLogin = function() {
     var now = new Date();
     return db('users').where('username', this.username).update({
@@ -41,8 +41,8 @@ User.prototype.getDebt = function() {
         .where('username', this.username)
         .first()
         .then(function(data) {
-            if(!data['total_debt']) return 0;
-            return parseInt(data['total_debt']);
+            if(!data.total_debt) return 0;
+            return parseInt(data.total_debt);
         });
 };
 
@@ -109,12 +109,12 @@ User.prototype.getBlogs = function() {
 };
 
 User.prototype.getVote = function(election_id) {
-    votes = {};
+    var votes = {};
     return db('election_votes')
         .select('nominee_id', 'preference')
         .where({username: this.username, election_id: election_id})
         .then(function(data){
-            if (data.length == 0) return null;
+            if (data.length === 0) return null;
             for (vote of data) {
                 votes[vote.nominee_id] = vote.preference;
             }
@@ -204,9 +204,9 @@ User.getDebtors = function() {
         .orderByRaw('SUM(debts.amount) DESC')
         .then(function(debtors) {
             return debtors.map(function(debtor_data) {
-                debtor = new User(debtor_data);
+                let debtor = new User(debtor_data);
                 debtor.total_debt = parseInt(debtor_data.sum);
-                debtor.last_debt = debtor_data.max
+                debtor.last_debt = debtor_data.max;
                 return debtor;
             });
         });

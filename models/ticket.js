@@ -87,12 +87,9 @@ Ticket.prototype.renameOption = function(option_id, new_name) {
     return db('ticket_options').update({
         name: new_name,
     }).where({id: option_id}).then(function(ids) {
-        for (option of this.options) {
-            if (option.id == option_id) {
-                option.name = new_name;
-                break;
-            }
-        }
+        this.options.map(function(option) {
+            if (option.id == option_id) option.name = new_name;
+        });
         return;
     }.bind(this));
 };
@@ -150,14 +147,11 @@ Ticket.prototype.updateChoice = function (choice_id, new_name, new_price) {
 
 Ticket.prototype.removeChoice = function (choice_id) {
     return db('ticket_option_choices').del().where({id: choice_id}).then(function() {
-        for (option of this.options) {
-            for (var i = 0; i < option.choices.length; i++) {
-                if (option.choices[i].id == choice_id) {
-                    option.choices.splice(i, 1);
-                    break;
-                }
-            }
-        }
+        this.options.forEach(function(option) {
+            option.choices = option.choices.filter(function(choice) {
+                return choice.id != choice_id;
+            });
+        });
         return;
     }.bind(this));
 };
@@ -185,7 +179,7 @@ Ticket.getAll = function() {
     return db('tickets').select().then(function(tickets) {
         return Promise.all(
             tickets.map(function(ticket_data) {
-                ticket = new Ticket(ticket_data);
+                var ticket = new Ticket(ticket_data);
                 return ticket.getOptionsAndChoices().then(function(ticket_options) {
                     ticket = new Ticket(ticket_data);
                     ticket.options = ticket_options;

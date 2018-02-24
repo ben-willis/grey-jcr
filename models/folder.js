@@ -7,7 +7,7 @@ var Folder = function (data) {
     this.name = data.name;
     this.owner = data.owner;
     this.parent_id = data.parent_id;
-}
+};
 
 Folder.prototype.createSubfolder = function(name) {
     return db('folders').insert({
