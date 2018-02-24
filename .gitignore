@@ -49,5 +49,4 @@ public/images/avatars
 public/images/events
 tmp
 
-#testing database
-*.sqlite3
+.jshintrc
