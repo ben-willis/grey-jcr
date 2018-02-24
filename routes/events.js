@@ -84,14 +84,14 @@ router.post('/:event_id/:ticket_id/book', function (req, res, next) {
 										 "\n\n" +
 										 "A debt of £"+(amount/100).toFixed(2)+" has been added to your account, please pay this debt off promptly. You can pay your debt off at: www.greyjcr.com/services/debt. If you have any queries regarding your debt email grey.treasurer@durham.ac.uk."+
 										 "\n\n" + 
-										 "Hope you have a Greyt time!"
-						Mail.send(user.email, event.name+" Booking Confirmation", email_text)
+										 "Hope you have a Greyt time!";
+						Mail.send(user.email, event.name+" Booking Confirmation", email_text);
 
 						// Set Debt
 						return user.setDebtForBooking(ticket.name, "Ticket for "+name, amount, booking.id);
 					});
 				})
-			)
+			);
 		})
 		.then(function() {
 			res.redirect(303, "/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug+"/"+req.params.ticket_id+"/booking?success")
@@ -109,7 +109,7 @@ router.get('/:year/:month/:day/:slug/:ticket_id/booking', function (req, res, ne
 	Event.findBySlugAndDate(req.params.slug, new Date(req.params.year, parseInt(req.params.month)-1, req.params.day))
 		.then(function(data) {
 			event = data;
-			return Ticket.findById(parseInt(req.params.ticket_id))
+			return Ticket.findById(parseInt(req.params.ticket_id));
 		})
 		.then(function(data) {
 			ticket = data;
@@ -120,9 +120,9 @@ router.get('/:year/:month/:day/:slug/:ticket_id/booking', function (req, res, ne
 				bookings.map(function(booking) {
 					return booking.getChoices().then(function(choices) {
 						return booking;
-					})
+					});
 				})
-			)
+			);
 		})
 		.then(function(bookings) {
 			res.render('events/event_booking', {event: event, ticket: ticket, bookings: bookings});
@@ -137,14 +137,14 @@ router.post('/:booking_id', function (req, res, next) {
 	var booking = null;
 	var ticket = null;
 	var amount = 0;
-	booking_choices = (req.body.choices == undefined) ? [] : req.body.choices.filter(function(choice) {return (choice != "")})
+	booking_choices = (req.body.choices == undefined) ? [] : req.body.choices.filter(function(choice) {return (choice != "")});
 	Booking.findById(parseInt(req.params.booking_id))
 		.then(function(data) {
 			booking = data;
 			return Promise.all([
 				booking.setChoices(booking_choices),
 				booking.updateNotes(req.body.notes)
-			])
+			]);
 		})
 		.then(function(){
 			return Ticket.findById(booking.ticket_id);
@@ -157,9 +157,9 @@ router.post('/:booking_id', function (req, res, next) {
 				booking_choices.map(function(choice_id) {
 					return booking.getChoiceDetailsById(choice_id).then(function(choice) {
 						return choice.price;
-					})
+					});
 				})
-			)
+			);
 		})
 		.then(function(choice_prices) {
 			amount += choice_prices.reduce((a,b) => a+b, 0);
@@ -168,7 +168,7 @@ router.post('/:booking_id', function (req, res, next) {
 		})
 		.then(function(user) {
 			name = (booking.username != null) ? booking.username : booking.guestname;
-			return user.setDebtForBooking(ticket.name, "Ticket for "+name, amount, booking.id)
+			return user.setDebtForBooking(ticket.name, "Ticket for "+name, amount, booking.id);
 		})
 		.then(function() {
 			return Event.findById(parseInt(req.body.event_id));
@@ -203,7 +203,7 @@ router.get('/:year/:month/:day/:slug', function (req, res, next) {
 						return ticket;
 					});
 				})
-			)
+			);
 		})
 		.then(function(tickets) {
 			res.render('events/event', {event: event, tickets: tickets});

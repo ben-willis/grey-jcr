@@ -14,7 +14,7 @@ router.get('/', function (req, res, next) {
 					ignoreHref: true,
 					ignoreImage: true
 				}).slice(0, 100) + "...";
-				return new Society(data)
+				return new Society(data);
 			});
 		}),
 		Society.getByType('sport').then(function(sport_data){
@@ -24,7 +24,7 @@ router.get('/', function (req, res, next) {
 					ignoreHref: true,
 					ignoreImage: true
 				}).slice(0, 100) + "...";
-				return new Society(data)
+				return new Society(data);
 			});
 		})
 	]).then(function (data) {
@@ -42,11 +42,11 @@ router.get('/:society_slug', function(req, res, next) {
 		return Society.getByType(type);
 	}).then(function(other_societies) {
 		other_societies = shuffle(other_societies);
-		res.render('sportsandsocs/society', {society: society, others: other_societies.slice(0,4)})
+		res.render('sportsandsocs/society', {society: society, others: other_societies.slice(0,4)});
 	}).catch(function(err) {
-		next(err)
-	})
-})
+		next(err);
+	});
+});
 
 module.exports = router;
 

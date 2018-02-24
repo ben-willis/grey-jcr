@@ -82,7 +82,7 @@ router.get('/:election_id/:position_id/results', function (req, res, next) {
 		var election_completed = false;
 		var round = 1;
 		var winner = null;
-		var result = ""
+		var result = "";
 		while(!winner) {
 			// Clean ballots
 			for (var i = ballots.length-1; i >=0; i--) {
@@ -106,7 +106,7 @@ router.get('/:election_id/:position_id/results', function (req, res, next) {
 			var loser = null;
 			for (var nominee_id in nominee_totals) {
 				if (nominee_totals.hasOwnProperty(nominee_id)) {
-					result += nominee_names[nominee_id] + ": "+nominee_totals[nominee_id]+"<br/>"
+					result += nominee_names[nominee_id] + ": "+nominee_totals[nominee_id]+"<br/>";
 					if (nominee_totals[nominee_id] < nominee_totals[loser] || loser === null) {
 						loser = nominee_id;
 					}
@@ -212,7 +212,7 @@ router.post('/:election_id/:position_id/newnominee', upload.single('manifesto'),
 		} else {
 			return resolve(null);
 		}
-	})
+	});
 	var election = null;
 	Election.findById(parseInt(req.params.election_id))
 		.then(function(data){

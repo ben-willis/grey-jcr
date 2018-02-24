@@ -17,7 +17,7 @@ router.get('/', function (req, res, next) {
 						return exec_member;
 					});
 				})
-			)
+			);
 		}),
 		Role.getByType("officer").then(function(exec_members) {
 			return Promise.all(
@@ -27,7 +27,7 @@ router.get('/', function (req, res, next) {
 						return exec_member;
 					});
 				})
-			)
+			);
 		})
 	]).then(function (roles) {
 			res.render('jcr/index', {exec: roles[0], officers: roles[1]});
@@ -63,7 +63,7 @@ router.get('/blog', function (req, res, next) {
 			filters: filters,
 			blogs: blogs.splice((page-1) * limit, page*limit),
 			roles: data[1].concat(data[2])
-		})
+		});
 	}).catch(function (err) {
 		next(err);
 	});
@@ -83,7 +83,7 @@ router.get('/blog/:role_slug', function (req, res, next) {
 			Blog.get(role.id),
 			role.getUsers(),
 			Folder.findForRole(role.id)
-		])
+		]);
 	}).then(function(data) {
 		data[0].users = data[2];
 		res.render('jcr/profile', {

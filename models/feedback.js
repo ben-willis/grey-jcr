@@ -14,7 +14,7 @@ var Feedback = function (data) {
     this.created = data.created;
     this.author = data.author;
 }
-
+;
 Feedback.prototype.toggleArchived = function () {
     archived = this.archived;
     return db('feedbacks').update('archived', !archived).where({id: this.id}).then(function(){
@@ -53,12 +53,12 @@ Feedback.prototype.addReply = function(message, exec, author) {
         }
     }.bind(this)).then(function() {
         if (exec) {
-            return this.setUnreadByUser()
+            return this.setUnreadByUser();
         } else {
             return;
         }
-    }.bind(this))
-}
+    }.bind(this));
+};
 
 Feedback.prototype.getReplies = function () {
     return db('feedbacks')
@@ -89,18 +89,18 @@ Feedback.create = function(title, message, anonymous, author) {
             read_by_user: true,
             anonymous: anonymous,
             author: author
-        })
-    })
-}
+        });
+    });
+};
 
 Feedback.findById = function(feedback_id) {
     return db('feedbacks').first().where({
         id: feedback_id
     }).then(function(data) {
         if (!data) throw httpError(404, "Feedback not found");
-        return new Feedback(data)
+        return new Feedback(data);
     });
-}
+};
 
 Feedback.getAll = function(archived) {
     return db('feedbacks')
@@ -112,9 +112,9 @@ Feedback.getAll = function(archived) {
                 feedbacks.map(function(feedback_data){
                     return new Feedback(feedback_data);
                 })
-            )
-        })
-}
+            );
+        });
+};
 
 Feedback.getAllByUser = function(username) {
     return db('feedbacks').select().where({
@@ -125,8 +125,8 @@ Feedback.getAllByUser = function(username) {
             feedbacks.map(function(feedback_data){
                 return new Feedback(feedback_data);
             })
-        )
-    })
-}
+        );
+    });
+};
 
 module.exports = Feedback;

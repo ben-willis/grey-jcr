@@ -13,7 +13,7 @@ var Blog = function (data) {
     this.updated = new Date(data.updated);
 
     this.permalink = this.updated.getFullYear()+"/"+(this.updated.getMonth()+1)+"/"+this.updated.getDate()+"/"+this.slug
-}
+};
 
 Blog.prototype.getRole = function () {
     return db('roles').first().where({id: this.role_id});
@@ -31,12 +31,12 @@ Blog.prototype.update = function(data) {
         this.title = data.title;
         this.message = data.message;
         return;
-    })
-}
+    });
+};
 
 Blog.prototype.delete = function() {
     return db('blogs').where({id: this.id}).del();
-}
+};
 
 /* Static Methods */
 
@@ -55,9 +55,9 @@ Blog.create = function(data) {
             message: data.message,
             author: data.author,
             role_id: data.role_id
-        })
-    })
-}
+        });
+    });
+};
 
 Blog.findById = function(id) {
     return db('blogs').first().where({id: id}).then(function(data) {
@@ -67,14 +67,14 @@ Blog.findById = function(id) {
             blog,
             blog.getRole(),
             blog.getAuthor()
-        ])
+        ]);
     }).then(function(data) {
         blog = data[0];
         blog.role = data[1];
         blog.author = data[2];
         return blog;
     });
-}
+};
 
 Blog.findBySlugAndDate = function(slug, date) {
     return db('blogs').first().whereBetween('updated', [
@@ -110,12 +110,12 @@ Blog.search = function(query) {
                             updated: new Date(blog_data.updated),
                             slug: blog_data.slug,
                             role: role
-                        }
-                    })
+                        };
+                    });
                 })
-            )
-        })
-}
+            );
+        });
+};
 
 
 Blog.get = function(role_id, year, month) {
@@ -128,13 +128,13 @@ Blog.get = function(role_id, year, month) {
         blogs_promise = blogs_promise.andWhereBetween('updated', [
             new Date(year, month-1, 1),
             new Date(year, month, 1)
-        ])
+        ]);
     }
 
     return blogs_promise.then(function(data_array) {
         return Promise.all(
             data_array.map(function(blog_data) {
-                blog = new Blog(blog_data)
+                blog = new Blog(blog_data);
                 return Promise.all([
                     blog.getRole(),
                     blog.getAuthor()
@@ -143,11 +143,11 @@ Blog.get = function(role_id, year, month) {
                     blog.role = data[0];
                     blog.author = data[1];
                     return blog;
-                })
+                });
             })
-        )
-    })
-}
+        );
+    });
+};
 
 Blog.getByDateRange = function(start_date, end_date) {
     var limit = (typeof limit !== 'undefined') ? limit : 30;
@@ -170,10 +170,10 @@ Blog.getByDateRange = function(start_date, end_date) {
                         blog.role = data[0];
                         blog.author = data[1];
                         return blog;
-                    })
+                    });
                 })
-            )
-        })
-}
+            );
+        });
+};
 
 module.exports = Blog;

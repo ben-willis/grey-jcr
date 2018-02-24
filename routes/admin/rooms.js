@@ -62,9 +62,9 @@ router.get('/:room_id/bookings', function (req, res, next) {
 			room.getFutureBookings(0),
 			room.getFutureBookings(1),
 			room.getFutureBookings(2)
-		])
+		]);
 	}).then(function(data) {
-		res.render('admin/room_bookings', {room: data[0], pending_bookings: data[1], accepted_bookings: data[2],  rejected_bookings: data[3]})
+		res.render('admin/room_bookings', {room: data[0], pending_bookings: data[1], accepted_bookings: data[2],  rejected_bookings: data[3]});
 	}).catch(next);
 });
 
@@ -74,22 +74,22 @@ router.post('/:room_id/bookings', function (req, res, next) {
 	var time = (req.body.start).split(':');
 	var start = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 	var duration = parseInt(req.body.end) - (60*parseInt(time[0])+parseInt(time[1]));
-	if (duration <= 0) return next(httpError(400, "Start time must be before end time"))
+	if (duration <= 0) return next(httpError(400, "Start time must be before end time"));
 
 	var repeats = req.body.repeats
-	var occurrences = (repeats == 0) ? 1 : req.body.occurrences
+	var occurrences = (repeats == 0) ? 1 : req.body.occurrences;
 
 
 	Room.findById(req.params.room_id).then(function(room) {
 		var booking_promises = []
 		for (var i = 0; i < occurrences; i++) {
 			var startWrapper = moment(start)
-			startWrapper.add(i*repeats, 'days')
+			startWrapper.add(i*repeats, 'days');
 			booking_promises.push(
 				room.addBooking(req.body.name, startWrapper.toDate(), duration, req.user.username, 1)
-			)
+			);
 		}
-		return Promise.all(booking_promises)
+		return Promise.all(booking_promises);
 	}).then(function () {
 		res.redirect(303, '/admin/rooms/'+req.params.room_id+'/bookings');
 	}).catch(next);

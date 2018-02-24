@@ -15,7 +15,7 @@ var Ticket = function (data) {
     this.guest_surcharge = data.guest_surcharge;
     this.stock = data.stock;
     this.options = [];
-}
+};
 
 Ticket.prototype.update = function(name, options) {
     return db('tickets').where({id: this.id}).update({
@@ -40,20 +40,20 @@ Ticket.prototype.update = function(name, options) {
         this.price = options.price;
         this.guest_surcharge = options.guest_surcharge;
         this.stock = options.stock;
-    })
-}
+    });
+};
 
 Ticket.prototype.delete = function() {
     return db('tickets').where({id: this.id}).del();
-}
+};
 
 Ticket.prototype.getEvents = function() {
     return db('event_tickets').select('event_id').where({ticket_id: this.id}).then(function(data) {
         return data.map(function(data) {
-            return data.event_id
+            return data.event_id;
         });
     });
-}
+};
 
 Ticket.prototype.getOptionsAndChoices = function() {
     return db('ticket_options').select().where({ticket_id: this.id}).then(function(options) {
@@ -62,11 +62,11 @@ Ticket.prototype.getOptionsAndChoices = function() {
                 return db('ticket_option_choices').select().where({option_id: option.id}).then(function(choices) {
                     option.choices = choices;
                     return option;
-                })
+                });
             })
-        )
-    })
-}
+        );
+    });
+};
 
 Ticket.prototype.addOption = function(name) {
     return db('ticket_options').insert({
@@ -78,10 +78,10 @@ Ticket.prototype.addOption = function(name) {
             name: name,
             ticket_id: this.id,
             choices: []
-        })
+        });
         return;
     }.bind(this));
-}
+};
 
 Ticket.prototype.renameOption = function(option_id, new_name) {
     return db('ticket_options').update({
@@ -95,7 +95,7 @@ Ticket.prototype.renameOption = function(option_id, new_name) {
         }
         return;
     }.bind(this));
-}
+};
 
 Ticket.prototype.removeOption = function(option_id) {
     return db('ticket_options').del().where({id: option_id}).then(function() {
@@ -106,8 +106,8 @@ Ticket.prototype.removeOption = function(option_id) {
             }
         }
         return;
-    }.bind(this))
-}
+    }.bind(this));
+};
 
 Ticket.prototype.addChoice = function(option_id, name, price) {
     return db('ticket_option_choices').insert({
@@ -122,13 +122,13 @@ Ticket.prototype.addChoice = function(option_id, name, price) {
                     name: name,
                     price: price,
                     ticket_id: this.id
-                })
+                });
                 break;
             }
         }
         return;
     }.bind(this));
-}
+};
 
 Ticket.prototype.updateChoice = function (choice_id, new_name, new_price) {
     return db('ticket_option_choices').update({
@@ -167,8 +167,8 @@ Ticket.prototype.removeChoice = function (choice_id) {
 Ticket.create = function(name) {
     return db('tickets').insert({name: name}).returning('id').then(function(id){
         return Ticket.findById(id[0]);
-    })
-}
+    });
+};
 
 Ticket.findById = function(ticket_id) {
     var ticket = null;
@@ -178,8 +178,8 @@ Ticket.findById = function(ticket_id) {
     }).then(function(ticket_options) {
         ticket.options = ticket_options;
         return ticket;
-    })
-}
+    });
+};
 
 Ticket.getAll = function() {
     return db('tickets').select().then(function(tickets) {
@@ -190,10 +190,10 @@ Ticket.getAll = function() {
                     ticket = new Ticket(ticket_data);
                     ticket.options = ticket_options;
                     return ticket;
-                })
+                });
             })
-        )
-    })
-}
+        );
+    });
+};
 
 module.exports = Ticket;

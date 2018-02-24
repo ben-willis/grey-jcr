@@ -8,7 +8,7 @@ var Election = function (data) {
     this.status = data.status;
     this.name = data.name;
     this.positions = [];
-}
+};
 
 Election.prototype.update = function(name, status) {
     return db('elections').update({
@@ -18,8 +18,8 @@ Election.prototype.update = function(name, status) {
         this.name = name;
         this.status = status;
         return;
-    }.bind(this))
-}
+    }.bind(this));
+};
 
 Election.prototype.delete = function () {
     return db('elections').del().where({id: this.id});
@@ -32,11 +32,11 @@ Election.prototype.getPositions = function() {
                 return db('election_position_nominees').select('id', 'name', 'manifesto').where({position_id: position.id}).then(function(nominees){
                     position.nominees = nominees;
                     return position;
-                })
+                });
             })
-        )
+        );
     });
-}
+};
 
 Election.prototype.addPosition = function(position_name) {
     return db('election_positions').insert({
@@ -47,10 +47,10 @@ Election.prototype.addPosition = function(position_name) {
             name: position_name,
             id: ids[0],
             nominees: []
-        })
+        });
         return;
-    }.bind(this))
-}
+    }.bind(this));
+};
 
 Election.prototype.removePosition = function(position_id) {
     return db('election_positions').del().where({
@@ -62,8 +62,8 @@ Election.prototype.removePosition = function(position_id) {
             }
         }
         return;
-    }.bind(this))
-}
+    }.bind(this));
+};
 
 Election.prototype.addNominee = function(position_id, nominee_name, manifesto) {
     return db('election_position_nominees').insert({
@@ -77,12 +77,12 @@ Election.prototype.addNominee = function(position_id, nominee_name, manifesto) {
                     id: ids[0],
                     name: nominee_name,
                     manifest: manifesto
-                })
+                });
                 return;
             }
         }
-    }.bind(this))
-}
+    }.bind(this));
+};
 
 Election.prototype.removeNominee = function(nominee_id) {
     return db('election_position_nominees').del().where({id: nominee_id}).then(function() {
@@ -95,7 +95,7 @@ Election.prototype.removeNominee = function(nominee_id) {
             }
         }
     }.bind(this));
-}
+};
 
 Election.prototype.castVote = function(username, position_id, votes) {
     // Should probably check election is open and what not
@@ -109,10 +109,10 @@ Election.prototype.castVote = function(username, position_id, votes) {
                 preference:vote.preference,
                 usercode: usercode,
                 username: username
-            })
+            });
         }.bind(this))
-    )
-}
+    );
+};
 
 Election.prototype.getFirstPreference = function(ballot) {
     for (vote of ballot) {
@@ -120,7 +120,7 @@ Election.prototype.getFirstPreference = function(ballot) {
             return vote.nominee_id;
         }
     }
-}
+};
 
 Election.prototype.cleanseBallot = function(ballot) {
     preference_counts = {};
@@ -151,7 +151,7 @@ Election.prototype.cleanseBallot = function(ballot) {
         }
     }
     return ballot;
-}
+};
 
 Election.prototype.getBallotsByPosition = function(position_id) {
     return db('election_votes')
@@ -171,12 +171,12 @@ Election.prototype.getBallotsByPosition = function(position_id) {
                 current_ballot.push({
                     nominee_id: vote.nominee_id,
                     preference: vote.preference
-                })
+                });
             }
             ballots.push(current_ballot);
             return ballots;
-        })
-}
+        });
+};
 
 /* Static Election Methods */
 
@@ -190,7 +190,7 @@ Election.create = function(election_name) {
             id: ids[0]
         });
     });
-}
+};
 
 Election.findById = function(election_id) {
     return db('elections').first().where({id: election_id}).then(function(data){
@@ -199,9 +199,9 @@ Election.findById = function(election_id) {
         return election.getPositions();
     }).then(function(positions) {
         election.positions = positions;
-        return election
+        return election;
     });
-}
+};
 
 Election.getByStatus = function(status) {
     return db('elections').select().where({status: status}).then(function(elections) {
@@ -212,11 +212,11 @@ Election.getByStatus = function(status) {
                     election = new Election(election_data);
                     election.positions = positions;
                     return election;
-                })
+                });
             })
-        )
-    })
-}
+        );
+    });
+};
 
 module.exports = Election;
 

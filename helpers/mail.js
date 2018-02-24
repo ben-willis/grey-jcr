@@ -17,11 +17,11 @@ var mail = {
 			to: to,
 			subject: subject,
 			text: text
-		}
+		};
 
 		transporter.sendMail(mailOptions, function(err, info) {
 			if (err) console.log(err);
-		})
+		});
 
 	}
 };

@@ -27,7 +27,7 @@ router.get('/', function (req, res, next) {
 
 router.post('/newfolder', function (req, res, next) {
 	Folder.findById(parseInt(req.body.folder)).then(function(folder){
-		folder.createSubfolder(req.body.name)
+		folder.createSubfolder(req.body.name);
 	}).then(function () {
 		res.redirect(303, '/admin/files');
 	}).catch(function (err) {
@@ -55,7 +55,7 @@ router.post('/uploadfile', upload.single('file'), function (req, res, next) {
 			mv(req.file.path, __dirname+'/../../public/files/uploaded/'+file_name, function (err) {
 				if(err) return reject(err);
 				return resolve(file_name);
-			})
+			});
 		});
 	}).then(function(file_name) {
 		return current_folder.createFile(req.body.name, req.body.description, file_name);
@@ -68,7 +68,7 @@ router.post('/uploadfile', upload.single('file'), function (req, res, next) {
 
 router.get('/:folder_id/deletefile/:file_id', function (req, res, next) {
 	Folder.findById(parseInt(req.params.folder_id)).then(function(folder){
-		return folder.removeFile(parseInt(req.params.file_id))
+		return folder.removeFile(parseInt(req.params.file_id));
 	}).then(function () {
 		res.redirect(303, '/admin/files');
 	}).catch(function (err) {

@@ -25,9 +25,9 @@ router.get('/', function (req, res, next) {
 					return Booking.countByTicketId(ticket.id).then(function(booking_count) {
 						ticket.sold = booking_count;
 						return ticket;
-					})
+					});
 				})
-			)
+			);
 		}).then(function(tickets ){
 			res.render('admin/tickets', {tickets: tickets});
 		})
@@ -39,7 +39,7 @@ router.get('/', function (req, res, next) {
 /* POST a new ticket */
 router.post('/', function (req, res, next) {
 	Ticket.create(req.body.name).then(function (ticket) {
-		res.redirect(303, '/admin/tickets/'+ticket.id)
+		res.redirect(303, '/admin/tickets/'+ticket.id);
 	}).catch(function (err) {
 		next(err);
 	});
@@ -111,7 +111,7 @@ router.post('/:ticket_id', function (req, res, next) {
 			stock: Math.max(req.body.stock, 0)
 		})
 	}).then(function () {
-		res.redirect(303, '/admin/tickets')
+		res.redirect(303, '/admin/tickets');
 	}).catch(function (err) {
 		next(err);
 	});
@@ -122,7 +122,7 @@ router.post('/:ticket_id/options', function(req, res, next) {
 	Ticket.findById(req.params.ticket_id).then(function(ticket) {
 		return ticket.addOption(req.body.name);
 	}).then(function () {
-		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
 });
 
@@ -131,7 +131,7 @@ router.post('/:ticket_id/options/:option_id', function(req, res, next) {
 	Ticket.findById(req.params.ticket_id).then(function(ticket) {
 		return ticket.renameOption(req.params.option_id, req.body.name);
 	}).then(function () {
-		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
 });
 
@@ -140,7 +140,7 @@ router.get('/:ticket_id/options/:option_id/delete', function(req, res, next) {
 	Ticket.findById(req.params.ticket_id).then(function(ticket) {
 		return ticket.removeOption(req.params.option_id);
 	}).then(function () {
-		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
 });
 
@@ -150,7 +150,7 @@ router.post('/:ticket_id/options/:option_id/choices', function(req, res, next) {
 	Ticket.findById(req.params.ticket_id).then(function(ticket) {
 		return ticket.addChoice(req.params.option_id, req.body.name, price);
 	}).then(function () {
-		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
 });
 
@@ -160,7 +160,7 @@ router.post('/:ticket_id/options/:option_id/choices/:choice_id', function(req, r
 	Ticket.findById(req.params.ticket_id).then(function(ticket) {
 		return ticket.updateChoice(req.params.choice_id, req.body.name, price);
 	}).then(function () {
-		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
 });
 
@@ -169,7 +169,7 @@ router.get('/:ticket_id/options/:option_id/choices/:choice_id/delete', function(
 	Ticket.findById(req.params.ticket_id).then(function(ticket) {
 		return ticket.removeChoice(req.params.choice_id);
 	}).then(function () {
-		res.redirect(303, '/admin/tickets/'+req.params.ticket_id)
+		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
 });
 
@@ -189,7 +189,7 @@ router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
 				guest: "Guest",
 				email: "Email",
 				notes: "Notes"
-			}
+			};
 
 			for (option of ticket.options) {
 				columns[option.id] = option.name;
@@ -213,7 +213,7 @@ router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
 							guest: (booking.username == null),
 							email: user.email,
 							notes: booking.notes
-						}
+						};
 						
 						if (ticket.options == []) return booking_data;
 
@@ -224,18 +224,18 @@ router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
 						return booking_data;
 					});
 				})
-			)
+			);
 		})
 		.then(function(bookings){
 			csv.stringify(bookings, {header: true, columns: columns}, function (err, output) {
 				if (err) throw err;
 				res.set('Content-Type', 'text/csv');
 				res.status(200).send(output);
-			})
+			});
 		})
 		.catch(function (err){
 			next(err);
 		});
 })
-
+;
 module.exports = router;

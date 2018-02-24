@@ -40,14 +40,14 @@ router.get('/rooms/', function (req, res, next) {
 						return Promise.all([
 							room,
 							room.getUserBookings(req.user.username)
-						])
+						]);
 					}).then(function(data){
 						room = data[0];
 						room.user_bookings = data[1];
 						return room;
-					})
+					});
 				})
-			)
+			);
 		} else {
 			return Promise.all(
 				rooms.map(function(room){
@@ -57,13 +57,13 @@ router.get('/rooms/', function (req, res, next) {
 						})
 					).then(function(bookings) {
 						room.bookings = bookings;
-						return room
-					})
+						return room;
+					});
 				})
-			)
+			);
 		}
 	}).then(function(rooms) {
-		res.render('services/rooms', {rooms: rooms, week_start: week_dates[0]})
+		res.render('services/rooms', {rooms: rooms, week_start: week_dates[0]});
 	}).catch(next);
 });
 
@@ -82,10 +82,10 @@ router.post('/rooms/:room_id/bookings', function (req, res, next) {
 	var time = (req.body.start).split(':');
 	var start = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 	var duration = parseInt(req.body.end) - (60*parseInt(time[0])+parseInt(time[1]));
-	if (duration <= 0) return next(httpError(400, "Start time must be before end time"))
+	if (duration <= 0) return next(httpError(400, "Start time must be before end time"));
 
 	Room.findById(req.params.room_id).then(function(room) {
-		return room.addBooking(req.body.name, start, duration, req.user.username, 0)
+		return room.addBooking(req.body.name, start, duration, req.user.username, 0);
 	}).then(function () {
 		res.redirect(303, '/services/rooms#'+req.params.room_id);
 	}).catch(next);
@@ -94,11 +94,11 @@ router.post('/rooms/:room_id/bookings', function (req, res, next) {
 /* GET a delete booking */
 router.get('/rooms/:room_id/bookings/:booking_id/delete', function (req, res, next) {
 	Room.findById(req.params.room_id).then(function(room) {
-		return room.removeBooking(req.params.booking_id, req.user.username)
+		return room.removeBooking(req.params.booking_id, req.user.username);
 	}).then(function () {
 		res.redirect(303, '/services/rooms#'+req.params.room_id);
 	}).catch(next);
-})
+});
 
 /* GET user page. */
 router.get('/user/:username', function (req, res, next) {
@@ -140,9 +140,9 @@ router.get('/feedback', function (req, res, next) {
 				return feedback.getReplies().then(function(replies) {
 					feedback.replies = replies;
 					return feedback;
-				})
+				});
 			})
-		)
+		);
 	}).then(function(feedbacks){
 		res.render('services/feedback', {feedbacks: feedbacks});
 	}).catch(function (err) {
@@ -153,7 +153,7 @@ router.get('/feedback', function (req, res, next) {
 /* POST a new piece of feedback */
 router.post('/feedback', function (req, res, next) {
 	Feedback.create(req.body.title, req.body.message, (req.body.anonymous=='on'), req.user.username).then(function (feedback) {
-			res.redirect(303, '/services/feedback/'+feedback.id+'?success')
+			res.redirect(303, '/services/feedback/'+feedback.id+'?success');
 		})
 		.catch(function (err) {
 			next(err);
@@ -172,15 +172,15 @@ router.get('/feedback/:feedback_id', function (req, res, next) {
 						return User.findByUsername(reply.author).then(function(user) {
 							reply.author = (!feedback.anonymous || reply.exec) ? user : null;
 							return reply;
-						})
+						});
 					})
-				)
+				);
 			}),
 			User.findByUsername(feedback.author).then(function(user) {
 				return (feedback.anonymous) ? null: user;
 			}),
 			feedback.setReadByUser()
-		])
+		]);
 	}).then(function (data) {
 		data[0].author = data[2];
 		return res.render('services/feedback_view', {feedback: data[0], replies: data[1]});
@@ -195,7 +195,7 @@ router.post('/feedback/:feedback_id', function (req, res, next) {
 		if (feedback.author != req.user.username) throw httpError(403);
 		return feedback.addReply(req.body.message, false, req.user.username);
 	}).then(function () {
-		res.redirect(303, '/services/feedback/'+req.params.feedback_id+'?success')
+		res.redirect(303, '/services/feedback/'+req.params.feedback_id+'?success');
 	}).catch(function (err) {
 		next(err);
 	});
@@ -211,7 +211,7 @@ router.get('/elections', function (req, res, next) {
 		})
 		.catch(function (err) {
 			next(err);
-		})
+		});
 });
 
 /* GET the vote in elections page */
@@ -226,7 +226,7 @@ router.get('/elections/:election_id', function (req, res, next) {
 		})
 		.catch(function (err) {
 			next(err);
-		})
+		});
 });
 
 /* POST a vote */
@@ -241,9 +241,9 @@ router.post('/elections/:election_id', function (req, res, next) {
 		.then(function(election){
 			return Promise.all(
 				req.body.ballot.map(function(ballot){
-					election.castVote(req.user.username, ballot.position_id, Object.keys(ballot.votes).map(k => ballot.votes[k]))
+					election.castVote(req.user.username, ballot.position_id, Object.keys(ballot.votes).map(k => ballot.votes[k]));
 				})
-			)
+			);
 
 		})
 		.then(function () {
@@ -251,7 +251,7 @@ router.post('/elections/:election_id', function (req, res, next) {
 		})
 		.catch( function (err) {
 			next(err);
-		})
+		});
 });
 
 // Configure Paypal
@@ -316,8 +316,8 @@ router.get('/debt/pay', function (req, res, next){
 	})
 	.catch(function (err) {
 		next(err);
-	})
-})
+	});
+});
 
 /* GET the confirmation page */
 router.get('/debt/pay/confirm', function (req, res, next) {
@@ -343,7 +343,7 @@ router.get('/debt/pay/execute', function (req, res, next) {
 	    	res.redirect(303, '/services/debt');
 	    }).catch(function (err) {
 	    	next(err);
-	    })
+	    });
   	});
 });
 

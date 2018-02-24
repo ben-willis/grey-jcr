@@ -102,7 +102,7 @@ router.post('/:role_id/edit', function (req, res, next) {
 			res.redirect('/admin/roles');
 		}).catch(function (err) {
 			next(err);
-		})
+		});
 });
 
 router.get('/:role_id/delete', function (req, res, next) {
@@ -112,7 +112,7 @@ router.get('/:role_id/delete', function (req, res, next) {
 			res.redirect('/admin/roles');
 		}).catch(function (err) {
 			next(err);
-		})
+		});
 });
 
 module.exports = router;
