@@ -156,14 +156,14 @@ describe('User Object', function() {
 
     it("should assign itself to a role", function(done) {
         current_user.assignRole(fake_role_id).then(function() {
-            return db('user_roles').select({
+            return db('user_roles').select().where({
                 username: current_user.username,
                 role_id: fake_role_id
             })
         }).then(function(data){
             expect(data).to.have.length(1);
             done();
-        })
+        }).catch(done);
     });
 
     it("should get all its roles", function(done) {

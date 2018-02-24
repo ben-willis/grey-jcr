@@ -204,7 +204,7 @@ User.getDebtors = function() {
         .orderByRaw('SUM(debts.amount) DESC')
         .then(function(debtors) {
             return debtors.map(function(debtor_data) {
-                let debtor = new User(debtor_data);
+                var debtor = new User(debtor_data);
                 debtor.total_debt = parseInt(debtor_data.sum);
                 debtor.last_debt = debtor_data.max;
                 return debtor;
