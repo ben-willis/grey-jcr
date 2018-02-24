@@ -38,23 +38,21 @@ router.get('/', function (req, res, next) {
 
 /* GET blog page. */
 router.get('/blog', function (req, res, next) {
-	if (req.user) {
-		req.user.updateLastLogin();
-	}
-	filters = {
+	if (req.user) req.user.updateLastLogin()
+	var filters = {
 		role_id: parseInt(req.query.role_id) || 0,
 		year: parseInt(req.query.year) || 0,
 		month: parseInt(req.query.month) || 0
-	}
-	page = parseInt(req.query.page) || 1;
-	limit = parseInt(req.query.limit) || 10;
+	};
+	var page = parseInt(req.query.page) || 1;
+	var limit = parseInt(req.query.limit) || 10;
 	Promise.all([
 		Blog.get(filters.role_id, filters.year, filters.month),
 		Role.getByType("exec"),
 		Role.getByType("officer")
 	]).then(function(data) {
-		blogs = data[0];
-		total_pages = Math.ceil(blogs.length / limit);
+		var blogs = data[0];
+		var total_pages = Math.ceil(blogs.length / limit);
 		page = (blogs.length == 0) ? 0 : page;
 		res.render('jcr/blog', {
 			page: page,
@@ -75,8 +73,8 @@ router.get('/blog/:role_slug', function (req, res, next) {
 	if (req.user) {
 		req.user.updateLastLogin();
 	}
-	page = parseInt(req.query.page) || 1;
-	limit = parseInt(req.query.limit) || 6;
+	var page = parseInt(req.query.page) || 1;
+	var limit = parseInt(req.query.limit) || 6;
 	Role.findBySlug(req.params.role_slug).then(function(role){
 		return Promise.all([
 			role,
@@ -87,7 +85,7 @@ router.get('/blog/:role_slug', function (req, res, next) {
 	}).then(function(data) {
 		data[0].users = data[2];
 		res.render('jcr/profile', {
-			page: (data[1].length == 0) ? 0 : page,
+			page: (data[1].length === 0) ? 0 : page,
 			limit: limit,
 			total_pages: Math.ceil(data[1].length / limit),
 			blogs: data[1].splice((page-1) * limit, page*limit),

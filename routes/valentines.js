@@ -15,7 +15,7 @@ router.use(function (req, res, next) {
 			req.session.redirect_to = req.originalUrl;
 			res.redirect(401, '/login?unauthorised');
 		}
-	})
+	});
 	
 });
 

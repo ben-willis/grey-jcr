@@ -38,7 +38,7 @@ router.get('/', function (req, res, next) {
 			} else {
 				reps.push(roles[i]);
 			}
-		};
+		}
 		res.render('admin/roles', {exec: exec, officers: officers, welfare: welfare, reps: reps});
 	}).catch(function (err) {
 		next(err);
@@ -47,7 +47,7 @@ router.get('/', function (req, res, next) {
 
 router.post('/new', function (req, res, next) {
 	if (validator.isNull(req.body.title) || !validator.isIn(req.body.level, ["1", "2", "3", "4", "5"])) {
-		err = new Error("Bad Request");
+		var err = new Error("Bad Request");
 		return next(err);
 	}
 	Role.create(req.body.title, parseInt(req.body.level)).then(function (role) {
@@ -59,7 +59,7 @@ router.post('/new', function (req, res, next) {
 		res.redirect('/admin/roles');
 	}).catch(function (err) {
 		next(err);
-	})
+	});
 });
 
 router.post('/:role_id/addUser', function (req, res, next) {

@@ -49,7 +49,7 @@ Valentines.clearSwaps = function() {
 
 Valentines.createPair = function(lead, partner, position) {
 	return db('valentines_pairs')
-		.insert({lead: lead, partner: partner, position: position})
+		.insert({lead: lead, partner: partner, position: position});
 };
 
 Valentines.getDebt = function(username) {

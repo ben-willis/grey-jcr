@@ -16,7 +16,7 @@ var Feedback = function (data) {
 }
 ;
 Feedback.prototype.toggleArchived = function () {
-    archived = this.archived;
+    var archived = this.archived;
     return db('feedbacks').update('archived', !archived).where({id: this.id}).then(function(){
         this.archived = !archived;
         return;

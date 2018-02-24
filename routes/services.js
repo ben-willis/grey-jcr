@@ -24,7 +24,7 @@ router.get('/rooms/', function (req, res, next) {
 
 	var week_dates = [0,1,2,3,4,5,6].map(function(dow) {
 		return new Date(selected_date.getTime() + ((dow - selected_date.getDay())*24*60*60*1000))
-	})
+	});
 
 	var room = null;
 	Room.getAll().then(function(rooms) {
@@ -112,7 +112,7 @@ router.get('/user/:username', function (req, res, next) {
 /* GET update user page. */
 router.get('/user/:username/update', function (req, res, next) {
 	if (req.params.username != req.user.username) {
-		err = new Error("Forbidden");
+		var err = new Error("Forbidden");
 		err.status = 403;
 		return next(err);
 	}
@@ -122,7 +122,7 @@ router.get('/user/:username/update', function (req, res, next) {
 /* POST a new avatar */
 router.post('/user/:username/update', upload.single('avatar'), function (req, res, next) {
 	if (req.params.username != req.user.username) {
-		err = new Error("Forbidden");
+		var err = new Error("Forbidden");
 		err.status = 403;
 		return next(err);
 	}
@@ -220,7 +220,7 @@ router.get('/elections/:election_id', function (req, res, next) {
 	var election;
 	req.user.getVote(parseInt(req.params.election_id)).then(function(data){
 		vote = data;
-		return Election.findById(parseInt(req.params.election_id))
+		return Election.findById(parseInt(req.params.election_id));
 	}).then(function (election) {
 			res.render('services/elections_vote', {election: election, user_vote: vote});
 		})

@@ -13,21 +13,19 @@ var Event = function (data) {
 };
 
 Event.prototype.update = function(name, description, time, image) {
-    data = {
+    var data = {
         name: name,
         slug: slug(name),
         description: description,
         time: new Date(time)
     };
-    if (image)
-        data.image = image;
+    if (image) data.image = image;
     return db('events').where({id: this.id}).update(data).then(function() {
         this.name = name;
         this.slug = slug(name);
         this.description = description;
         this.time = new Date(time);
-        if (image)
-            this.image = image;
+        if (image) this.image = image;
         return;
     });
 };
@@ -39,7 +37,7 @@ Event.prototype.delete = function() {
 Event.prototype.getTickets = function() {
     return db('event_tickets').select('ticket_id').where({event_id: this.id}).then(function(data) {
         return data.map(function(data) {
-            return data.ticket_id
+            return data.ticket_id;
         });
     });
 };

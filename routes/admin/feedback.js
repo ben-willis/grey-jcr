@@ -4,7 +4,7 @@ var validator = require('validator');
 var httpError = require('http-errors');
 
 var Feedback = require('../../models/feedback');
-var User = require('../../models/user')
+var User = require('../../models/user');
 
 router.use(function (req, res, next) {
 	if (req.user.level < 5) {
@@ -73,7 +73,7 @@ router.get('/:feedback_id', function (req, res, next) {
 			User.findByUsername(feedback.author).then(function(user) {
 				return (feedback.anonymous) ? null: user;
 			})
-		])
+		]);
 	}).then(function (data) {
 		data[0].author = data[2];
 		return res.render('admin/feedback_view', {feedback: data[0], replies: data[1]});

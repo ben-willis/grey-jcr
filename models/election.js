@@ -23,7 +23,7 @@ Election.prototype.update = function(name, status) {
 
 Election.prototype.delete = function () {
     return db('elections').del().where({id: this.id});
-}
+};
 
 Election.prototype.getPositions = function() {
     return db('election_positions').select('name', 'id').where({election_id: this.id}).then(function(positions) {
@@ -71,35 +71,31 @@ Election.prototype.addNominee = function(position_id, nominee_name, manifesto) {
         manifesto: manifesto,
         position_id: position_id
     }).returning('id').then(function(ids){
-        for (position of this.positions) {
+        this.positions.forEach(function(position){
             if (position.id == position_id) {
                 position.nominees.push({
                     id: ids[0],
                     name: nominee_name,
                     manifest: manifesto
                 });
-                return;
             }
-        }
+        });
     }.bind(this));
 };
 
 Election.prototype.removeNominee = function(nominee_id) {
     return db('election_position_nominees').del().where({id: nominee_id}).then(function() {
-        for (position of this.positions) {
-            for (var i = 0; i < position.nominees.length; i++) {
-                if (position.nominees[i].id = nominee_id){
-                    position.nominees.splice(i, 1);
-                    return;
-                }
-            }
-        }
+        this.positions.forEach(function(position) {
+            position.nominees = position.nominees.filter(function(nominee) {
+                return nominee.id != nominee_id;
+            });
+        });
     }.bind(this));
 };
 
 Election.prototype.castVote = function(username, position_id, votes) {
     // Should probably check election is open and what not
-    usercode = shortid.generate();
+    var usercode = shortid.generate();
     return Promise.all(
         votes.map(function(vote){
             return db('election_votes').insert({
@@ -115,18 +111,17 @@ Election.prototype.castVote = function(username, position_id, votes) {
 };
 
 Election.prototype.getFirstPreference = function(ballot) {
-    for (vote of ballot) {
-        if (vote.preference == 1) {
-            return vote.nominee_id;
-        }
-    }
+    var firstPreferenceVote = ballot.filter(function(vote) {
+        return vote.preference == 1;
+    }).shift();
+    return firstPreferenceVote.nominee_id;
 };
 
 Election.prototype.cleanseBallot = function(ballot) {
-    preference_counts = {};
+    var preference_counts = {};
     // filter out non integers and non negatives
-    for (var i = ballot.length-1; i>-1; i--) {
-        preference = ballot[i].preference;
+    for (let i = ballot.length-1; i>-1; i--) {
+        var preference = ballot[i].preference;
         if (!(preference % 1 === 0  && preference > 0)) {
             ballot.splice(i, 1);
         } else {
@@ -134,7 +129,7 @@ Election.prototype.cleanseBallot = function(ballot) {
         }
     }
     // Filter out repeats
-    for (var i = ballot.length-1; i>-1; i--) {
+    for (let i = ballot.length-1; i>-1; i--) {
         if (preference_counts[ballot[i].preference] != 1){
             ballot.splice(i, 1);
         }
@@ -144,7 +139,7 @@ Election.prototype.cleanseBallot = function(ballot) {
         return vote_a.preference - vote_b.preference;
     });
     // And then we run through checking order
-    for (var i = 0; i < ballot.length; i++) {
+    for (let i = 0; i < ballot.length; i++) {
         if (ballot[i].preference != i+1) {
             ballot.splice(i);
             break;
@@ -159,10 +154,10 @@ Election.prototype.getBallotsByPosition = function(position_id) {
         .where({position_id: position_id})
         .orderBy('usercode')
         .then(function(votes){
-            ballots = [];
+            var ballots = [];
             var current_ballot = [];
             var current_user = votes[0].usercode;
-            for (vote of votes) {
+            for (var vote of votes) {
                 if (vote.usercode != current_user) {
                     ballots.push(current_ballot);
                     current_ballot = [];
@@ -194,8 +189,8 @@ Election.create = function(election_name) {
 
 Election.findById = function(election_id) {
     return db('elections').first().where({id: election_id}).then(function(data){
-        if (!data) return httpError(404, "Election not found")
-        election = new Election(data);
+        if (!data) return httpError(404, "Election not found");
+        var election = new Election(data);
         return election.getPositions();
     }).then(function(positions) {
         election.positions = positions;
@@ -207,7 +202,7 @@ Election.getByStatus = function(status) {
     return db('elections').select().where({status: status}).then(function(elections) {
         return Promise.all(
             elections.map(function(election_data) {
-                election = new Election(election_data);
+                var election = new Election(election_data);
                 return election.getPositions().then(function(positions) {
                     election = new Election(election_data);
                     election.positions = positions;

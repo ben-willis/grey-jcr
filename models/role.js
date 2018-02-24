@@ -102,7 +102,7 @@ Role.findBySlug = function (slug) {
 };
 
 Role.getByType = function (type) {
-    promise = db('roles').select();
+    var promise = db('roles').select();
     switch(type) {
         case "exec":
             promise = promise.where("level", ">=", 4).andWhereNot("id", "=", 1).orderBy('id', 'asc');
