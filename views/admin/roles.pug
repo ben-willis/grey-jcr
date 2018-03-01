@@ -38,7 +38,7 @@ html
 						if(user.level>3)
 							div(class="card")
 								div(class="content")
-									a(class="right floated ui red icon mini button" href="/admin/roles/"+exec[i].id+"/delete" onclick="return confirm('Are you sure you want to delete this role?');")
+									a(class="right floated ui red icon mini button" href="/admin/roles/"+exec[i].id+"/delete" onclick="return confirm('Are you sure you want to delete this role? To preserve files in a role changeover, please reassign different users to the role rather than deleting the role itself');")
 										i(class="remove icon")
 									div(class="header")= exec[i].title
 
