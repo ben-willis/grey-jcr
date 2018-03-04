@@ -2,7 +2,7 @@ var db = require('../helpers/db');
 var request = require('request');
 var capitalize = require('capitalize');
 var httpError = require('http-errors');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 
 /* User Object */
 

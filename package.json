@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "async": "^1.5.2",
-    "bcrypt": "^1.0.3",
+    "bcryptjs": "^2.4.3",
     "better-console": "^0.2.4",
     "body-parser": "~1.13.2",
     "capitalize": "^1.0.0",
