@@ -33,7 +33,6 @@ exports.seed = function(knex, Promise) {
                     username: ids[0][0],
                     role_id: ids[0][1]
                 })
-
-            ])
+            ]);
         });
 };
