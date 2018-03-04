@@ -27,11 +27,11 @@ exports.seed = function(knex, Promise) {
             return Promise.all([
                 knex('folders').insert({
                     name: 'Website Editor',
-                    owner: ids[0][1]
+                    owner: ids[1][0]
                 }),
                 knex('user_roles').insert({
                     username: ids[0][0],
-                    role_id: ids[0][1]
+                    role_id: ids[1][0]
                 })
             ]);
         });
