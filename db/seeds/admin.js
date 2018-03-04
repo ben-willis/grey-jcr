@@ -15,23 +15,23 @@ exports.seed = function(knex, Promise) {
                     username: process.env.CIS_USERNAME,
                     name: process.env.CIS_NAME,
                     email: process.env.CIS_EMAIL
-                }),
+                }).returning('username'),
                 knex('roles').insert({
                     title: 'Website Editor',
                     level: 6,
                     slug: 'Website-Editor'
-                })
+                }).returning('id')
             ]);
         })
-        .then(function() {
+        .then(function(ids) {
             return Promise.all([
                 knex('folders').insert({
                     name: 'Website Editor',
-                    owner: 1
+                    owner: ids[0][1]
                 }),
                 knex('user_roles').insert({
-                    username: process.env.CIS_USERNAME,
-                    role_id: 1
+                    username: ids[0][0],
+                    role_id: ids[0][1]
                 })
 
             ])
