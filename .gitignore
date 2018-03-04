@@ -50,3 +50,11 @@ public/images/events
 tmp
 
 .jshintrc
+
+#Semantic-ui
+public/semantic
+semantic/gulpfile.js
+semantic/tasks
+semantic/src
+!semantic/src/*.config
+!semantic/src/site
