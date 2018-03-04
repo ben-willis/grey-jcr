@@ -1,4 +1,4 @@
-# Grey College JCR Website
+ # Grey College JCR Website
 
 This is the code running the [Grey JCR website](https://greyjcr.com). Making the website open source will hopefully provide an oportunity for Grey JCR members to get involved in the website. Feel free to install this on your local machine and play around with it. So far the website has been tested on Windows and Ubuntu.
 
@@ -43,8 +43,20 @@ EMAIL_PASSWORD=password
 #### Create tables and add data to the database
 First you need to run `npm run migrate-postgres`. This will create the required tables in  the databse you created. Next you need to run `npm run seed-postgres` to add yourself as the website editor.
 
-## Usage
+#### Starting the app
 Use the command `npm run start` to start the website then visit "localhost:3000" in your browser
+
+## Install Using docker
+Installation using docker is easier.
+
+#### Clone this project
+As before clone this project
+
+#### Install Docker and Docker Compose
+There are some instructions [here](https://docs.docker.com/compose/install/#install-compose).
+
+#### Starting the app
+Simply run `docker-compose up -d` to start the app in the background. You can then run `docker-compose logs -f` to follow the logs. As before visit "localhost:3000" in your browser to view the site.
 
 ## Tests
 Tests are currently lacking at the moment. To run the tests that do exist you then need to create the tables using the command `npm run migrate-test`.
@@ -54,7 +66,7 @@ You also need to install mocha globally with the command `npm install mocha -g`.
 To run the tests use the command `npm run test`.
 
 ## Contributors
-If you want to get involved in the website please email me at [b.c.willis@durham.ac.uk](mailto:b.c.willis@durham.ac.uk) and I can help you get started.
+If you want to get involved in the website please email me at [benwillis0612@gmail.com](mailto:benwillis0612@gmail.com) and I can help you get started.
 
 ## Licence
 The MIT License (MIT)
