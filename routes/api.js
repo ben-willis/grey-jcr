@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var fs = require('fs');
 var prettydate = require('pretty-date');
-var treeize   = require('treeize');
 var httpError = require('http-errors');
 
 var User = require('../models/user');
