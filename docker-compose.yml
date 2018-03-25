@@ -1,17 +1,10 @@
 version: '2.1'
 services:
-  app:
+  migrations:
     build:
       context: .
       dockerfile: Dockerfile
-    command: npm run start
-    volumes:
-      - ./files/avatars:/usr/app/public/images/avatars
-      - ./files/events:/usr/app/public/images/events
-      - ./files/manifestos:/usr/app/public/files/manifestos
-      - ./files/uploaded:/usr/app/public/files/uploaded
-    ports:
-      - 3000:3000
+    command: sh -c "npm run migrate-postgres && npm run seed-postgres"
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -21,10 +14,26 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm run start
+    ports:
+      - 3000:3000
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: grey
+      DB_USERNAME: postgres
+      DB_PASSWORD: 123456
+    depends_on:
+      migrations:
+        condition: service_started
+      postgres:
+        condition: service_healthy
   postgres:
     image: "postgres:9.4"
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: 123456
       POSTGRES_USER: postgres

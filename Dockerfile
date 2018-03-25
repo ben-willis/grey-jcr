@@ -2,6 +2,8 @@ FROM node:6.13.0-alpine
 
 WORKDIR /usr/app
 
+RUN npm install knex -g
+
 COPY bin bin
 COPY db db
 COPY helpers helpers

@@ -44,7 +44,9 @@ jspm_packages
 sessions
 
 # Files
-files
+public/files
+public/images/avatars
+public/images/events
 tmp
 
 .jshintrc
