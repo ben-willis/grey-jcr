@@ -39,7 +39,13 @@ EMAIL_PASSWORD=password
 To set up the database you need to create the tables and add your user (defined in .env) as the website editor. To do this run `docker-compose run app npm run migrate-postgres`. This will create the required tables in the databse. Next you need to run `docker-compose run app npm run seed-postgres` to add yourself as the website editor. Note these steps are only required on installation and if you delete the postgres-data directory.
 
 #### Starting the app
-Simply run `docker-compose up -d` to start the app in the background. You can then run `docker-compose logs -f` to follow the logs. As before visit "localhost:3000" in your browser to view the site.
+Simply run `docker-compose up -d` to start the app in the background. You can then run `docker-compose logs -f` to follow the logs. Then visit "localhost:3000" in your browser to view the site.
+
+#### Debugging the app
+Once started you can look at the logs useing `docker-compose logs`. You can also directly access the postgres database using `docker-compose exec postgres psql -U grey`.
+
+#### Stopping the app
+To stop the app run `docker-compose down`.
 
 ## Tests
 There are currently some tests in the test directory but how to run them has yet to be defined.
