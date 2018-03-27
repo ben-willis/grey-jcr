@@ -17,5 +17,3 @@ COPY app.js .
 COPY knexfile.js .
 
 RUN npm install --quiet
-
-COPY .env .env
