@@ -1,7 +1,0 @@
-/*******************************
-     User Global Variables
-*******************************/
-
-@defaultBorderRadius: 0.2rem;
-
-@primaryColor        : @red;
