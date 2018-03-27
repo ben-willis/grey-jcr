@@ -1,6 +1,6 @@
 {
   "autoInstall": true,
-  "base": "semantic/",
+  "base": "src/semantic/",
   "paths": {
     "source": {
       "config": "src/theme.config",
