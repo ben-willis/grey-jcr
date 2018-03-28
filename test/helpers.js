@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 var mail = require('../helpers/mail');
 
 var expect = require("chai").expect;

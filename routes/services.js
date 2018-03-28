@@ -12,8 +12,6 @@ var User = require('../models/user');
 var Election = require('../models/election');
 var Room = require('../models/room');
 
-require('dotenv').config();
-
 /* GET room booking page */
 router.get('/rooms/', function (req, res, next) {
 	var week_offset = (req.query.week_offset) ? req.query.week_offset : 0;
