@@ -1,6 +1,6 @@
 {
   "autoInstall": true,
-  "base": "src/semantic/",
+  "base": "semantic/",
   "paths": {
     "source": {
       "config": "src/theme.config",
@@ -9,12 +9,12 @@
       "themes": "src/themes/"
     },
     "output": {
-      "packaged": "../public/semantic/",
-      "uncompressed": "../public/semantic/components/",
-      "compressed": "../public/semantic/components/",
-      "themes": "../public/semantic/themes/"
+      "packaged": "../src/public/semantic/",
+      "uncompressed": "../src/public/semantic/components/",
+      "compressed": "../src/public/semantic/components/",
+      "themes": "../src/public/semantic/themes/"
     },
-    "clean": "../public/semantic/"
+    "clean": "../src/public/semantic/"
   },
   "permission": false,
   "rtl": "No",

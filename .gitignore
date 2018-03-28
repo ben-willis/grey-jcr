@@ -54,8 +54,8 @@ src/tmp
 
 #Semantic-ui
 src/public/semantic/
-src/semantic/gulpfile.js
-src/semantic/tasks/
-src/semantic/src/*
-!src/semantic/src/*.config
-!src/semantic/src/site
+semantic/gulpfile.js
+semantic/tasks/
+semantic/src/*
+!semantic/src/*.config
+!semantic/src/site
