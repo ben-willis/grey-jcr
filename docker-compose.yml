@@ -6,10 +6,7 @@ services:
       dockerfile: Dockerfile
     command: npm run start
     volumes:
-      - ./files/avatars:/usr/app/src/public/files/avatars
-      - ./files/events:/usr/app/src/public/files/events
-      - ./files/manifestos:/usr/app/src/public/files/manifestos
-      - ./files/uploaded:/usr/app/src/public/files/uploaded
+      - ./files:/usr/app/src/public/files
     ports:
       - 3000:3000
     env_file: .env
