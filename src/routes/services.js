@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var multer = require('multer');
-var upload = multer({dest: __dirname+'/../tmp'});
+var upload = multer({dest: __dirname+'/../../tmp'});
 var mv = require('mv');
 var mime = require('mime');
 var paypal = require('paypal-rest-sdk');
