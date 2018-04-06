@@ -1,42 +1,20 @@
 if (user)
 	div(class="ui segment")
 		div(class="ui stackable grid")
-			div(class="eight wide middle aligned column")
+			div(class="four wide middle aligned column")
 				div(class="ui basic center aligned segment")
-					div(class="ui header") Valentines Formal
-						div(class="sub header") Swapping now open!
-					div(class="ui statistic")
-						div(class="value" ) £
-							span(id="totalRaised") 0.00
-						div(class="label") Raised so far
-					p: a(class="ui primary button" href="/events/valentines")
-						i(class="refresh icon")
-						| Start Swapping
-			div(class="eight wide column")
-				img(class="ui fluid image" src="/images/promos/valentines.jpg")
+					div(class="ui header") Phoenix Ball 2018
+						div(class="sub header") Save the Date!
+					p: a(class="ui primary button" href="/events/2018/6/6/Phoenix-Ball-2018")
+						| More Info
+					p: a(class="ui facebook button" href="https://www.facebook.com/events/159376468107579/")
+						i(class="facebook icon")
+						| Click going for updates!
+			div(class="twelve wide column")
+				img(class="ui fluid image" src="/images/promos/phoenix18.jpg")
 				//- div(class="ui embed" data-source="youtube" data-id="gxBuS0vwXY0")
 				//- script.
 				//- 	$('.ui.embed').embed();
-
-			
-			script.
-				var totalRaised = 0;
-
-				updateTotalRaised = function(value) {
-					$('#totalRaised').text((value/100).toFixed(2));
-					$("#totalRaised").parent().transition("tada");
-				}
-
-				getTotalRaised = function () {
-					$.getJSON( "/events/valentines/stats.json", function( data ) {
-						if (totalRaised == data.totalRaised) return;
-						totalRaised = data.totalRaised;
-						updateTotalRaised(totalRaised)
-					});
-				}
-
-				getTotalRaised();
-				setInterval(getTotalRaised, 7000);
 else
 	div(class="ui segment")
 		div(class="ui stackable grid")
