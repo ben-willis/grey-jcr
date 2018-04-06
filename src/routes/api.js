@@ -88,7 +88,7 @@ router.get('/users/:username/avatar', function (req, res, next) {
     			root: __dirname+'/../'
     		});
 		} else {
-			res.sendFile('public/images/avatars/anon.png', {
+			res.sendFile('public/images/anon.png', {
     			root: __dirname+'/../'
     		});
 		}
