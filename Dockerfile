@@ -10,5 +10,4 @@ RUN npm install --quiet
 
 COPY bin bin
 COPY src src
-COPY app.js .
 COPY knexfile.js .
