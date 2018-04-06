@@ -47,6 +47,9 @@ Once started you can look at the logs useing `docker-compose logs`. You can also
 #### Stopping the app
 To stop the app run `docker-compose down`.
 
+#### Updating the app
+If you make any changes to any config or any of the source code you will need to run `docker-compose build` to rebuild the images
+
 ## Tests
 There are currently some tests in the test directory but how to run them has yet to be defined.
 
