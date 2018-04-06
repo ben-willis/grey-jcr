@@ -45,6 +45,7 @@ sessions
 
 # Files
 files
+postgres-data
 tmp
 
 .jshintrc
