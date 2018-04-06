@@ -6,8 +6,8 @@ services:
       dockerfile: Dockerfile
     command: npm run start
     volumes:
-      - ./files/avatars:/usr/app/public/images/avatars
-      - ./files/events:/usr/app/public/images/events
+      - ./files/avatars:/usr/app/public/files/avatars
+      - ./files/events:/usr/app/public/files/events
       - ./files/manifestos:/usr/app/public/files/manifestos
       - ./files/uploaded:/usr/app/public/files/uploaded
     ports:

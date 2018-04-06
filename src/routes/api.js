@@ -82,9 +82,9 @@ router.get('/users', function (req, res, next) {
 });
 
 router.get('/users/:username/avatar', function (req, res, next) {
-	fs.access(__dirname+'/../public/images/avatars/'+req.params.username+'.png', function (err) {
+	fs.access(__dirname+'/../public/files/avatars/'+req.params.username+'.png', function (err) {
 		if (!err) {
-			res.sendFile('public/images/avatars/'+req.params.username+'.png', {
+			res.sendFile('public/files/avatars/'+req.params.username+'.png', {
     			root: __dirname+'/../'
     		});
 		} else {
