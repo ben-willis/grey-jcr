@@ -53,7 +53,7 @@
     "run-sequence": "^1.1.5",
     "semantic-ui": "^2.3.0",
     "serve-favicon": "~2.3.0",
-    "session-file-store": "^0.2.2",
+    "connect-redis": "^3.3.3",
     "shortid": "^2.2.6",
     "slug": "^0.9.1",
     "socket.io": "^1.7.2",

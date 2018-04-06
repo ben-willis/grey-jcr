@@ -6,10 +6,10 @@ services:
       dockerfile: Dockerfile
     command: npm run start
     volumes:
-      - ./files/avatars:/usr/app/public/files/avatars
-      - ./files/events:/usr/app/public/files/events
-      - ./files/manifestos:/usr/app/public/files/manifestos
-      - ./files/uploaded:/usr/app/public/files/uploaded
+      - ./files/avatars:/usr/app/src/public/files/avatars
+      - ./files/events:/usr/app/src/public/files/events
+      - ./files/manifestos:/usr/app/src/public/files/manifestos
+      - ./files/uploaded:/usr/app/src/public/files/uploaded
     ports:
       - 3000:3000
     env_file: .env
@@ -19,7 +19,11 @@ services:
       DB_NAME: grey
       DB_USERNAME: grey
       DB_PASSWORD: zYSbtLwTVJt74SRh
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
+      redis:
+        condition: service_started
       postgres:
         condition: service_healthy
   postgres:
@@ -34,3 +38,8 @@ services:
       test: ["CMD", "psql" ,"-V"]
       timeout: 20s
       retries: 10
+  redis:
+    image: "redis:3"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./session-data:/data

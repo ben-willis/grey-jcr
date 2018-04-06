@@ -8,7 +8,7 @@ var flash = require('connect-flash');
 var passport = require('passport');
 var io = require('socket.io')(8082);
 var session = require('express-session');
-var FileStore = require('session-file-store')(session);
+var RedisStore = require('connect-redis')(session);
 var LocalStrategy = require('passport-local').Strategy;
 var https = require('https');
 var compress = require('compression');
@@ -35,7 +35,7 @@ app.use(bodyParser.json());
 app.use(flash());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-    store: new FileStore(),
+    store: new RedisStore({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT}),
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,

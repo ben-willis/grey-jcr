@@ -47,6 +47,7 @@ sessions
 src/public/files
 files
 postgres-data
+session-data
 tmp
 
 .jshintrc
