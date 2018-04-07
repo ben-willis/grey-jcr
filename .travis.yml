@@ -19,14 +19,17 @@ before_install:
   - docker version
   - docker-compose version
 
-  - touch .env
+  - |
+    cat >.env <<EOL
+    PAYPAL_MODE=sandbox
+    EOL
 
 install: docker-compose build
 
-# before_script:
-#   - docker-compose run app npm run migrate-postgres
+before_script:
+  - docker-compose run app npm run migrate-postgres
 
-script: docker-compose up
+script: docker-compose run app npm run test
 
 notifications:
   - email: false
