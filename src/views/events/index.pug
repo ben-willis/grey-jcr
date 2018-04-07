@@ -17,7 +17,7 @@ html
 							a(class="item" href="/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug)
 								if (event.image)
 									div(class="ui tiny image")
-										img(src="/images/events/"+event.image)
+										img(src="/files/events/"+event.image)
 								div(class="middle aligned content")
 									div(class="header")= event.name
 									div(class="meta")= event.time.toDateString()

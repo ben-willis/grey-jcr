@@ -44,11 +44,11 @@ jspm_packages
 sessions
 
 # Files
-tmp
 src/public/files
-src/public/images/avatars
-src/public/images/events
-src/tmp
+files
+postgres-data
+session-data
+tmp
 
 .jshintrc
 

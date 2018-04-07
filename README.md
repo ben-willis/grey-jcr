@@ -1,72 +1,62 @@
- # Grey College JCR Website
+# Grey College JCR Website
 
-This is the code running the [Grey JCR website](https://greyjcr.com). Making the website open source will hopefully provide an oportunity for Grey JCR members to get involved in the website. Feel free to install this on your local machine and play around with it. So far the website has been tested on Windows and Ubuntu.
+This is the code running the [Grey JCR website](https://greyjcr.com). Making the website open source will hopefully provide an oportunity for Grey JCR members to get involved in the website. Feel free to install this on your local machine and play around with it.
 
 ## Installation
 
-#### Clone this project
+This application follows [12 factor](https://12factor.net/) principles and runs inside a docker container defined in the Dockerfile. The external dependencies are defined in docker-compose.yml. Instrcutions on how to install, run and develop this application are detailed below.
+
+#### 1. Clone this project
 Either use the command `git clone` from your command line or use the download link and extract the zip file.
 
-#### Install node.js, npm and required packages
-Download node.js and node package manager from [here](https://nodejs.org/en/download/) and install them. Open up your console or node.js command prompt, navigate to the website's folder and enter the command `npm install`. This installs all the required packages. You also need to install Knex globally using the command `npm install knex -g`.
+#### 2. Install Docker and Docker Compose
+These are the only two requirements for this projects. Instructions on how to install them can be found [here](https://docs.docker.com/compose/install/#install-compose).
 
-#### Install PostgreSQL and create database grey
-Download PostgreSQL from [here](https://www.postgresql.org/download/). Create a new database for the website and optionally a new user. There are some useful tutorials on how to do this  [here](https://wiki.postgresql.org/wiki/Detailed_installation_guides).
+There appears to be [a bug in docker-compose v1.19.0](https://github.com/docker/compose/issues/5686) so v1.18.0 is recommended.
 
-#### Create Environment File
-Create a file called ".env" in the main directory of the site. It should look something like this:
+#### 3. Create Environment File
+Some environment variables are passed in to the container in the docker-compose.yml, others are listed in a file called ".env" in the main directory of the site. You will need to create this file and define the following variables:
 ```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=grey
-DB_USERNAME=grey
-DB_PASSWORD=password
-
-DB_TEST=grey-test
-
+# This is used for storing user sessions
 SESSION_SECRET=supersecretphrase
 
+# Details for using the paypal API
 PAYPAL_MODE=sandbox
 PAYPAL_CLIENT_ID=EOJ2S-Z6OoN_le_KS1d75wsZ6y0SFdVsY9183IvxFyZp
 PAYPAL_CLIENT_SECRET=EClusMEUk8e9ihI7ZdVLF5cZ6y0SFdVsY9183IvxFyZp
 
+# Your Durham details, these are used to set you up as the website editor in your local installation
 CIS_USERNAME=hsdz38
 CIS_NAME=Ben Willis
 CIS_EMAIL=b.c.willis@durham.ac.uk
 
+# These are used by the website to send booking confirmation emails etc
 EMAIL_HOST=smtp.dur.ac.uk
 EMAIL_PORT=587
 EMAIL_USERNAME=hsdz38
 EMAIL_PASSWORD=password
 ```
 
-#### Create tables and add data to the database
-First you need to run `npm run migrate-postgres`. This will create the required tables in  the databse you created. Next you need to run `npm run seed-postgres` to add yourself as the website editor.
+#### 4. Set up the Postgres database
+To set up the database you need to create the tables and add your user (defined in .env) as the website editor. To do this run `docker-compose run app npm run migrate-postgres`. This will create the required tables in the databse. Next you need to run `docker-compose run app npm run seed-postgres` to add yourself as the website editor. Note these steps are only required on installation and if you delete the postgres-data directory.
 
-#### Starting the app
-Use the command `npm run start` to start the website then visit "localhost:3000" in your browser
+#### 5. Running the app
+Simply run `docker-compose up` to start the app in the foreground. Then visit "localhost:3000" in your browser to view the site. To stop the app simple press ctrl+c.
 
-## Install Using docker
-Installation using docker is easier.
+## Development Tips
+Here are a few tips and tricks that will allow you to develop:
 
-#### Clone this project
-As before clone this project
+ - If you make any changes to any config or any of the source code you will need to run `docker-compose build` to rebuild the images
+ - You can run the app in the background using `docker-compose up -d`. You can then follow the logs with `docker-compose logs -f` and stop the app with `docker-compose down`.
+ - If you need to gain access to the postgres database cli run `docker-compose exec postgres psql -U grey`.
 
-#### Install Docker and Docker Compose
-There are some instructions [here](https://docs.docker.com/compose/install/#install-compose).
-
-#### Starting the app
-Simply run `docker-compose up -d` to start the app in the background. You can then run `docker-compose logs -f` to follow the logs. As before visit "localhost:3000" in your browser to view the site.
+More to be added...
 
 ## Tests
-Tests are currently lacking at the moment. To run the tests that do exist you then need to create the tables using the command `npm run migrate-test`.
-
-You also need to install mocha globally with the command `npm install mocha -g`.
-
-To run the tests use the command `npm run test`.
+There are currently some tests in the test directory but how to run them has yet to be defined.
 
 ## Contributors
-If you want to get involved in the website please email me at [benwillis0612@gmail.com](mailto:benwillis0612@gmail.com) and I can help you get started.
+If you want to get involved in the website feel free to email me at [benwillis0612@gmail.com](mailto:benwillis0612@gmail.com) or the current website editor if you have any questions!
 
 ## Licence
 The MIT License (MIT)

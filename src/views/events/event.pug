@@ -11,7 +11,7 @@ html
 			include ../menu.pug
 			h2(class="ui header")
 				if (event.image)
-					img(class="ui image" src="/images/events/"+event.image)
+					img(class="ui image" src="/files/events/"+event.image)
 				div(class="content")
 					= event.name
 					div(class="sub header")= event.time.toDateString()

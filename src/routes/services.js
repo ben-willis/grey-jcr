@@ -12,8 +12,6 @@ var User = require('../models/user');
 var Election = require('../models/election');
 var Room = require('../models/room');
 
-require('dotenv').config();
-
 /* GET room booking page */
 router.get('/rooms/', function (req, res, next) {
 	var week_offset = (req.query.week_offset) ? req.query.week_offset : 0;
@@ -125,7 +123,7 @@ router.post('/user/:username/update', upload.single('avatar'), function (req, re
 		err.status = 403;
 		return next(err);
 	}
-	mv(req.file.path, __dirname+'/../public/images/avatars/'+req.params.username+'.png', function (err) {
+	mv(req.file.path, __dirname+'/../public/files/avatars/'+req.params.username+'.png', function (err) {
 		if (err) return next(err);
 		res.redirect(303, '/services/user/'+req.params.username+'?success');
 	});
