@@ -1,6 +1,6 @@
 # Grey College JCR Website
 
-This is the code running the [Grey JCR website](https://greyjcr.com). Making the website open source will hopefully provide an oportunity for Grey JCR members to get involved in the website. Feel free to install this on your local machine and play around with it. So far the website has been tested on Windows and Ubuntu.
+This is the code running the [Grey JCR website](https://greyjcr.com). Making the website open source will hopefully provide an oportunity for Grey JCR members to get involved in the website. Feel free to install this on your local machine and play around with it.
 
 ## Installation
 
@@ -10,7 +10,7 @@ This application follows [12 factor](https://12factor.net/) principles and runs 
 Either use the command `git clone` from your command line or use the download link and extract the zip file.
 
 #### 2. Install Docker and Docker Compose
-These are the only two requirements for this projects. Instructions on how to install them can be found here [here](https://docs.docker.com/compose/install/#install-compose).
+These are the only two requirements for this projects. Instructions on how to install them can be found [here](https://docs.docker.com/compose/install/#install-compose).
 
 #### 3. Create Environment File
 Some environment variables are passed in to the container in the docker-compose.yml, others are listed in a file called ".env" in the main directory of the site. You will need to create this file and define the following variables:
@@ -43,9 +43,11 @@ Simply run `docker-compose up` to start the app in the foreground. Then visit "l
 
 ## Development Tips
 Here are a few tips and tricks that will allow you to develop:
+
  - If you make any changes to any config or any of the source code you will need to run `docker-compose build` to rebuild the images
  - You can run the app in the background using `docker-compose up -d`. You can then follow the logs with `docker-compose logs -f` and stop the app with `docker-compose down`.
  - If you need to gain access to the postgres database cli run `docker-compose exec postgres psql -U grey`.
+
 More to be added...
 
 ## Tests
