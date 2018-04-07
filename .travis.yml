@@ -32,7 +32,7 @@ install: docker-compose build
 
 before_script:
   # Create database tables
-  - docker-compose run app npm run migrate-postgres
+  - docker-compose run --use-aliases app npm run migrate-postgres
 
 script: docker-compose run app npm run test
 
