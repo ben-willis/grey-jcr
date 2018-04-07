@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "test": "mocha src/test --reporter spec --recursive --exit",
-    "migrate-postgres": "knex migrate:latest",
+    "migrate-postgres": "env && knex migrate:latest",
     "seed-postgres": "knex seed:run"
   },
   "dependencies": {
