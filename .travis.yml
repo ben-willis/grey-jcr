@@ -18,8 +18,10 @@ before_install:
 
 install: docker-compose build
 
-script:
-  - docker-compose run app npm run test
+before_script:
+  - docker-compose run app npm run migrate-postgres
+
+script: docker-compose run app npm run test
 
 notifications:
   - email: false
