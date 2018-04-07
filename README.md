@@ -12,6 +12,8 @@ Either use the command `git clone` from your command line or use the download li
 #### 2. Install Docker and Docker Compose
 These are the only two requirements for this projects. Instructions on how to install them can be found [here](https://docs.docker.com/compose/install/#install-compose).
 
+There appears to be (a bug in docker-compose v1.19.0)[https://github.com/docker/compose/issues/5686] so v1.18.0 is recommended.
+
 #### 3. Create Environment File
 Some environment variables are passed in to the container in the docker-compose.yml, others are listed in a file called ".env" in the main directory of the site. You will need to create this file and define the following variables:
 ```
