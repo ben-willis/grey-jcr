@@ -185,7 +185,9 @@ User.authorize = function(username, password) {
         };
 
         request(options, function(err, response, body) {
-            if (response.statusCode == 401) {
+            if (err) {
+                reject(err);
+            } else if (response.statusCode == 401) {
                 reject(httpError(401));
             } else {
                 resolve();
