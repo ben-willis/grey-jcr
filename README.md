@@ -4,16 +4,16 @@ This is the code running the [Grey JCR website](https://greyjcr.com). Making the
 
 ## Installation
 
-This application runs inside a docker container defined in the Dockerfile. The external dependencies are defined in docker-compose.yml.
+This application follows [12 factor](https://12factor.net/) principles and runs inside a docker container defined in the Dockerfile. The external dependencies are defined in docker-compose.yml. Instrcutions on how to install, run and develop this application are detailed below.
 
-#### Clone this project
+#### 1. Clone this project
 Either use the command `git clone` from your command line or use the download link and extract the zip file.
 
-#### Install Docker and Docker Compose
-Instructions can be found here [here](https://docs.docker.com/compose/install/#install-compose).
+#### 2. Install Docker and Docker Compose
+These are the only two requirements for this projects. Instructions on how to install them can be found here [here](https://docs.docker.com/compose/install/#install-compose).
 
-#### Create Environment File
-Create a file called ".env" in the main directory of the site. It should look something like this:
+#### 3. Create Environment File
+Some environment variables are passed in to the container in the docker-compose.yml, others are listed in a file called ".env" in the main directory of the site. You will need to create this file and define the following variables:
 ```
 # This is used for storing user sessions
 SESSION_SECRET=supersecretphrase
@@ -35,20 +35,18 @@ EMAIL_USERNAME=hsdz38
 EMAIL_PASSWORD=password
 ```
 
-#### Set up the Postgres database
+#### 4. Set up the Postgres database
 To set up the database you need to create the tables and add your user (defined in .env) as the website editor. To do this run `docker-compose run app npm run migrate-postgres`. This will create the required tables in the databse. Next you need to run `docker-compose run app npm run seed-postgres` to add yourself as the website editor. Note these steps are only required on installation and if you delete the postgres-data directory.
 
-#### Starting the app
-Simply run `docker-compose up -d` to start the app in the background. You can then run `docker-compose logs -f` to follow the logs. Then visit "localhost:3000" in your browser to view the site.
+#### 5. Running the app
+Simply run `docker-compose up` to start the app in the foreground. Then visit "localhost:3000" in your browser to view the site. To stop the app simple press ctrl+c.
 
-#### Debugging the app
-Once started you can look at the logs useing `docker-compose logs`. You can also directly access the postgres database using `docker-compose exec postgres psql -U grey`.
-
-#### Stopping the app
-To stop the app run `docker-compose down`.
-
-#### Updating the app
-If you make any changes to any config or any of the source code you will need to run `docker-compose build` to rebuild the images
+## Development Tips
+Here are a few tips and tricks that will allow you to develop:
+ - If you make any changes to any config or any of the source code you will need to run `docker-compose build` to rebuild the images
+ - You can run the app in the background using `docker-compose up -d`. You can then follow the logs with `docker-compose logs -f` and stop the app with `docker-compose down`.
+ - If you need to gain access to the postgres database cli run `docker-compose exec postgres psql -U grey`.
+More to be added...
 
 ## Tests
 There are currently some tests in the test directory but how to run them has yet to be defined.
