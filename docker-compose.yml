@@ -18,8 +18,6 @@ services:
       DB_PASSWORD: zYSbtLwTVJt74SRh
       REDIS_HOST: redis
       REDIS_PORT: 6379
-    networks:
-      - network
     depends_on:
       redis:
         condition: service_started
@@ -33,8 +31,6 @@ services:
       POSTGRES_PASSWORD: zYSbtLwTVJt74SRh
       POSTGRES_USER: grey
       POSTGRES_DB: grey
-    networks:
-      - network
     healthcheck:
       test: ["CMD", "psql" ,"-V"]
       timeout: 20s
@@ -44,9 +40,3 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - ./session-data:/data
-    networks:
-      - network
-
-networks:
-  network:
-    driver: bridge
