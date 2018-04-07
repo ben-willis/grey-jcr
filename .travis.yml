@@ -6,19 +6,23 @@ env:
   - DOCKER_COMPOSE_VERSION=1.18.0
 
 before_install:
+  # Shut down postgres
+  - sudo service postgresql stop
+  - while sudo lsof -Pi :5432 -sTCP:LISTEN -t; do sleep 1; done
+
+  # Install latest version of docker
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   - sudo apt-get update
   - sudo apt-get -y -o Dpkg::Options::="--force-confold" install docker-ce
 
+  # Install docker-compose
   - sudo rm /usr/local/bin/docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
-  - docker version
-  - docker-compose version
-
+  # Create .env file
   - |
     cat >.env <<EOL
     PAYPAL_MODE=sandbox
@@ -27,6 +31,7 @@ before_install:
 install: docker-compose build
 
 before_script:
+  # Create database tables
   - docker-compose run app npm run migrate-postgres
 
 script: docker-compose run app npm run test
