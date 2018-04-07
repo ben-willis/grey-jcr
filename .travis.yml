@@ -23,10 +23,10 @@ before_install:
 
 install: docker-compose build
 
-before_script:
-  - docker-compose run app npm run migrate-postgres
+# before_script:
+#   - docker-compose run app npm run migrate-postgres
 
-script: docker-compose run app npm run test
+script: docker-compose up
 
 notifications:
   - email: false
