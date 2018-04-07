@@ -16,6 +16,9 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
+  - docker version
+  - docker-compose version
+
   - touch .env
 
 install: docker-compose build
