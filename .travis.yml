@@ -20,3 +20,6 @@ install: docker-compose build
 
 script:
   - docker-compose run app npm run test
+
+notifications:
+  - email: false
