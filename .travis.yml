@@ -2,9 +2,6 @@ sudo: required
 
 language: node
 
-services:
-  - docker
-
 env:
   - DOCKER_COMPOSE_VERSION=1.18.0
 
