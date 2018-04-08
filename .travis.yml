@@ -65,13 +65,13 @@ deploy:
     on:
       branch: productionise-deployment
   # Restart the application
-  - provide: script
+  - provider: script
     script: ssh -oStrictHostKeyChecking=no -t webeditor@greyjcr.com "docker load -i ./grey-jcr/greyjcr_app.tar"
     skip_cleanup: true
     on:
       branch: productionise-deployment
   # Restart the application
-  - provide: script
+  - provider: script
     script: ssh -oStrictHostKeyChecking=no -t webeditor@greyjcr.com "cd grey-jcr && docker-compose up -d"
     skip_cleanup: true
     on:
