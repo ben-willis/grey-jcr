@@ -58,11 +58,18 @@ before_deploy:
   - docker save -o ./greyjcr_app.tar greyjcr/app
 
 deploy:
-  provider: script
-  script: scp -oStrictHostKeyChecking=no ./docker-compose.yml ./greyjcr_app.tar webeditor@greyjcr.com:./grey-jcr/
-  skip_cleanup: true
-  on:
-    branch: productionise-deployment
+  # Copy across the new image
+  - provider: script
+    script: scp -oStrictHostKeyChecking=no ./docker-compose.yml ./greyjcr_app.tar webeditor@greyjcr.com:./grey-jcr/
+    skip_cleanup: true
+    on:
+      branch: productionise-deployment
+  # Restart the application
+  - provide: script
+    script: ssh -t webeditor@greyjcr.com "cd grey-jcr && docker-compose up -d"
+    skip_cleanup: true
+    on:
+      branch: productionise-deployment
 
 notifications:
   - email: false
