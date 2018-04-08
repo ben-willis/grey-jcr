@@ -26,9 +26,6 @@ describe('Static Election Methods', function() {
         Election.create('New Fake Election').then(function(election) {
             expect(election.id).to.not.be.undefined;
             expect(election.name).to.equal('New Fake Election');
-            return db('elections').select();
-        }).then(function(elections) {
-            expect(elections).to.have.length(2);
             done();
         }).catch(function(err) {
             done(err);

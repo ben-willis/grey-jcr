@@ -1,0 +1,51 @@
+sudo: required
+
+language: javascript
+
+env:
+  - DOCKER_COMPOSE_VERSION=1.18.0
+
+before_install:
+  # Install latest version of docker
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confold" install docker-ce
+
+  # Install docker-compose
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+  # Create .env file
+  - |
+    cat >.env <<EOL
+    SESSION_SECRET=$SESSION_SECRET
+    PAYPAL_MODE=$PAYPAL_MODE
+    PAYPAL_CLIENT_ID=$PAYPAL_CLIENT_ID
+    PAYPAL_CLIENT_SECRET=$PAYPAL_CLIENT_SECRET
+    CIS_USERNAME=$CIS_USERNAME
+    CIS_NAME=$CIS_NAME
+    CIS_EMAIL=$CIS_EMAIL
+    EMAIL_HOST=$EMAIL_HOST
+    EMAIL_PORT=$EMAIL_PORT
+    EMAIL_USERNAME=$EMAIL_USERNAME
+    EMAIL_PASSWORD=$EMAIL_PASSWORD
+    DEBUG_PASSWORD=$DEBUG_PASSWORD
+    EOL
+
+install: docker-compose build
+
+before_script:
+  # Create database tables
+  - docker-compose up -d
+  - docker-compose run app npm run migrate-postgres
+
+script: docker-compose run app npm run test
+
+after_script:
+  - docker-compose down
+
+notifications:
+  - email: false
