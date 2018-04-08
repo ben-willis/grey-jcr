@@ -13,3 +13,5 @@ COPY src src
 COPY knexfile.js .
 
 EXPOSE 3000
+
+CMD npm run start

@@ -1,9 +1,9 @@
 version: '2.1'
 services:
   app:
+    image: greyjcr/app
     build:
       context: .
-      dockerfile: Dockerfile
     command: npm run start
     volumes:
       - ./files:/usr/app/src/public/files
