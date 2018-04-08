@@ -55,7 +55,7 @@ before_deploy:
 
 deploy:
   provider: script
-  script: ssh -o BatchMode=yes -o ConnectTimeout=5 webeditor@greyjcr.com echo ok 2>&1
+  script: rsync -r --delete-after $TRAVIS_BUILD_DIR/package.json webeditor@greyjcr.com:./
   skip_cleanup: true
   on:
     branch: productionise-deployment
