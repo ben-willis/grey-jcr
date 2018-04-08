@@ -53,7 +53,7 @@ Here are a few tips and tricks that will allow you to develop:
 More to be added...
 
 ## Tests
-There are currently some tests in the test directory but how to run them has yet to be defined.
+There are currently some tests in the test directory which can be run with something like `docker-compose run app npm run test`.
 
 ## Contributors
 If you want to get involved in the website feel free to email me at [benwillis0612@gmail.com](mailto:benwillis0612@gmail.com) or the current website editor if you have any questions!
