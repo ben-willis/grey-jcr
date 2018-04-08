@@ -10,11 +10,11 @@ var debug = require('debug')('grey:server');
 var http = require('http');
 
 /**
- * Get port from environment and store in Express.
+ * Get port and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+var port = normalizePort('3000');
+app.set('port', '3000');
 
 /**
  * Create HTTP server.

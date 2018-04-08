@@ -53,9 +53,12 @@ before_deploy:
   - chmod 600 /tmp/deploy_rsa
   - ssh-add /tmp/deploy_rsa
 
+  # Create the docker image to copy accross
+  - docker save -o ./greyjcr_app.tar greyjcr/app
+
 deploy:
   provider: script
-  script: scp -oStrictHostKeyChecking=no ./package.json webeditor@greyjcr.com:./
+  script: scp -oStrictHostKeyChecking=no ./docker-compose.yml ./greyjcr_app.tar webeditor@greyjcr.com:./grey-jcr/
   skip_cleanup: true
   on:
     branch: productionise-deployment
