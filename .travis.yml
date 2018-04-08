@@ -64,7 +64,7 @@ deploy:
       - scp -oStrictHostKeyChecking=no ./docker-compose.yml ./greyjcr_app.tar webeditor@greyjcr.com:./grey-jcr/ && ssh -oStrictHostKeyChecking=no -t webeditor@greyjcr.com "cd grey-jcr && docker load -i ./greyjcr_app.tar && docker-compose up -d"
     skip_cleanup: true
     on:
-      branch: productionise-deployment
+      branch: master
 
 notifications:
   - email: false
