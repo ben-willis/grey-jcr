@@ -1,4 +1,4 @@
-# Grey College JCR Website
+# Grey College JCR Website [![Build Status](https://travis-ci.org/ben-willis/grey-jcr.svg?branch=master)](https://travis-ci.org/ben-willis/grey-jcr)
 
 This is the code running the [Grey JCR website](https://greyjcr.com). Making the website open source will hopefully provide an oportunity for Grey JCR members to get involved in the website. Feel free to install this on your local machine and play around with it.
 
