@@ -55,7 +55,7 @@ before_deploy:
 
 deploy:
   provider: script
-  script: rsync -r --delete-after $TRAVIS_BUILD_DIR/package.json webeditor@greyjcr.com:./
+  script: scp -oStrictHostKeyChecking=no ./package.json webeditor@greyjcr.com:./
   skip_cleanup: true
   on:
     branch: productionise-deployment
