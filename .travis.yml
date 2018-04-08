@@ -54,6 +54,7 @@ before_deploy:
   - ssh-add /tmp/deploy_rsa
 
   # Create the docker image to copy accross
+  - docker tag greyjcr/app greyjcr/app:$TRAVIS_BUILD_NUMBER
   - docker save -o ./greyjcr_app.tar greyjcr/app
 
 deploy:
