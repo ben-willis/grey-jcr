@@ -12,6 +12,8 @@ var Blog = require('../models/blog');
 var Election = require('../models/election');
 var Feedback = require('../models/feedback');
 
+var models = require("../models");
+
 // The main site search
 router.get('/search/', function (req, res, next) {
 	Promise.all([
@@ -97,18 +99,22 @@ router.get('/users/:username/avatar', function (req, res, next) {
 });
 
 router.get('/files/:folder_id', function (req, res, next) {
-	var current_folder = null;
-	Folder.findById(parseInt(req.params.folder_id)).then(function(folder) {
-		current_folder = folder;
+	var currentFolderPromise = models.folder.findById(req.params.folder_id);
+
+	var childrenPromise = currentFolderPromise.then(function(currentFolder) {
 		return Promise.all([
-			current_folder.getSubfolders(),
-			current_folder.getFiles()
+			models.folder.findAll({where: {parent_id: currentFolder.id}}),
+			models.file.findAll({where: {folder_id: currentFolder.id}})
 		]);
-	}).then(function (data) {
-		res.json({"current": current_folder, "folders": data[0], "files": data[1]});
-	}).catch(function (err) {
-		next(err);
 	});
+
+	Promise.all([currentFolderPromise, childrenPromise]).then(function([currentFolder, children]) {
+		res.json({
+			"current": currentFolder.toJSON(),
+			"folders": children[0].map(x => x.toJSON()),
+			"files": children[1].map(x => x.toJSON())
+		});
+	}).catch(next);
 });
 
 // Needed for menu notifications

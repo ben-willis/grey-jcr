@@ -2,6 +2,8 @@ var db = require('../helpers/db');
 var httpError = require('http-errors');
 var slug = require('slug');
 
+var models = require("../models");
+
 
 /* Role Object */
 var Role = function (data) {

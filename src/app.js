@@ -25,7 +25,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 var User = require('./models/user');
-var Folder = require('./models/folder')
+
+var models = require('./models');
 
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -58,7 +59,7 @@ passport.deserializeUser(function (username, done) {
     }).then(function(roles) {
         return Promise.all(
             roles.map(function(role) {
-                return Folder.findForRole(role.id).then(function(folder) {
+                return models.folder.findOne({where: {owner: role.id}}).then(function(folder) {
                     role.folder = folder;
                     return role;
                 });

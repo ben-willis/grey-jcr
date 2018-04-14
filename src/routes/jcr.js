@@ -4,7 +4,8 @@ var router = express.Router();
 var User = require('../models/user');
 var Role = require('../models/role');
 var Blog = require('../models/blog');
-var Folder = require('../models/folder');
+
+var models = require('../models');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -80,7 +81,7 @@ router.get('/blog/:role_slug', function (req, res, next) {
 			role,
 			Blog.get(role.id),
 			role.getUsers(),
-			Folder.findForRole(role.id)
+			models.folder.findOne({where: {owner: role.id}})
 		]);
 	}).then(function(data) {
 		data[0].users = data[2];
