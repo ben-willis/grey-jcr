@@ -1,7 +1,7 @@
 var express = require('express');
+var models = require('../../models');
+var slugify = require('slug');
 var router = express.Router();
-
-var Society = require('../../models/society');
 
 router.use(function (req, res, next) {
 	if (req.user.level < 4) {
@@ -14,64 +14,63 @@ router.use(function (req, res, next) {
 /* GET societies page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		Society.getByType('society').then(function(society_data){
-			return society_data.map(function(data){ return new Society(data) });
+		models.society.findAll({
+			where: {
+				type: 0
+			}
 		}),
-		Society.getByType('sport').then(function(sport_data){
-			return sport_data.map(function(data){ return new Society(data) });
+		models.society.findAll({
+			where: {
+				type: 1
+			}
 		})
 	]).then(function (data) {
 		return res.render('admin/societies', {societies: data[0], sports: data[1]});
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 /* POST a new society */
 router.post('/', function (req, res, next) {
-	Society.create(req.body.name, req.body.type).then(function (society){
+	models.society.create({
+		name: req.body.name,
+		slug: slugify(req.body.name),
+		type: req.body.type
+	}).then(function (society){
 		return res.redirect('/admin/societies/'+society.id);
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 /* GET edit society page. */
 router.get('/:society_id', function (req, res, next) {
-	Society.findById(parseInt(req.params.society_id)).then(function (society) {
+	models.society.findById(parseInt(req.params.society_id)).then(function (society) {
 		return res.render('admin/society_edit', {society: society});
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 /* POST and update to a society */
 router.post('/:society_id', function (req, res, next) {
-	Society.findById(parseInt(req.params.society_id)).then(function (society) {
-		return society.update(
-			req.body.name,
-			req.body.description,
-			req.body.facebook,
-			req.body.twitter,
-			req.body.email,
-			req.body.type
-		);
+	models.society.findById(parseInt(req.params.society_id)).then(function (society) {
+		return society.update({
+			name: req.body.name,
+			slug: slugify(req.body.name),
+			description: req.body.description,
+			facebook: (req.body.facebook) ? req.body.facebook : null,
+			twitter: (req.body.twitter) ? req.body.twitter: null,
+			email: (req.body.email) ? req.body.email : null,
+			type: req.body.type
+		});
 	}).then(function () {
 		return res.redirect('/admin/societies');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 /* GET a delete society post */
 router.get('/:society_id/delete', function (req, res, next) {
-	Society.findById(parseInt(req.params.society_id)).then(function (society) {
-		return society.delete();
+	models.society.findById(parseInt(req.params.society_id)).then(function (society) {
+		return society.destroy();
 	}).then(function () {
 		return res.redirect('/admin/societies');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 module.exports = router;

@@ -1,51 +1,44 @@
 var express = require('express');
-var htmlToText = require('html-to-text');
+var models = require('../models');
 var router = express.Router();
-
-var Society = require('../models/society');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		Society.getByType('society').then(function(society_data){
-			return society_data.map(function(data){
-				data.description = htmlToText.fromString(data.description, {
-					wordwrap: false,
-					ignoreHref: true,
-					ignoreImage: true
-				}).slice(0, 100) + "...";
-				return new Society(data);
-			});
+		models.society.findAll({
+			where: {
+				type: 0
+			}
 		}),
-		Society.getByType('sport').then(function(sport_data){
-			return sport_data.map(function(data){
-				data.description = htmlToText.fromString(data.description, {
-					wordwrap: false,
-					ignoreHref: true,
-					ignoreImage: true
-				}).slice(0, 100) + "...";
-				return new Society(data);
-			});
+		models.society.findAll({
+			where: {
+				type: 1
+			}
 		})
 	]).then(function (data) {
 		return res.render('sportsandsocs/index', {societies: data[0], sports: data[1]});
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 router.get('/:society_slug', function(req, res, next) {
-	var society;
-	Society.findBySlug(req.params.society_slug).then(function(data) {
-		society = data;
-		var type = (data.type === 0) ? "society" : "sport";
-		return Society.getByType(type);
-	}).then(function(other_societies) {
-		other_societies = shuffle(other_societies);
-		res.render('sportsandsocs/society', {society: society, others: other_societies.slice(0,4)});
-	}).catch(function(err) {
-		next(err);
+	var societyPromise = models.society.findOne({
+		where: {
+			slug: req.params.society_slug
+		}
 	});
+	var othersPromise = societyPromise.then(function(society) {
+		return models.society.findAll({
+			where: {
+				type: society.type
+			}
+		});
+	}).then(function(others) {
+		return shuffle(others).slice(0,4);
+	});
+
+	Promise.all([societyPromise, othersPromise]).then(function([society, others]) {
+		res.render('sportsandsocs/society', {society: society, others: others});
+	}).catch(next);
 });
 
 module.exports = router;

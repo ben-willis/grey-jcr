@@ -21,7 +21,7 @@ html
 							div(class="content")
 								div(class="header")= sport.name
 								if (sport.description != 'null...')
-									div(class="description")= sport.description
+									div(class="description")= sport.descriptionShort
 							if(sport.facebook || sport.twitter || sport.email)
 								div(class="extra content")
 									div(class="right floated icons")
@@ -40,7 +40,7 @@ html
 							div(class="content")
 								div(class="header")= society.name
 								if (society.description != 'null...')
-									div(class="description")= society.description
+									div(class="description")= society.descriptionShort
 							if(society.facebook || society.twitter || society.email)
 								div(class="extra content")
 									div(class="right floated icons")
