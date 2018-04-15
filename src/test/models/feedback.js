@@ -13,7 +13,7 @@ describe.skip('Feedback model', function() {
             author: "abcd12",
             exec: false
         }).then(function(feedback) {
-            expect(feedback.title).to.equal("Test Folder");
+            expect(feedback.title).to.equal("Test Feedback");
             testFeedbackId = feedback.id;
             done();
         }).catch(done);
