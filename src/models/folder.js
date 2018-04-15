@@ -15,15 +15,15 @@ module.exports = (sequelize, DataTypes) => {
     Folder.associate = function (models) {
         models.folder.hasMany(models.file);
         models.folder.belongsTo(models.folder, {
-            as: "Parent",
+            as: "parent",
             onDelete: "CASCADE",
             foreignKey: {
                 allowNull: true,
                 defaultValue: 0
             }
         });
-        models.file.hasMany(models.folder, {
-            as: "Children",
+        models.folder.hasMany(models.folder, {
+            as: "children",
             foreignKey: "parent_id"
         });
     };

@@ -10,8 +10,6 @@ var Role = require('../models/role');
 var Event = require('../models/event');
 var Blog = require('../models/blog');
 var Election = require('../models/election');
-var Feedback = require('../models/feedback');
-
 var models = require("../models");
 
 // The main site search
@@ -153,11 +151,11 @@ router.get('/blogs/unread', function(req, res, next) {
 
 router.get('/feedbacks', function(req, res, next) {
 	if (!req.user) return res.json({"error": "You must be logged in"});
-	Feedback.getAllByUser(req.user.username).then(function(feedbacks) {
-		res.json(feedbacks);
-	}).catch(function (err) {
-		next(err);
-	});
+	models.Feedback.findAll({where: {author: req.user.username}}).then(function(feedbacks) {
+		res.json({
+			feedbacks: feedbacks.map(x => x.toJSON())
+		});
+	}).catch(next);
 });
 
 router.use(function(err, req, res, next) {
