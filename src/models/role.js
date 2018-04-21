@@ -27,6 +27,8 @@ module.exports = (sequelize, DataTypes) => {
         });
 
         models.role.belongsToMany(models.user, {through: "user_roles"});
+
+        models.role.hasMany(models.blog);
     };
 
     return Role;

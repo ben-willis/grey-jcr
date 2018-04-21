@@ -3,19 +3,22 @@ var models = require('../../models');
 var expect = require("chai").expect;
 
 describe('Blog model', function() {
-		var testBlogId = null;
+	var testBlogId = null;
 
     it("can create a new blog", function(done) {
     	models.blog.create({
     		title: "Test Title",
     		slug: "Test-Title",
-    		author: "abcd12",
+    		author_username: "abcd12",
     		role_id: 2
     	}).then(function(blog) {
     		testBlogId = blog.id;
     		expect(blog.title).to.equal("Test Title");
     		done();
-    	}).catch(done);
+    	}).catch(function(err) {
+            console.log(err);
+            done(err);
+        });
     });
 
     it("can find a blog by id", function(done) {
@@ -42,7 +45,7 @@ describe('Blog model', function() {
     });
 
     it("can edit a blog", function(done) {
-    	models.blog.findById(testBlogId).them(function(blog) {
+    	models.blog.findById(testBlogId).then(function(blog) {
     		return blog.update({
     			message: "TEST MESSAGE"
     		});
@@ -53,7 +56,7 @@ describe('Blog model', function() {
     });
 
     it("can delete a blog", function(done) {
-    	models.blog.findById(testBlogId).them(function(blog) {
+    	models.blog.findById(testBlogId).then(function(blog) {
     		return blog.destroy();
     	}).then(function() {
     		done();

@@ -1,6 +1,6 @@
 
 exports.seed = function(knex, Promise) {
-  knex('folders').insert([
+  return knex('folders').insert([
     {
       name: 'Website Editor',
       owner_id: 1

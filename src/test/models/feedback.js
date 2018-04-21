@@ -10,7 +10,7 @@ describe('Feedback model', function() {
             title: "Test Feedback",
             message: "test test test test",
             anonymous: false,
-            author: "abcd12",
+            author_username: "abcd12",
             exec: false
         }).then(function(feedback) {
             expect(feedback.title).to.equal("Test Feedback");
@@ -28,14 +28,17 @@ describe('Feedback model', function() {
 
     it("can find a piece of feedback by id", function(done) {
         models.feedback.findById(testFeedbackId).then(function(feedback) {
-            expect(feedback).to.equal("Test Feedback");
+            expect(feedback.title).to.equal("Test Feedback");
+            done();
         }).catch(done);
     });
 
     it("can add a reply", function(done) {
         models.feedback.findById(testFeedbackId).then(function(feedback) {
-            return feedback.addReply({
-                message: "test reply test test test"
+            return feedback.createReply({
+                title: "reply",
+                message: "test reply test test test",
+                exec: false
             });
         }).then(function(feedback) {
             done();

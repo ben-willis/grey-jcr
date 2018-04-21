@@ -27,9 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Blog.associate = function(models) {
-        models.blog.belongsTo(models.role, {
-            onDelete: "CASCADE"
-        });
+        models.blog.belongsTo(models.role);
 
         models.blog.belongsTo(models.user, {
             as: "author",

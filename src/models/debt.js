@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         models.debt.belongsTo(models.user, {
             foreignKey: "username"
         });
-        models.debt.hasOne(models.booking);
+        models.debt.belongsTo(models.booking);
     };
 
     return Debt;

@@ -75,7 +75,7 @@ passport.use(new LocalStrategy( function (username, password, done) {
         if (!authenticated) return done(null, false);
         return models.user.count({where: {username: username}});
     }).then(function(count) {
-        if (count > 0) return models.user.findByUsername(username);
+        if (count > 0) return models.user.findById(username);
         return models.user.fetchDetails(username).then(function(details) {
             return models.user.create({
                 username: username,
