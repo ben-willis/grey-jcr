@@ -2,7 +2,7 @@ var models = require('../../models');
 
 var expect = require("chai").expect;
 
-describe.skip('Feedback model', function() {
+describe('Feedback model', function() {
     var testFeedbackId = null;
 
     it("can create a piece of feedback", function(done) {

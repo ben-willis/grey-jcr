@@ -6,25 +6,25 @@ var upload = multer({dest: __dirname+'/../../../tmp'});
 var mv = require('mv');
 var mime = require('mime');
 var csv = require('csv');
-var slug = require('slug');
+var slugify = require('slug');
 var shortid = require('shortid');
 var fs = require('fs');
 var httpError = require('http-errors');
 
+const Op = require("sequelize").Op;
 
 var io = require('../../helpers/socketApi.js').io;
 
-var Event = require('../../models/event');
-var Ticket = require('../../models/ticket');
-var User = require('../../models/user');
+var models = require("../../models");
+
 var valentines = require('../../models/valentines');
 
 
 /* GET events page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		Event.getFutureEvents(),
-		Event.getPastEvents(),
+		models.events.findAll({where: {time: {[Op.gte]: new Date()}}}),
+		models.events.findAll({where: {time: {[Op.lt]: new Date()}}}),
 		valentines.getStatus()
 	]).then(function (data) {
 		res.render('admin/events', {future_events: data[0], past_events: data[1], valentines_swapping_open: data[2]});
@@ -38,11 +38,14 @@ router.post('/new', function (req, res, next) {
 	var date = (req.body.date).split('-');
 	var time = (req.body.time).split(':');
 	var timestamp = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
-	Event.create(req.body.name, req.body.description, timestamp, null).then(function (event){
+	models.event.create({
+		name: req.body.name,
+		slug: slugify(req.body.name),
+		description: req.body.description,
+		time: timestamp
+	}).then(function (event){
 		res.redirect('/admin/events/'+event.id+'/edit');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.post('/valentines/pairs', upload.single('pairs'), function(req, res, next) {
@@ -63,9 +66,7 @@ router.post('/valentines/pairs', upload.single('pairs'), function(req, res, next
 				);
 			}).then(function(){
 				res.redirect(303, '/admin/events');
-			}).catch(function(err){
-				return next(err);
-			});
+			}).catch(next);
 		});
 	});
 });
@@ -73,18 +74,14 @@ router.post('/valentines/pairs', upload.single('pairs'), function(req, res, next
 router.get('/valentines/open', function(req, res, next) {
 	valentines.setStatus(true).then(function() {
 		res.redirect('/admin/events');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 router.get('/valentines/close', function(req, res, next) {
 	valentines.setStatus(false).then(function() {
 		io.emit('close_swapping');
 		res.redirect('/admin/events');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 router.get('/valentines/debts', function(req, res, next) {
@@ -96,9 +93,7 @@ router.get('/valentines/debts', function(req, res, next) {
 		return valentines.clearDebts();
 	}).then(function(){
 		res.redirect('/admin/events');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 /* GET edit events page. */
@@ -125,38 +120,44 @@ router.post('/:event_id/edit', upload.single('image'), function (req, res, next)
 	var timestamp = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 	var ticket_ids = (!req.body.tickets) ? [] : [].concat(req.body.tickets);
 
-	Event.findById(parseInt(req.params.event_id)).then(function(event) {
-		return Promise.all([
-			event,
-			event.setTickets(ticket_ids)
-		]);
-	}).then(function(data) {
-		var event = data[0];
+	var imagePromise = new Promise(function(resolve, reject) {
 		if (req.file) {
-			var image_name = event.name+shortid.generate()+'.'+mime.extension(req.file.mimetype);
-			mv(req.file.path, __dirname+'/../../public/files/events/'+image_name, function (err) {
-				if (err) throw err;
-				return event.update(req.body.name, req.body.description, timestamp, image_name);
+			const imageName = event.name+shortid.generate()+'.'+mime.extension(req.file.mimetype);
+			mv(req.file.path, __dirname+'/../../public/files/events/'+imageName, function (err) {
+				if (err)  reject(err);
+				else resolve(imageName);
 			});
-		} else {
-			return event.update(req.body.name, req.body.description, timestamp, null);
-		}
+		} else resolve(null);
+	});
+
+	Promise.all([
+		models.event.findById(req.params.event_id),
+		Promise.all(ticket_ids.map((id) => models.ticket.findById(id))),
+	]).then(function([event, tickets]){
+		return Promise.all([
+			event.addTickets(tickets),
+			imagePromise
+		]);
+	}).then(function([event, imageName]) {
+		return event.update({
+			name: req.body.name,
+			slug: slugify(req.body.name),
+			description: req.body.description,
+			time: timestamp,
+			image: imageName || event.image
+		});
 	}).then(function () {
 		res.redirect('/admin/events/'+req.params.event_id+'/edit?success');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 /* GET a delete events event */
 router.get('/:event_id/delete', function (req, res, next) {
-	Event.findById(req.params.event_id).then(function (event) {
-		return event.delete();
+	models.event.findById(req.params.event_id).then(function (event) {
+		return event.destroy();
 	}).then(function(){
 		res.redirect('/admin/events');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.post('/tableplanner', upload.single('bookings'), function(req, res, next) {

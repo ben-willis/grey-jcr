@@ -5,7 +5,6 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        author: DataTypes.STRING(6),
         title: {
             type: DataTypes.TEXT,
             allowNull: false
@@ -39,14 +38,17 @@ module.exports = (sequelize, DataTypes) => {
     Feedback.associate = function (models) {
         models.feedback.belongsTo(models.feedback, {
             as: "parent",
-            onDelete: "CASCADE",
-            foreignKey: {
-                allowNull: true
-            }
+            onDelete: "CASCADE"
         });
         models.feedback.hasMany(models.feedback, {
             as: "replies",
             foreignKey: "parent_id"
+        });
+
+        models.feedback.belongsTo(models.user, {
+            as: "author",
+            onDelete: "CASCADE",
+            foreignKey: "author_username"
         });
     };
 

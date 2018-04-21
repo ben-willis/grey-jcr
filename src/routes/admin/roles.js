@@ -2,9 +2,9 @@ var express = require('express');
 var router = express.Router();
 var validator = require('validator');
 var httpError = require('http-errors');
+var slugify = require("slug");
 
-var Role = require('../../models/role');
-var Folder = require('../../models/folder');
+var models = require("../../models");
 
 router.use(function (req, res, next) {
 	if (req.user.level < 3) {
@@ -16,14 +16,7 @@ router.use(function (req, res, next) {
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	Role.getAll().then(function (roles) {
-		return Promise.all(roles.map(function(role){
-			return role.getUsers().then(function(users) {
-				role.users = users;
-				return role;
-			});
-		}));
-	}).then(function(roles){
+	models.role.findAll().then(function(roles){
 		var exec = [];
 		var officers = [];
 		var welfare = [];
@@ -40,9 +33,7 @@ router.get('/', function (req, res, next) {
 			}
 		}
 		res.render('admin/roles', {exec: exec, officers: officers, welfare: welfare, reps: reps});
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.post('/new', function (req, res, next) {
@@ -50,64 +41,58 @@ router.post('/new', function (req, res, next) {
 		var err = new Error("Bad Request");
 		return next(err);
 	}
-	Role.create(req.body.title, parseInt(req.body.level)).then(function (role) {
+	models.role.create({
+		title: req.body.title,
+		level: parseInt(req.body.level),
+		slug: slugify(req.body.title)
+	}).then(function(role) {
 		if (role.level == 4 || role.level == 5) {
-			return Folder.create(role.title, role.id);
-		}
-		return;
+			return models.folder.create({
+				name: role.title,
+				owner: role.id
+			});
+		} else return;
 	}).then(function(){
 		res.redirect('/admin/roles');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.post('/:role_id/addUser', function (req, res, next) {
-	var role_id = parseInt(req.params.role_id);
-	var username = req.body.username;
-	Role.findById(role_id).then(function(role) {
-		return role.assignUser(username);
+	User.findByUsername(req.body.username).then(function(user) {
+		return user.assignRole(parseInt(req.params.role_id));
 	}).then(function () {
 		res.redirect('/admin/roles');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 router.get('/:role_id/removeUser/:username', function (req, res, next) {
-	var role_id = parseInt(req.params.role_id);
-	var username = req.params.username;
-	Role.findById(role_id).then(function(role) {
-		return role.removeUser(username);
+	User.findByUsername(req.params.username).then(function(user) {
+		return user.removeRole(parseInt(req.params.role_id));
 	}).then(function () {
 		res.redirect('/admin/roles');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 /* GET edit role page. */
 router.get('/:role_id/edit', function (req, res, next) {
-	Role.findById(parseInt(req.params.role_id)).then(function (role) {
-			res.render('admin/roles_edit', {role: role});
-		}).catch(function (err) {
-			next(err);
-		});
+	models.role.findById(req.params.role_id).then(function(role) {
+		res.render('admin/roles_edit', {role: role.toJSON()});
+	}).catch(next);
 });
 
 router.post('/:role_id/edit', function (req, res, next) {
-	Role.findById(parseInt(req.params.role_id)).then(function (role) {
-			return role.setDescription(req.body.description);
-		}).then(function () {
+	models.role.findById(req.params.role_id).then(function (role) {
+			return role.update({
+				description: req.body.description
+			});
+		}).then(function(role) {
 			res.redirect('/admin/roles');
-		}).catch(function (err) {
-			next(err);
-		});
+		}).catch(next);
 });
 
 router.get('/:role_id/delete', function (req, res, next) {
-	Role.findById(parseInt(req.params.role_id)).then(function (role) {
-			return role.delete();
+	models.role.findById(req.params.role_id).then(function (role) {
+			return role.destroy();
 		}).then(function () {
 			res.redirect('/admin/roles');
 		}).catch(function (err) {

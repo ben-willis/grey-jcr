@@ -1,27 +1,25 @@
 var express = require('express');
 var router = express.Router();
-var validator = require('validator');
 var httpError = require('http-errors');
 
 var BookingManager = require('../helpers/bookings');
 var Mail = require('../helpers/mail');
 
-var Event = require('../models/event');
-var Ticket = require('../models/ticket');
-var Booking = require('../models/booking');
-var User = require('../models/user');
+const Op = require("sequelize").Op;
+
+var models = require("../models");
 
 var valentines = require('./valentines');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	Event.getFutureEvents()
-		.then(function (events) {
-			res.render('events/index', {events: events.splice(0,6)});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	models.event.findAll({
+		where: {time: {[Op.gte]: new Date()}},
+		order: [["time", "ASC"]],
+		limit: 6
+	}).then(function (events) {
+		res.render('events/index', {events: events.splice(0,6)});
+	}).catch(next);
 });
 
 router.use('/valentines', valentines);

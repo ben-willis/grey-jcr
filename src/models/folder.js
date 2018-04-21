@@ -8,8 +8,7 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             type: DataTypes.TEXT,
             allowNull: false
-        },
-        owner: DataTypes.INTEGER
+        }
     });
 
     Folder.associate = function (models) {
@@ -25,6 +24,12 @@ module.exports = (sequelize, DataTypes) => {
         models.folder.hasMany(models.folder, {
             as: "children",
             foreignKey: "parent_id"
+        });
+
+        models.folder.belongsTo(models.role, {
+            as: "owner",
+            onDelete: "CASCADE",
+            foreignKey: "owner_id"
         });
     };
 

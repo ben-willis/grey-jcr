@@ -4,19 +4,36 @@ var fs = require('fs');
 var prettydate = require('pretty-date');
 var httpError = require('http-errors');
 
+const Op = require("sequelize").Op;
+
 var User = require('../models/user');
 var Folder = require('../models/folder');
 var Role = require('../models/role');
 var Event = require('../models/event');
 var Blog = require('../models/blog');
 var Election = require('../models/election');
+
 var models = require("../models");
 
 // The main site search
 router.get('/search/', function (req, res, next) {
 	Promise.all([
-		User.search(req.query.q),
-		Blog.search(req.query.q),
+		models.user.findAll({
+			where: {
+				[Op.or]: [{
+					username: { [Op.iLike]: req.query.q }
+				},
+				{
+					name: { [Op.iLike]: req.query.q }
+				}]
+			}
+		}),
+		models.blog.findAll({
+			where: {
+				name: { [Op.iLike]: req.query.q }
+			},
+			include: [models.role]
+		}),
 		Event.search(req.query.q)
 	]).then(function(data) {
 		var users = data[0].map(function(user) {
@@ -47,9 +64,7 @@ router.get('/search/', function (req, res, next) {
 				events: {name: "Upcoming Events", results: events}
 			}
 		});
-	}).catch( function (err) {
-		next(err);
-	});
+	}).catch(next);
 
 });
 
@@ -57,28 +72,30 @@ router.get('/search/', function (req, res, next) {
 router.get('/events/:year/:month', function (req, res, next) {
 	Event.getByMonth(req.params.year, req.params.month).then(function (events) {
 			res.json(events);
-		}).catch(function (err) {
-			next(err);
-		});
+		}).catch(next);
 });
 
 // Needed for JCR, welfare and support page
 router.get('/roles/:role_id', function(req, res, next) {
-	Role.findById(req.params.role_id).then(function(role) {
-		res.json(role);
-	}).catch(function (err) {
-		next(err);
-	});
+	models.role.findById(req.params.role_id).then(function(role) {
+		res.json(role.toJSON);
+	}).catch(next);
 });
 
 // Needed for adding users to roles etc
 router.get('/users', function (req, res, next) {
-	User.search(req.query.q)
-		.then(function (users) {
-			res.json({success: true, users: users});
-		}).catch(function (err) {
-			next(err);
-		});
+	models.user.findAll({
+		where: {
+			[Op.or]: [{
+				username: { [Op.iLike]: req.query.q }
+			},
+			{
+				name: { [Op.iLike]: req.query.q }
+			}]
+		}
+	}).then(function (users) {
+		res.json({success: true, users: users.toJSON()});
+	}).catch(next);
 });
 
 router.get('/users/:username/avatar', function (req, res, next) {
@@ -118,35 +135,37 @@ router.get('/files/:folder_id', function (req, res, next) {
 // Needed for menu notifications
 router.get('/elections/:status', function(req,res,next) {
 	if (!req.user) return res.json({"error": "You must be logged in"});
-	Election.getByStatus(req.params.status).then(function(elections) {
-		return Promise.all(
-			elections.map(function(election) {
-				return User.findByUsername(req.user.username).then(function(user) {
-					return user.getVote(election.id);
-				}).then(function(votes) {
-					if (votes) {
-						election.voted = true;
-					} else {
-						election.voted = false;
-					}
-					return election;
-				});
-			})
-		);
-	}).then(function(elections) {
-		res.json(elections);
-	}).catch(function (err) {
-		next(err);
-	});
+
+	models.election.findAll({
+		where: {
+			status: req.params.status
+		},
+		include: [{
+			model: models.election_vote,
+			where: {
+				username: req.user.username
+			}
+		}]
+	}).then(function(rawElections) {
+		var elections = rawElections.map((election) => {
+			election.voted = (election.votes.length == 0);
+			return election;
+		});
+		res.json(elections.toJSON());
+	}).catch(next);
 });
 
 router.get('/blogs/unread', function(req, res, next) {
 	if (!req.user) return next(httpError(401));
-	Blog.getByDateRange(req.user.last_login, new Date()).then(function(blogs) {
-		res.json(blogs);
-	}).catch(function (err) {
-		next(err);
-	});
+	models.blog.findAll({
+		where: {
+			updated: {
+				[Op.between]: [req.user.last_login, new Date()]
+			}
+		}
+	}).then(function(blogs) {
+		res.json(blogs.toJSON);
+	}).catch(next);
 });
 
 router.get('/feedbacks', function(req, res, next) {

@@ -2,8 +2,6 @@ var express = require('express');
 var router = express.Router();
 var httpError = require('http-errors');
 
-var User = require('../../models/user');
-
 var models = require("../../models");
 
 router.use(function (req, res, next) {
@@ -37,7 +35,7 @@ router.get('/:feedback_id', function (req, res, next) {
 		}]
 	});
 	var authorPromise = feedbackPromise.then(function(feedback) {
-		return User.findByUsername(feedback.author);
+		return models.user.findById(feedback.author_username);
 	});
 
 	Promise.all([feedbackPromise, authorPromise]).then(function([feedback, author]) {
@@ -64,7 +62,7 @@ router.post('/:feedback_id', function (req, res, next) {
 			models.feedback.create({
 				title: "reply",
 				message: req.body.message,
-				author: req.user.username,
+				author_username: req.user.username,
 				parent_id: feedback.id,
 				read_by_user: false,
 				exec: true

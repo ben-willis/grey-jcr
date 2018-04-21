@@ -8,7 +8,7 @@ var shortid = require('shortid');
 var slug = require('slug');
 var httpError = require('http-errors');
 
-var Election = require('../../models/election');
+var models = require('../../models');
 
 router.use(function (req, res, next) {
 	if (req.user.level < 5) {
@@ -21,46 +21,42 @@ router.use(function (req, res, next) {
 /* GET the elections page */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		Election.getByStatus(0),
-		Election.getByStatus(1),
-		Election.getByStatus(2)
-	])
-		.then(function (data) {
-			return res.render('admin/elections', {closed:data[0], publicizing: data[1], open: data[2]});
-		})
-		.catch(function (err) {
-			return next(err);
-		});
-
+		models.election.findAll({where: {status: 0}}),
+		models.election.findAll({where: {status: 1}}),
+		models.election.findAll({where: {status: 2}})
+	]).then(function (data) {
+		return res.render('admin/elections', {closed:data[0], publicizing: data[1], open: data[2]});
+	}).catch(next);
 });
 
 /* POST a new election */
 router.post('/', function (req, res, next) {
-	Election.create(req.body.name)
-		.then(function (election) {
-			res.redirect(303, '/admin/elections/'+election.id);
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	models.election.create({
+		name: req.body.name
+	}).then(function (election) {
+		res.redirect(303, '/admin/elections/'+election.id);
+	}).catch(next);
 });
 
 /* GET and delete an election */
 router.get('/:election_id/delete', function (req, res, next) {
-	Election.findById(parseInt(req.params.election_id))
-		.then(function(election){
-			return election.delete();
-		})
-		.then(function () {
+	models.election.findById(req.params.election_id).then(function(election){
+			return election.destroy();
+		}).then(function () {
 			res.redirect(303, '/admin/elections/');
-		})
-		.catch(function (err) {
-			next(err);
-		});
+		}).catch(next);
 });
 
 /* GET the election results */
 router.get('/:election_id/:position_id/results', function (req, res, next) {
+	models.election.findById(req.params.election_id).then(function(election) {
+
+	});
+
+	election.getVotes();
+
+	// Oh jesus
+
 	var election = null;
 	Election.findById(parseInt(req.params.election_id)).then(function(data) {
 		election = data;
@@ -147,61 +143,47 @@ router.get('/:election_id/:position_id/results', function (req, res, next) {
 
 /* GET the edit election page */
 router.get('/:election_id', function (req, res, next) {
-	Election.findById(parseInt(req.params.election_id))
-		.then(function(election){
-			res.render('admin/elections_edit', {election: election});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	models.election.findById(req.params.election_id).then(function(election){
+			res.render('admin/elections_edit', {election: election.toJSON()});
+		}).catch(next);
 });
 
 /* POST an update to an election */
 router.post('/:election_id', function (req, res, next) {
-	Election.findById(parseInt(req.params.election_id))
-		.then(function(election){
-			return election.update(req.body.name, req.body.status);
-		})
-		.then(function () {
-			res.redirect(303, '/admin/elections/'+req.params.election_id);
-		})
-		.catch(function (err) {
-			next(err);
+	models.election.findById(req.params.election_id).then(function(election){
+		return election.update({
+			name: req.body.name,
+			status: req.body.status
 		});
+	}).then(function (election) {
+		res.redirect(303, '/admin/elections/'+election.id);
+	}).catch(next);
 });
 
 /* POST a new position */
 router.post('/:election_id/newposition', function (req, res, next) {
-	Election.findById(parseInt(req.params.election_id))
-		.then(function(election){
-			return election.addPosition(req.body.name);
-		})
-		.then(function () {
-			res.redirect(303, '/admin/elections/'+req.params.election_id);
-		})
-		.catch(function (err) {
-			next(err);
+	models.election.findById(req.params.election_id).then(function(election) {
+		return election.createPosition({
+			name: req.body.name
 		});
+	}).then(function () {
+		res.redirect(303, '/admin/elections/'+req.params.election_id);
+	}).catch(next);
 });
 
 /* GET and delete a position */
 router.get('/:election_id/:position_id/delete', function (req, res, next) {
-	Election.findById(parseInt(req.params.election_id))
-		.then(function(election){
-			return election.removePosition(req.params.position_id);
-		})
-		.then(function () {
-			res.redirect(303, '/admin/elections/'+req.params.election_id);
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	models.election_position.findById(req.params.position_id).then(function(position) {
+		return position.destroy();
+	}).then(function () {
+		res.redirect(303, '/admin/elections/'+req.params.election_id);
+	}).catch(next);
 
 });
 
 /* POST a new nominee */
 router.post('/:election_id/:position_id/newnominee', upload.single('manifesto'),function (req, res, next) {
-	moveManifesto = new Promise(function(resolve, reject){
+	var moveManifestoPromise = new Promise(function(resolve, reject){
 		if (req.file) {
 			var manifesto_name = slug(req.body.name)+'-'+shortid.generate()+'.'+mime.extension(req.file.mimetype);
 			mv(req.file.path, __dirname+'/../../public/files/manifestos/'+manifesto_name, function (err) {
@@ -212,35 +194,26 @@ router.post('/:election_id/:position_id/newnominee', upload.single('manifesto'),
 			return resolve(null);
 		}
 	});
-	var election = null;
-	Election.findById(parseInt(req.params.election_id))
-		.then(function(data){
-			election = data;
-			return moveManifesto;
-		})
-		.then(function (manifesto_name) {
-			return election.addNominee(req.params.position_id, req.body.name, manifesto_name);
-		})
-		.then(function(){
-			res.redirect(303, '/admin/elections/'+req.params.election_id);
-		})
-		.catch(function (err) {
-			next(err);
+
+	moveManifestoPromise.then(function(manifesto_name) {
+		return models.election_position_nominee.create({
+			election_id: req.params.election_id,
+			position_id: req.params.position_id,
+			name: req.body.name,
+			manifesto: manifesto_name
 		});
+	}).then(function(){
+		res.redirect(303, '/admin/elections/'+req.params.election_id);
+	}).catch(next);
 });
 
 /* GET and delete a candidate */
 router.get('/:election_id/:position_id/:nominee_id/delete', function (req, res, next) {
-	Election.findById(parseInt(req.params.election_id))
-		.then(function(election){
-			return election.removeNominee(req.params.nominee_id);
-		})
-		.then(function () {
-			res.redirect(303, '/admin/elections/'+req.params.election_id);
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	models.election_position_nominee.findById(req.params.nominee_id).then(function(nominee){
+		return nominee.destroy();
+	}).then(function () {
+		res.redirect(303, '/admin/elections/'+req.params.election_id);
+	}).catch(next);
 });
 
 module.exports = router;

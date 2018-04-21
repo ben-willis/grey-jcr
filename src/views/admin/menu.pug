@@ -27,10 +27,6 @@ div(class='ui stackable small inverted menu')
 		a(class='item' href='/admin/rooms')
 			i(class="book icon")
 			| Room Booking
-		if (!user.roles[0].description)
-			a(class='item' href='/admin/roles' data-content="Your role doesn't have a description. Why not add one?" data-position="bottom center")
-				i(class="sitemap icon")
-				| Roles
 		else
 			a(class='item' href='/admin/roles')
 				i(class="sitemap icon")
