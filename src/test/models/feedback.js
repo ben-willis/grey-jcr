@@ -19,7 +19,35 @@ describe('Feedback model', function() {
         }).catch(done);
     });
 
-    it("can add a reply");
+    it("it can find all feedback", function(done) {
+        models.feedback.findAll().then(function(feedbacks) {
+            expect(feedbacks).to.not.have.length(0);
+            done();
+        }).catch(done);
+    });
 
-    it("can list all replies");
+    it("can find a piece of feedback by id", function(done) {
+        models.feedback.findById(testFeedbackId).then(function(feedback) {
+            expect(feedback).to.equal("Test Feedback");
+        }).catch(done);
+    });
+
+    it("can add a reply", function(done) {
+        models.feedback.findById(testFeedbackId).then(function(feedback) {
+            return feedback.addReply({
+                message: "test reply test test test"
+            });
+        }).then(function(feedback) {
+            done();
+        }).catch(done);
+    });
+
+    it("can list all replies", function(done) {
+        models.feedback.findById(testFeedbackId).then(function(feedback) {
+            return feedback.getReplies();
+        }).then(function(feedbacks){
+            expect(feedbacks).to.not.have.length(0);
+            done();
+        }).catch(done);
+    });
 });

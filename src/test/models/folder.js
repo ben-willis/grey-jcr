@@ -31,7 +31,7 @@ describe("Folder and File models", function() {
     models.folder.findById(testFolderId).then(function(folder) {
       return folder.getFiles();
     }).then(function(files) {
-      expect(files).to.have.length(1);
+      expect(files).to.not.have.length(0);
       done();
     }).catch(done);
   });
