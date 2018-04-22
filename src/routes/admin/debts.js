@@ -20,7 +20,6 @@ router.use(function (req, res, next) {
 
 /* GET debts page. */
 router.get('/', function (req, res, next) {
-	// TODO: filter out those without a debt
 	models.user.findAll({include: [models.debt]}).then(function (users) {
 		var debtors = users.map((user) => {
 			user.total_debt = user.debts.reduce((debt1, debt2) => debt1.amount + debt2.amount, 0);

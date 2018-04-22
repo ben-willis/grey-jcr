@@ -6,13 +6,6 @@ var httpError = require('http-errors');
 
 const Op = require("sequelize").Op;
 
-var User = require('../models/user');
-var Folder = require('../models/folder');
-var Role = require('../models/role');
-var Event = require('../models/event');
-var Blog = require('../models/blog');
-var Election = require('../models/election');
-
 var models = require("../models");
 
 // The main site search
@@ -34,7 +27,12 @@ router.get('/search/', function (req, res, next) {
 			},
 			include: [models.role]
 		}),
-		Event.search(req.query.q)
+		models.event.findAll({
+			where: {
+				name: { [Op.iLike]: req.query.q }
+			},
+			include: [models.role]
+		})
 	]).then(function(data) {
 		var users = data[0].map(function(user) {
 			return {
@@ -70,15 +68,21 @@ router.get('/search/', function (req, res, next) {
 
 // Needed for the calendar
 router.get('/events/:year/:month', function (req, res, next) {
-	Event.getByMonth(req.params.year, req.params.month).then(function (events) {
-			res.json(events);
-		}).catch(next);
+	models.event.findAll({
+		where: {
+			time: {
+				[Op.between]: [new Date(req.params.year, req.params - 1), new Date(req.params.year, req.params)]
+			}
+		}
+	}).then(function (events) {
+		res.json(events.toJSON());
+	}).catch(next);
 });
 
 // Needed for JCR, welfare and support page
 router.get('/roles/:role_id', function(req, res, next) {
 	models.role.findById(req.params.role_id).then(function(role) {
-		res.json(role.toJSON);
+		res.json(role.toJSON());
 	}).catch(next);
 });
 
@@ -102,12 +106,12 @@ router.get('/users/:username/avatar', function (req, res, next) {
 	fs.access(__dirname+'/../public/files/avatars/'+req.params.username+'.png', function (err) {
 		if (!err) {
 			res.sendFile('public/files/avatars/'+req.params.username+'.png', {
-    			root: __dirname+'/../'
-    		});
+  			root: __dirname+'/../'
+  		});
 		} else {
 			res.sendFile('public/images/anon.png', {
-    			root: __dirname+'/../'
-    		});
+  			root: __dirname+'/../'
+  		});
 		}
 	});
 

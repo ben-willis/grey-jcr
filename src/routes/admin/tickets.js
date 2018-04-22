@@ -1,12 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var validator = require('validator');
 var csv = require('csv');
 var httpError = require('http-errors');
 
-var Ticket = require('../../models/ticket');
-var Booking = require('../../models/booking');
-var User = require('../../models/user');
+const models = require("../../models");
 
 router.use(function (req, res, next) {
 	if (req.user.level < 4) {
@@ -18,51 +15,43 @@ router.use(function (req, res, next) {
 
 /* GET tickets page. */
 router.get('/', function (req, res, next) {
-	Ticket.getAll()
-		.then(function (tickets) {
-			return Promise.all(
-				tickets.map(function(ticket) {
-					return Booking.countByTicketId(ticket.id).then(function(booking_count) {
-						ticket.sold = booking_count;
-						return ticket;
-					});
-				})
-			);
-		}).then(function(tickets ){
-			res.render('admin/tickets', {tickets: tickets});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	models.ticket.findAll().then(function (tickets) {
+		return Promise.all(
+			tickets.map(function(ticket) {
+				return models.booking.count({where: {ticket_id: ticket.id}}).then(function(bookingCount) {
+					ticket.sold = bookingCount;
+					return ticket;
+				});
+			})
+		);
+	}).then(function(tickets ){
+		res.render('admin/tickets', {tickets: tickets});
+	}).catch(next);
 });
 
 /* POST a new ticket */
 router.post('/', function (req, res, next) {
-	Ticket.create(req.body.name).then(function (ticket) {
+	models.ticket.create({
+		name: req.body.name
+	}).then(function (ticket) {
 		res.redirect(303, '/admin/tickets/'+ticket.id);
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 /* GET edit ticket page. */
 router.get('/:ticket_id', function (req, res, next) {
-	Ticket.findById(req.params.ticket_id).then(function (ticket) {
+	models.ticket.findById(req.params.ticket_id).then(function (ticket) {
 		res.render('admin/tickets_edit', {ticket: ticket});
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 /* GET delete a ticket page. */
 router.get('/:ticket_id/delete', function (req, res, next) {
-	Ticket.findById(req.params.ticket_id).then(function(ticket) {
-		return ticket.delete();
+	models.ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.destroy();
 	}).then(function () {
 		res.redirect(303, '/admin/tickets');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 /* POST an editted ticket */
@@ -99,29 +88,29 @@ router.post('/:ticket_id', function (req, res, next) {
 		}
 	}
 
-	Ticket.findById(req.params.ticket_id).then(function(ticket) {
+	models.ticket.findById(req.params.ticket_id).then(function(ticket) {
 		return ticket.update(req.body.name, {
 			max_booking: parseInt(req.body.max_booking),
-	        min_booking: parseInt(req.body.min_booking),
-	        allow_debtors: allow_debtors,
-	        allow_guests: allow_guests,
-	        open_booking: open_booking,
-	        close_booking: close_booking,
-	        price: price,
-	        guest_surcharge: guest_surcharge,
+	    min_booking: parseInt(req.body.min_booking),
+	    allow_debtors: allow_debtors,
+	    allow_guests: allow_guests,
+	    open_booking: open_booking,
+	    close_booking: close_booking,
+	    price: price,
+	    guest_surcharge: guest_surcharge,
 			stock: Math.max(req.body.stock, 0)
 		});
 	}).then(function () {
 		res.redirect(303, '/admin/tickets');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 /* POST a new option*/
 router.post('/:ticket_id/options', function(req, res, next) {
-	Ticket.findById(req.params.ticket_id).then(function(ticket) {
-		return ticket.addOption(req.body.name);
+	models.ticket.findById(req.params.ticket_id).then(function(ticket) {
+		return ticket.creatOption({
+			name: req.body.name
+		});
 	}).then(function () {
 		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
@@ -129,8 +118,10 @@ router.post('/:ticket_id/options', function(req, res, next) {
 
 /* POST rename an option */
 router.post('/:ticket_id/options/:option_id', function(req, res, next) {
-	Ticket.findById(req.params.ticket_id).then(function(ticket) {
-		return ticket.renameOption(req.params.option_id, req.body.name);
+	models.ticket_option.findById(req.params.option_id).then(function(option) {
+		return option.update({
+			name: req.body.name
+		});
 	}).then(function () {
 		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
@@ -138,8 +129,8 @@ router.post('/:ticket_id/options/:option_id', function(req, res, next) {
 
 /* GET delete a option */
 router.get('/:ticket_id/options/:option_id/delete', function(req, res, next) {
-	Ticket.findById(req.params.ticket_id).then(function(ticket) {
-		return ticket.removeOption(req.params.option_id);
+	models.ticket_option.findById(req.params.option_id).then(function(ticket) {
+		return ticket.destroy();
 	}).then(function () {
 		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
@@ -148,8 +139,11 @@ router.get('/:ticket_id/options/:option_id/delete', function(req, res, next) {
 /* POST a new choice */
 router.post('/:ticket_id/options/:option_id/choices', function(req, res, next) {
 	var price = Math.floor(parseFloat(req.body.price)*100);
-	Ticket.findById(req.params.ticket_id).then(function(ticket) {
-		return ticket.addChoice(req.params.option_id, req.body.name, price);
+	models.ticket_option.findById(req.params.option_id).then(function(option) {
+		return option.createChoice({
+			name: req.body.name,
+			price: price
+		});
 	}).then(function () {
 		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
@@ -158,8 +152,11 @@ router.post('/:ticket_id/options/:option_id/choices', function(req, res, next) {
 /* POST update a choice */
 router.post('/:ticket_id/options/:option_id/choices/:choice_id', function(req, res, next) {
 	var price = Math.floor(parseFloat(req.body.price)*100);
-	Ticket.findById(req.params.ticket_id).then(function(ticket) {
-		return ticket.updateChoice(req.params.choice_id, req.body.name, price);
+	models.ticket_option_choice.findById(req.params.choice_id).then(function(choice) {
+		return choice.update({
+			name: req.body.name,
+			price: price
+		});
 	}).then(function () {
 		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
@@ -167,8 +164,8 @@ router.post('/:ticket_id/options/:option_id/choices/:choice_id', function(req, r
 
 /* GET remove a choice */
 router.get('/:ticket_id/options/:option_id/choices/:choice_id/delete', function(req, res, next) {
-	Ticket.findById(req.params.ticket_id).then(function(ticket) {
-		return ticket.removeChoice(req.params.choice_id);
+	models.ticket_option_choice.findById(req.params.choice_id).then(function(ticket) {
+		return ticket.destroy();
 	}).then(function () {
 		res.redirect(303, '/admin/tickets/'+req.params.ticket_id);
 	}).catch(next);
@@ -176,67 +173,67 @@ router.get('/:ticket_id/options/:option_id/choices/:choice_id/delete', function(
 
 /* GET ticket bookings */
 router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
-	var ticket = null;
 	var columns = null;
 	var options = {};
 	var choices = {};
 	var bookings_data = [];
-	Ticket.findById(parseInt(req.params.ticket_id))
-		.then(function(data) {
-			ticket = data;
-			columns = {
-				booked_by: "Booked By",
-				name: "Name",
-				guest: "Guest",
-				email: "Email",
-				notes: "Notes"
-			};
 
-			for (option of ticket.options) {
-				columns[option.id] = option.name;
-				options[option.id] = {};
-				for (choice of option.choices) {
-					choices[choice.id] = option.id;
-					options[option.id][choice.id] = choice.name;
-				}
+	var ticketPromise = models.ticket.findById(req.params.ticket_id, {
+		include: {
+			model: models.ticket_option,
+			as: "options"
+		}
+	});
+
+	ticketPromise.then(function(ticket) {
+		columns = {
+			booked_by: "Booked By",
+			name: "Name",
+			guest: "Guest",
+			email: "Email",
+			notes: "Notes"
+		};
+
+		for (option of ticket.options) {
+			columns[option.id] = option.name;
+			options[option.id] = {};
+			for (choice of option.choices) {
+				choices[choice.id] = option.id;
+				options[option.id][choice.id] = choice.name;
 			}
-			return Booking.getByTicketId(req.params.ticket_id);
-		})
-		.then(function(bookings) {
-			return Promise.all(
-				bookings.map(function(booking) {
-					var username = (booking.username === null) ? booking.booked_by : booking.username;
-					return User.findByUsername(username).then(function(user) {
-						var name = (booking.username === null) ? booking.guestname : user.name;
-						var booking_data = {
-							booked_by: booking.booked_by,
-							name: name,
-							guest: (booking.username === null),
-							email: user.email,
-							notes: booking.notes
-						};
-						
-						if (ticket.options == []) return booking_data;
+		}
+		return models.booking.findAll({where: {ticket_id: req.params.ticket_id}});
+	}).then(function(bookings) {
+		return Promise.all(
+			bookings.map(function(booking) {
+				var username = (booking.username === null) ? booking.booked_by : booking.username;
+				return models.user.findById(username).then(function(user) {
+					var name = (booking.username === null) ? booking.guestname : user.name;
+					var booking_data = {
+						booked_by: booking.booked_by,
+						name: name,
+						guest: (booking.username === null),
+						email: user.email,
+						notes: booking.notes
+					};
+					
+					if (ticket.options == []) return booking_data;
 
-						for (choice of booking.choices) {
-							option_id = choices[choice];
-							booking_data[option_id] = options[option_id][choice]
-						}
-						return booking_data;
-					});
-				})
-			);
-		})
-		.then(function(bookings){
-			csv.stringify(bookings, {header: true, columns: columns}, function (err, output) {
-				if (err) throw err;
-				res.set('Content-Type', 'text/csv');
-				res.status(200).send(output);
-			});
-		})
-		.catch(function (err){
-			next(err);
+					for (choice of booking.choices) {
+						option_id = choices[choice];
+						booking_data[option_id] = options[option_id][choice]
+					}
+					return booking_data;
+				});
+			})
+		);
+	}).then(function(bookings){
+		csv.stringify(bookings, {header: true, columns: columns}, function (err, output) {
+			if (err) throw err;
+			res.set('Content-Type', 'text/csv');
+			res.status(200).send(output);
 		});
-})
-;
+	}).catch(next);
+});
+
 module.exports = router;

@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: "booked_by"
         });
         models.booking.belongsTo(models.user, {foreignKey: "username"});
-        models.booking.belongsToMany(models.ticket_option_choice, {through: "booking_choices"});
+        models.booking.belongsToMany(models.ticket_option_choice, {through: "booking_choices", as: "choices"});
         models.booking.belongsTo(models.event);
         models.booking.belongsTo(models.ticket);
         models.booking.hasOne(models.debt);

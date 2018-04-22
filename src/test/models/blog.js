@@ -15,10 +15,7 @@ describe('Blog model', function() {
     		testBlogId = blog.id;
     		expect(blog.title).to.equal("Test Title");
     		done();
-    	}).catch(function(err) {
-            console.log(err);
-            done(err);
-        });
+    	}).catch(done);
     });
 
     it("can find a blog by id", function(done) {
