@@ -17,15 +17,13 @@ var io = require('../../helpers/socketApi.js').io;
 
 var models = require("../../models");
 
-var valentines = require('../../models/valentines');
-
 
 /* GET events page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
 		models.events.findAll({where: {time: {[Op.gte]: new Date()}}}),
 		models.events.findAll({where: {time: {[Op.lt]: new Date()}}}),
-		valentines.getStatus()
+		models.valentines_status.findOne().then(function(valentinesStatus) {return valentinesStatus.status;})
 	]).then(function (data) {
 		res.render('admin/events', {future_events: data[0], past_events: data[1], valentines_swapping_open: data[2]});
 	}).catch(function (err) {
@@ -55,13 +53,17 @@ router.post('/valentines/pairs', upload.single('pairs'), function(req, res, next
 		csv.parse(data, function(err, data) {
 			if (err) return next(err);
 			Promise.all([
-				valentines.clearPairs(),
-				valentines.clearSwaps()
+				models.valentines_pair.destroy(),
+				models.valentines_swap.destroy()
 			]).then(function() {
 				return Promise.all(
 					data.map(function(row, index){
 						if (row.length != 2) return httpError(400, "CSV should have two columns");
-						return valentines.createPair(row[0], row[1], index);
+						return models.valentines_pair.create({
+							leader: row[0],
+							partner: row[1],
+							position: index
+						});
 					})
 				);
 			}).then(function(){
@@ -72,25 +74,43 @@ router.post('/valentines/pairs', upload.single('pairs'), function(req, res, next
 });
 
 router.get('/valentines/open', function(req, res, next) {
-	valentines.setStatus(true).then(function() {
+	models.valentines_status.findOne().then(function(valentinesStatus) {
+		return valentinesStatus.update({status: true});
+	}).then(function() {
 		res.redirect('/admin/events');
 	}).catch(next);
 });
 
 router.get('/valentines/close', function(req, res, next) {
-	valentines.setStatus(false).then(function() {
+	models.valentines_status.findOne().then(function(valentinesStatus) {
+		return valentinesStatus.update({status: false});
+	}).then(function() {
 		io.emit('close_swapping');
 		res.redirect('/admin/events');
 	}).catch(next);
 });
 
 router.get('/valentines/debts', function(req, res, next) {
-	valentines.getDebts().then(function(debtors) {
-		Promise.all(debtors.map(function(debtor) {
-			return User.addDebtToUsername(debtor.username, 'Valentines Swapping', '', debtor.debt);
+	models.valentines_swap.findAll().then(function(swaps) {
+		var debts = {};
+		swaps.forEach((swap) => {
+			if (swap.username === null) return;
+			if (debts[swap.username] === undefined) {
+				debts[swap.username] = 0;
+			}
+			debts[swap.username] += swap.cost;
+		});
+		return Promise.all(debts.map((username, debt) => {
+			return models.debt.create({
+				name: "Valentines Swapping",
+				amount: debt,
+				username: username
+			});
 		}));
 	}).then(function(){
-		return valentines.clearDebts();
+		return models.valentines_swap.findAll();
+	}).then(function(swaps) {
+		return Promise.all(swaps.map((swap) => swap.update({username: null})));
 	}).then(function(){
 		res.redirect('/admin/events');
 	}).catch(next);
@@ -98,19 +118,12 @@ router.get('/valentines/debts', function(req, res, next) {
 
 /* GET edit events page. */
 router.get('/:event_id/edit', function (req, res, next) {
-	var event;
-	Event.findById(parseInt(req.params.event_id)).then(function (data) {
-		event = data;
-		return Promise.all([
-			event.getTickets(),
-			Ticket.getAll()
-		]);
-	}).then(function (data) {
-		event.tickets = data[0];
-		res.render('admin/events_edit', {event: event, tickets: data[1]});
-	}).catch(function (err) {
-		next(err);
-	});
+	Promise.all([
+		models.event.findById(req.params.event_id, {include: [models.ticket]}),
+		models.ticket.findAll()
+	]).then(function ([events, tickets]) {
+		res.render('admin/events_edit', {event: event, tickets: tickets});
+	}).catch(next);
 });
 
 /* POST an update to an event */

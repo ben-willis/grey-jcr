@@ -9,8 +9,6 @@ const Op = require("sequelize").Op;
 
 var models = require("../models");
 
-var valentines = require('./valentines');
-
 /* GET home page. */
 router.get('/', function (req, res, next) {
 	models.event.findAll({
