@@ -5,6 +5,8 @@ var httpError = require('http-errors');
 var BookingManager = require('../helpers/bookings');
 var Mail = require('../helpers/mail');
 
+var valentines = require("./valentines");
+
 const Op = require("sequelize").Op;
 
 var models = require("../models");
