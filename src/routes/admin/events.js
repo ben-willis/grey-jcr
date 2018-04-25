@@ -21,8 +21,8 @@ var models = require("../../models");
 /* GET events page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		models.events.findAll({where: {time: {[Op.gte]: new Date()}}}),
-		models.events.findAll({where: {time: {[Op.lt]: new Date()}}}),
+		models.event.findAll({where: {time: {[Op.gte]: new Date()}}}),
+		models.event.findAll({where: {time: {[Op.lt]: new Date()}}}),
 		models.valentines_status.findOne().then(function(valentinesStatus) {return valentinesStatus.status;})
 	]).then(function (data) {
 		res.render('admin/events', {future_events: data[0], past_events: data[1], valentines_swapping_open: data[2]});
@@ -121,7 +121,8 @@ router.get('/:event_id/edit', function (req, res, next) {
 	Promise.all([
 		models.event.findById(req.params.event_id, {include: [models.ticket]}),
 		models.ticket.findAll()
-	]).then(function ([events, tickets]) {
+	]).then(function ([event, tickets]) {
+		event.tickets = event.tickets.map(x => x.id);
 		res.render('admin/events_edit', {event: event, tickets: tickets});
 	}).catch(next);
 });
@@ -146,19 +147,18 @@ router.post('/:event_id/edit', upload.single('image'), function (req, res, next)
 	Promise.all([
 		models.event.findById(req.params.event_id),
 		Promise.all(ticket_ids.map((id) => models.ticket.findById(id))),
-	]).then(function([event, tickets]){
+		imagePromise
+	]).then(function([event, tickets, imageName]){
 		return Promise.all([
 			event.addTickets(tickets),
-			imagePromise
+			event.update({
+				name: req.body.name,
+				slug: slugify(req.body.name),
+				description: req.body.description,
+				time: timestamp,
+				image: imageName || event.image
+			})
 		]);
-	}).then(function([event, imageName]) {
-		return event.update({
-			name: req.body.name,
-			slug: slugify(req.body.name),
-			description: req.body.description,
-			time: timestamp,
-			image: imageName || event.image
-		});
 	}).then(function () {
 		res.redirect('/admin/events/'+req.params.event_id+'/edit?success');
 	}).catch(next);

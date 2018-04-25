@@ -46,7 +46,8 @@ router.get('/blog', function (req, res, next) {
 			where: Object.keys(filters).forEach((key) => (filters[key] === null) && delete filters[key]),
 			include: [models.role, {model: models.user, as: "author"}],
 			limit: limit,
-			offset: (page - 1) * limit
+			offset: (page - 1) * limit,
+			order: [["updated", "DESC"]]
 		}),
 		models.role.findAll({
 			where: {
@@ -75,11 +76,18 @@ router.get('/blog/:role_slug', function (req, res, next) {
 	var page = parseInt(req.query.page) || 1;
 	var limit = parseInt(req.query.limit) || 6;
 
-	models.role.findAll({
+	models.role.findOne({
 		where: {
 			slug: req.params.role_slug
 		},
-		include: [models.blog, models.user, models.folder]
+		include: [{
+			model: models.blog,
+			order: [["updated", "DESC"]],
+			include: [{
+				model: models.user,
+				as: "author"
+			}]
+		}, models.user, models.folder]
 	}).then(function(role){
 		res.render('jcr/profile', {
 			page: (role.blogs.length === 0) ? 0 : page,

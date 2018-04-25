@@ -3,7 +3,7 @@ var router = express.Router();
 var io = require('../helpers/socketApi.js').io;
 var httpError = require('http-errors');
 
-var models = require('../models/models')
+var models = require('../models');
 
 router.use(function (req, res, next) {
 	if (req.isAuthenticated()) {

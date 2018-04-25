@@ -129,7 +129,8 @@ router.get('/feedback', function (req, res, next) {
     include: [{
       model: models.feedback,
       as: "replies"
-    }]
+    }],
+    order: [["updated", "DESC"]]
   }).then(function(feedbacks) {
     res.render("services/feedback", {feedbacks: feedbacks.map(x => x.toJSON())});
   }).catch(next);

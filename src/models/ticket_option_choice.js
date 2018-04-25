@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: "CASCADE",
             foreignKey: "option_id"
         });
-        models.ticket_option_choice.belongsToMany(models.booking, {through: "booking_choices"});
+        models.ticket_option_choice.belongsToMany(models.booking, {through: "booking_choices", foreignKey: "choice_id"});
     };
 
     return TicketOptionChoice;

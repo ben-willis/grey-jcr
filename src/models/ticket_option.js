@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         models.ticket_option.belongsTo(models.ticket, {
             onDelete: "CASCADE"
         });
-        models.ticket_option.hasMany(models.ticket_option_choice, {as: "choices"});
+        models.ticket_option.hasMany(models.ticket_option_choice, {as: "choices", foreignKey: "option_id"});
     };
 
     return TicketOption;
