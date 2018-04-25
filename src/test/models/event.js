@@ -1,6 +1,4 @@
-var Event = require('../../models/event');
-var db = require('../../helpers/db');
-var slug = require('slug');
+var models = require('../../models');
 
 var chai = require("chai");
 var expect = chai.expect;

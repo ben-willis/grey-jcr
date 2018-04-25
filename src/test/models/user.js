@@ -1,5 +1,4 @@
-var User = require('../../models/user.js');
-var db = require('../../helpers/db');
+var models = require('../../models');
 
 var chai = require("chai")
 var chaiAsPromised = require('chai-as-promised');

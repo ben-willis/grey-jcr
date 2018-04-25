@@ -1,5 +1,4 @@
-var Role = require('../../models/role.js');
-var db = require('../../helpers/db');
+var models = require('../../models');
 
 var expect = require("chai").expect;
 

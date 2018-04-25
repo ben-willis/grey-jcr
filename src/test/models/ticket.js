@@ -1,5 +1,4 @@
-var Ticket = require('../../models/ticket');
-var db = require('../../helpers/db');
+var models = require('../../models');
 
 var expect = require("chai").expect;
 

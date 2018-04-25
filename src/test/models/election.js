@@ -1,5 +1,4 @@
-var Election = require('../../models/election');
-var db = require('../../helpers/db');
+var models = require('../../models');
 
 var expect = require("chai").expect;
 
