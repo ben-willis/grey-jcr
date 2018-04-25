@@ -135,9 +135,9 @@ router.get('/:year/:month/:day/:slug/:ticket_id/booking', function (req, res, ne
 /* POST a booking update */
 router.post('/:booking_id', function (req, res, next) {
 	var booking = null;
-	var ticket = null;
+	var ticketName = null;
 	var amount = 0;
-	var booking_choices = (req.body.choices == undefined) ? [] : req.body.choices.filter(function(choice) {return (choice != "")});
+	var booking_choices = (req.body.choices === undefined) ? [] : req.body.choices.filter((choice) => (choice !== ""));
 	Booking.findById(parseInt(req.params.booking_id))
 		.then(function(data) {
 			booking = data;
@@ -149,8 +149,8 @@ router.post('/:booking_id', function (req, res, next) {
 		.then(function(){
 			return Ticket.findById(booking.ticket_id);
 		})
-		.then(function(data){
-			var ticket = data;
+		.then(function(ticket){
+			ticketName = ticket.name;
 			var ticket_price = (booking.username !== null) ? ticket.price : ticket.price + ticket.guest_surcharge;
 			amount += ticket_price;
 			return Promise.all(
@@ -168,7 +168,7 @@ router.post('/:booking_id', function (req, res, next) {
 		})
 		.then(function(user) {
 			var name = (booking.username !== null) ? booking.username : booking.guestname;
-			return user.setDebtForBooking(ticket.name, "Ticket for "+name, amount, booking.id);
+			return user.setDebtForBooking(ticketName, "Ticket for "+name, amount, booking.id);
 		})
 		.then(function() {
 			return Event.findById(parseInt(req.body.event_id));
