@@ -20,7 +20,10 @@ const files = [
   "ticket.js",
   "ticket_option.js",
   "ticket_option_choice.js",
-  "user.js"
+  "user.js",
+  "valentines_pair.js",
+  "valentines_status.js",
+  "valentines_swap.js"
 ];
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {

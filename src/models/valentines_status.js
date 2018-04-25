@@ -9,5 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {tableName: "valentines_status"});
 
+    ValentinesStatus.removeAttribute("id");
+
     return ValentinesStatus;
 };

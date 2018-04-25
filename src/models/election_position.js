@@ -12,7 +12,8 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: "CASCADE"
         });
         models.election_position.hasMany(models.election_vote, {
-            as: "votes"
+            as: "votes",
+            foreignKey: "position_id"
         });
         models.election_position.hasMany(models.election_position_nominee, {
             as: "nominees",

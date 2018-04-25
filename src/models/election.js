@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
 
     Election.associate = function (models) {
         models.election.hasMany(models.election_position, {
-            as: "positions"
+            as: "positions",
+            foreignKey: "election_id"
         });
         models.election.hasMany(models.election_vote, {
             as: "votes"

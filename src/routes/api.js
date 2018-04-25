@@ -14,24 +14,23 @@ router.get('/search/', function (req, res, next) {
 		models.user.findAll({
 			where: {
 				[Op.or]: [{
-					username: { [Op.iLike]: req.query.q }
+					username: { [Op.iLike]: "%" + req.query.q + "%" }
 				},
 				{
-					name: { [Op.iLike]: req.query.q }
+					name: { [Op.iLike]: "%" + req.query.q + "%" }
 				}]
 			}
 		}),
 		models.blog.findAll({
 			where: {
-				name: { [Op.iLike]: req.query.q }
+				title: { [Op.iLike]: "%" + req.query.q + "%" }
 			},
 			include: [models.role]
 		}),
 		models.event.findAll({
 			where: {
-				name: { [Op.iLike]: req.query.q }
-			},
-			include: [models.role]
+				name: { [Op.iLike]: "%" + req.query.q + "%" }
+			}
 		})
 	]).then(function(data) {
 		var users = data[0].map(function(user) {
@@ -91,14 +90,15 @@ router.get('/users', function (req, res, next) {
 	models.user.findAll({
 		where: {
 			[Op.or]: [{
-				username: { [Op.iLike]: req.query.q }
+				username: { [Op.iLike]: "%" + req.query.q + "%" }
 			},
 			{
-				name: { [Op.iLike]: req.query.q }
+				name: { [Op.iLike]: "%" + req.query.q + "%" }
 			}]
 		}
 	}).then(function (users) {
-		res.json({success: true, users: users.toJSON()});
+		console.log(users);
+		res.json({success: true, users: users.map(x => x.toJSON())});
 	}).catch(next);
 });
 
@@ -146,16 +146,17 @@ router.get('/elections/:status', function(req,res,next) {
 		},
 		include: [{
 			model: models.election_vote,
+			as: "votes",
 			where: {
 				username: req.user.username
 			}
 		}]
 	}).then(function(rawElections) {
 		var elections = rawElections.map((election) => {
-			election.voted = (election.votes.length == 0);
+			election.voted = (election.votes.length === 0);
 			return election;
 		});
-		res.json(elections.toJSON());
+		res.json(elections.map(x => x.toJSON()));
 	}).catch(next);
 });
 
@@ -168,13 +169,13 @@ router.get('/blogs/unread', function(req, res, next) {
 			}
 		}
 	}).then(function(blogs) {
-		res.json(blogs.toJSON);
+		res.json(blogs.map(x => x.toJSON()));
 	}).catch(next);
 });
 
 router.get('/feedbacks', function(req, res, next) {
 	if (!req.user) return res.json({"error": "You must be logged in"});
-	models.Feedback.findAll({where: {author: req.user.username}}).then(function(feedbacks) {
+	models.feedback.findAll({where: {author_username: req.user.username}}).then(function(feedbacks) {
 		res.json({
 			feedbacks: feedbacks.map(x => x.toJSON())
 		});

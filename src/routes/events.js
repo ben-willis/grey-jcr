@@ -186,7 +186,7 @@ router.get('/:year/:month/:day/:slug', function (req, res, next) {
 					]
 				}),
 				models.booking.count({where: {ticket_id: ticket.id}})
-			]).then(function([ticket, userBookings, bookingCount]){
+			]).then(function([userBookings, bookingCount]){
 				ticket.bookings = userBookings;
 				ticket.sold = bookingCount;
 				return ticket;

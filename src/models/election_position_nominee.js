@@ -21,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: "position_id"
         });
         models.election_position_nominee.hasMany(models.election_vote, {
-            as: "votes"
+            as: "votes",
+            foreignKey: "nominee_id"
         });
     };
 

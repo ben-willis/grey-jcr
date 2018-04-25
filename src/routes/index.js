@@ -22,10 +22,14 @@ var api = require('./api');
 /* GET home page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		models.blog.findAll({limit: 9, include: [{
+		models.blog.findAll({
+			limit: 9,
+			include: [{
 				model: models.user,
 				as: "author"
-			}, models.role]}),
+			}, models.role],
+			order: [["updated", "DESC"]]
+		}),
 		models.event.findAll({
 			where: {
 				time: {[Op.gte]: new Date()}

@@ -20,7 +20,8 @@ router.get('/', function (req, res, next) {
 	  include: [{
       model: models.feedback,
       as: "replies"
-    }]
+    }],
+    order: [["updated", "DESC"]]
   }).then(function (feedbacks) {
 		res.render('admin/feedback', {feedbacks: feedbacks, archive: archive});
 	}).catch(next);

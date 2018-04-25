@@ -16,22 +16,11 @@ router.use(function (req, res, next) {
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	models.role.findAll().then(function(roles){
-		var exec = [];
-		var officers = [];
-		var welfare = [];
-		var reps = [];
-		for (var i = 0; i < roles.length; i++) {
-			if (roles[i].level >= 4 && roles[i].id != 1) {
-				exec.push(roles[i]);
-			} else if (roles[i].level == 3 || roles[i].id == 1) {
-				officers.push(roles[i]);
-			} else if (roles[i].level == 2) {
-				welfare.push(roles[i]);
-			} else {
-				reps.push(roles[i]);
-			}
-		}
+	models.role.findAll({include: [models.user]}).then(function(roles){
+		var exec = roles.filter((role) => (role.level >= 4 && role.id != 1));
+		var officers = roles.filter((role) => (role.level == 3 || role.id ==1));
+		var welfare = roles.filter((role) => (role.level == 2));
+		var reps = roles.filter((role) => (role.level == 1));
 		res.render('admin/roles', {exec: exec, officers: officers, welfare: welfare, reps: reps});
 	}).catch(next);
 });
@@ -58,16 +47,16 @@ router.post('/new', function (req, res, next) {
 });
 
 router.post('/:role_id/addUser', function (req, res, next) {
-	User.findByUsername(req.body.username).then(function(user) {
-		return user.assignRole(parseInt(req.params.role_id));
+	models.user.findById(req.body.username).then(function(user) {
+		return user.addRole(req.params.role_id);
 	}).then(function () {
 		res.redirect('/admin/roles');
 	}).catch(next);
 });
 
 router.get('/:role_id/removeUser/:username', function (req, res, next) {
-	User.findByUsername(req.params.username).then(function(user) {
-		return user.removeRole(parseInt(req.params.role_id));
+	models.user.findById(req.params.username).then(function(user) {
+		return user.removeRole(req.params.role_id);
 	}).then(function () {
 		res.redirect('/admin/roles');
 	}).catch(next);

@@ -24,7 +24,7 @@ router.get('/', function (req, res, next) {
 				});
 			})
 		);
-	}).then(function(tickets ){
+	}).then(function(tickets){
 		res.render('admin/tickets', {tickets: tickets});
 	}).catch(next);
 });
@@ -40,7 +40,16 @@ router.post('/', function (req, res, next) {
 
 /* GET edit ticket page. */
 router.get('/:ticket_id', function (req, res, next) {
-	models.ticket.findById(req.params.ticket_id).then(function (ticket) {
+	models.ticket.findById(req.params.ticket_id, {
+		include: [{
+			model: models.ticket_option,
+			as: "options",
+			include: [{
+				model: models.ticket_option_choice,
+				as: "choices"
+			}]
+		}]
+	}).then(function (ticket) {
 		res.render('admin/tickets_edit', {ticket: ticket});
 	}).catch(next);
 });
@@ -78,18 +87,9 @@ router.post('/:ticket_id', function (req, res, next) {
 	var price = Math.round(req.body.price*100);
 	var guest_surcharge = req.body.guest_surcharge*100;
 
-	if (!req.body.options) req.body.options = [];
-	for (var i = 0; i < req.body.options.length; i++) {
-		req.body.options[i].choices = req.body.options[i].choices.filter(function(choice){
-			return choice !== undefined;
-		});
-		for (var j = 0; j < req.body.options[i].choices.length; j++) {
-			req.body.options[i].choices[j].price = req.body.options[i].choices[j].price * 100;
-		}
-	}
-
 	models.ticket.findById(req.params.ticket_id).then(function(ticket) {
-		return ticket.update(req.body.name, {
+		return ticket.update({
+			name: req.body.name,
 			max_booking: parseInt(req.body.max_booking),
 	    min_booking: parseInt(req.body.min_booking),
 	    allow_debtors: allow_debtors,
@@ -108,7 +108,7 @@ router.post('/:ticket_id', function (req, res, next) {
 /* POST a new option*/
 router.post('/:ticket_id/options', function(req, res, next) {
 	models.ticket.findById(req.params.ticket_id).then(function(ticket) {
-		return ticket.creatOption({
+		return ticket.createOption({
 			name: req.body.name
 		});
 	}).then(function () {
@@ -179,10 +179,14 @@ router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
 	var bookings_data = [];
 
 	var ticketPromise = models.ticket.findById(req.params.ticket_id, {
-		include: {
+		include: [{
 			model: models.ticket_option,
-			as: "options"
-		}
+			as: "options",
+			include: [{
+				model: models.ticket_option_choice,
+				as: "choices"
+			}]
+		}]
 	});
 
 	ticketPromise.then(function(ticket) {
@@ -202,7 +206,13 @@ router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
 				options[option.id][choice.id] = choice.name;
 			}
 		}
-		return models.booking.findAll({where: {ticket_id: req.params.ticket_id}});
+		return models.booking.findAll({
+			where: {ticket_id: req.params.ticket_id},
+			include: [{
+				model: models.ticket_option_choice,
+				as: "choices"
+			}]
+		});
 	}).then(function(bookings) {
 		return Promise.all(
 			bookings.map(function(booking) {
@@ -217,7 +227,7 @@ router.get('/:ticket_id/*-bookings.csv', function(req, res, next) {
 						notes: booking.notes
 					};
 					
-					if (ticket.options == []) return booking_data;
+					if (options == []) return booking_data;
 
 					for (choice of booking.choices) {
 						option_id = choices[choice];
