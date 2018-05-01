@@ -7,6 +7,8 @@ services:
     command: npm run start
     volumes:
       - ./files:/usr/app/src/public/files
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - 3000:3000
     env_file: .env
