@@ -35,6 +35,9 @@ EMAIL_HOST=smtp.dur.ac.uk
 EMAIL_PORT=587
 EMAIL_USERNAME=hsdz38
 EMAIL_PASSWORD=password
+
+# This is used to set the docker container timezone
+TZ=Europe/London
 ```
 
 #### 4. Set up the Postgres database
@@ -42,7 +45,7 @@ To set up the database you need to create the tables and add your user (defined 
 
  1. `docker-compose run app npm run migrate-postgres` - this will create the required tables in the database
  2. `docker-compose run app npm run seed-postgres` - this will add the user defined in the .env file as the website editor
- 
+
  Note these steps are only required on installation and if you delete the postgres-data directory.
 
 #### 5. Running the app
