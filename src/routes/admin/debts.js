@@ -22,7 +22,7 @@ router.use(function (req, res, next) {
 router.get('/', function (req, res, next) {
 	models.user.findAll({include: [models.debt]}).then(function (users) {
 		var debtors = users.map((user) => {
-			user.total_debt = user.debts.reduce((debt1, debt2) => debt1.amount + debt2.amount, 0);
+			user.total_debt = user.debts.map(d => d.amount).reduce((a,b) => a+b, 0);
 			return user;
 		}).filter((debtor) => (debtor.total_debt !== 0));
 		res.render('admin/debts', {debtors: debtors});
@@ -34,7 +34,7 @@ router.get('/totals.csv', function (req, res, next) {
 
 	models.user.findAll({include: [models.debt]}).then(function (users) {
 		var debtors = users.map((user) => {
-			user.total_debt = user.debts.reduce((debt1, debt2) => debt1.amount + debt2.amount, 0);
+			user.total_debt = user.debts.map(d => d.amount).reduce((a,b) => a+b, 0);
 			return user;
 		}).filter((debtor) => (debtor.total_debt !== 0));
 		var columns = {

@@ -42,7 +42,7 @@ html
 										select(name="choices[]" class="ui dropdown")
 											- var selected = false;
 											each choice in option.choices
-												if (booking.choices.indexOf(choice.id) != -1)
+												if (booking.choices.map(c => c.id).indexOf(choice.id) != -1)
 													- selected = true;
 													option(value=choice.id selected)= choice.name + " [£"+(choice.price/100).toFixed(2)+"]"
 												else

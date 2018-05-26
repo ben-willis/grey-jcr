@@ -33,7 +33,7 @@ router.post('/', function (req, res, next) {
 
 /* GET room edit page */
 router.get('/:room_id', function (req, res, next) {
-	Room.findById(req.params.room_id).then(function(room) {
+	models.room.findById(req.params.room_id).then(function(room) {
 		res.render('admin/rooms_edit', {room: room});
 	}).catch(next);
 });

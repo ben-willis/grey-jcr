@@ -138,26 +138,35 @@ router.get('/:year/:month/:day/:slug/:ticket_id/booking', function (req, res, ne
 
 /* POST a booking update */
 router.post('/:booking_id', function (req, res, next) {
+	var bookingPromise = models.booking.findById(req.params.booking_id);
+
 	var bookingChoices = (req.body.choices === undefined) ? [] : req.body.choices.filter((choice) => (choice !== ""));
 	var bookingChoicesPromise = Promise.all(bookingChoices.map((choiceId) => models.ticket_option_choice.findById(choiceId)));
 
+	var ticketPromise = bookingPromise.then((booking) => models.ticket.findById(booking.ticket_id));
+
+	var debtPromise = models.debt.findOne({where: {booking_id: req.params.booking_id}});
+
 	Promise.all([
-		models.booking.findById(req.params.booking_id),
+		bookingPromise,
 		bookingChoicesPromise,
-		models.ticket.findById(req.params.ticket_id),
-		models.debt.findOne({where: {booking_id: req.params.booking_id}})
+		ticketPromise,
+		debtPromise
 	]).then(function([booking, bookingChoices, ticket, debt]) {
 		var baseTicketPrice = (booking.username !== null) ? ticket.price : ticket.price + ticket.guest_surcharge;
-		var ticketPrice = baseTicketPrice + bookingChoices.reduce((a, b) => a.price + b.price, 0);
+		var ticketPrice = baseTicketPrice + bookingChoices.reduce((a, b) => a.price + b.price, {price: 0});
 		return Promise.all([
 			booking.setChoices(bookingChoices),
 			booking.update({notes: req.body.notes}),
 			debt.update({amount: ticketPrice})
 		]);
 	}).then(function() {
-		return models.event.findById(req.body.event_id);
-	}).then(function(event){
-		res.redirect(303, "/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug+"/"+req.params.ticket_id+"/booking?success");
+		return Promise.all([
+			models.event.findById(req.body.event_id),
+			ticketPromise
+		]);
+	}).then(function([event, ticket]){
+		res.redirect(303, "/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug+"/"+ticket.id+"/booking?success");
 	}).catch(next);
 });
 

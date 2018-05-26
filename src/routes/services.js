@@ -24,19 +24,20 @@ router.get('/rooms/', function (req, res, next) {
 	});
 
 	var roomsPromise = models.room.findAll({
-			include: [{
-				model: models.room_booking,
-				as: "bookings",
-				where: {
-					status: 1,
-					start_time: {
-						[Op.between]: [
-							new Date(selected_date.getTime() + ((0 - selected_date.getDay())*24*60*60*1000)),
-							new Date(selected_date.getTime() + ((6 - selected_date.getDay())*24*60*60*1000))
-						]
-					}
+		include: [{
+			model: models.room_booking,
+			as: "bookings",
+			required: false,
+			where: {
+				status: 1,
+				start_time: {
+					[Op.between]: [
+						new Date(selected_date.getTime() + ((0 - selected_date.getDay())*24*60*60*1000)),
+						new Date(selected_date.getTime() + ((6 - selected_date.getDay())*24*60*60*1000))
+					]
 				}
-			}]
+			}
+		}]
 	});
 
 	var userBookingsPromise = models.room_booking.findAll({
@@ -49,6 +50,7 @@ router.get('/rooms/', function (req, res, next) {
 	});
 
 	Promise.all([roomsPromise, userBookingsPromise]).then(function([rooms, userBookings]) {
+		console.log(rooms);
 		res.render('services/rooms', {rooms: rooms, user_bookings: userBookings, week_start: week_dates[0]});
 	}).catch(next);
 });
@@ -130,7 +132,7 @@ router.get('/feedback', function (req, res, next) {
       model: models.feedback,
       as: "replies"
     }],
-    order: [["updated", "DESC"]]
+    order: [["created", "DESC"]]
   }).then(function(feedbacks) {
     res.render("services/feedback", {feedbacks: feedbacks.map(x => x.toJSON())});
   }).catch(next);
@@ -263,8 +265,10 @@ paypal.configure({
 
 /* GET the debts page */
 router.get('/debt', function (req, res, next) {
-	req.user.getDebts().then(function (debts) {
-		res.render('services/debt', {debts: debts, total_debt: debts.reduce((a,b) => a.amount + b.amount, 0)});
+	req.user.getDebts({
+		order: [["debt_added", "DESC"]]
+	}).then(function (debts) {
+		res.render('services/debt', {debts: debts, total_debt: debts.map(d => d.amount).reduce((a,b) => a+b, 0)});
 	}).catch(next);
 });
 
@@ -272,7 +276,7 @@ router.get('/debt', function (req, res, next) {
 router.get('/debt/pay', function (req, res, next){
 	var host = req.get('host');
 	req.user.getDebts().then(function (debts) {
-		var debt = debts.reduce((a,b) => a.amount + b.amount, 0);
+		var debt = debts.map(d => d.amount).reduce((a,b) => a+b, 0);
 		var payment = {
 			"intent": "sale",
 			"payer": {
@@ -301,7 +305,10 @@ router.get('/debt/pay', function (req, res, next){
 			}]
 		};
 		paypal.payment.create(payment, function (err, payment) {
-			if (err) return next(err);
+			if (err) {
+				console.error(err.response.details);
+				return next(err);
+			}
 			req.session.paymentId = payment.id;
 		    for(var i=0; i < payment.links.length; i++) {
 				if (payment.links[i].method === 'REDIRECT') {
@@ -315,7 +322,7 @@ router.get('/debt/pay', function (req, res, next){
 /* GET the confirmation page */
 router.get('/debt/pay/confirm', function (req, res, next) {
 	req.user.getDebts().then(function(debts) {
-		var debt = debts.reduce((a,b) => a.amount + b.amount, 0);
+		var debt = debts.map(d => d.amount).reduce((a,b) => a+b, 0);
 		res.render('services/debt_confirm', {"payerId": req.query.PayerID, debt_amount: debt});
 	}).catch(next);
 });
@@ -327,7 +334,7 @@ router.get('/debt/pay/execute', function (req, res, next) {
 
 	paypal.payment.execute(paymentId, { 'payer_id': PayerID }, function (err, payment) {
 	  if (err) return next(err);
-	  var amount = Math.floor(parseFloat(payment.transactions[0].amount.total)*100);
+	  var amount = Math.floor(parseFloat(payment.transactions[0].amount.total)*-100);
 	  var paymentid = payment.transactions[0].related_resources[0].sale.id;
 	  delete req.session.paymentId;
 		req.user.createDebt({
