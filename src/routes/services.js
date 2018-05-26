@@ -263,20 +263,16 @@ paypal.configure({
 
 /* GET the debts page */
 router.get('/debt', function (req, res, next) {
-	Promise.all([
-		req.user.getDebt(),
-		req.user.getDebts()
-	]).then(function (data) {
-		res.render('services/debt', {debts: data[1], total_debt: data[0]});
-	}).catch(function (err) {
-		next(err);
-	});
+	req.user.getDebts().then(function (debts) {
+		res.render('services/debt', {debts: debts, total_debt: debts.reduce((a,b) => a.amount + b.amount, 0)});
+	}).catch(next);
 });
 
 /* GET pay a debt */
 router.get('/debt/pay', function (req, res, next){
 	var host = req.get('host');
-	req.user.getDebt().then(function (debt) {
+	req.user.getDebts().then(function (debts) {
+		var debt = debts.reduce((a,b) => a.amount + b.amount, 0);
 		var payment = {
 			"intent": "sale",
 			"payer": {
@@ -318,7 +314,8 @@ router.get('/debt/pay', function (req, res, next){
 
 /* GET the confirmation page */
 router.get('/debt/pay/confirm', function (req, res, next) {
-	req.user.getDebt().then(function(debt) {
+	req.user.getDebts().then(function(debts) {
+		var debt = debts.reduce((a,b) => a.amount + b.amount, 0);
 		res.render('services/debt_confirm', {"payerId": req.query.PayerID, debt_amount: debt});
 	}).catch(next);
 });
@@ -326,19 +323,21 @@ router.get('/debt/pay/confirm', function (req, res, next) {
 /* GET execute the payment */
 router.get('/debt/pay/execute', function (req, res, next) {
 	var paymentId = req.session.paymentId;
-  	var PayerID = req.query.PayerID;
+  var PayerID = req.query.PayerID;
 
 	paypal.payment.execute(paymentId, { 'payer_id': PayerID }, function (err, payment) {
-	    if (err) return next(err);
-	    var amount = Math.floor(parseFloat(payment.transactions[0].amount.total)*100);
-	   	var paymentid = payment.transactions[0].related_resources[0].sale.id;
-	   	delete req.session.paymentId;
-		req.user.payDebt('PayPal Payment', 'Payment ID: '+paymentid, amount).then(function(){
-	    	res.redirect(303, '/services/debt');
-	    }).catch(function (err) {
-	    	next(err);
-	    });
-  	});
+	  if (err) return next(err);
+	  var amount = Math.floor(parseFloat(payment.transactions[0].amount.total)*100);
+	  var paymentid = payment.transactions[0].related_resources[0].sale.id;
+	  delete req.session.paymentId;
+		req.user.createDebt({
+			name: 'PayPal Payment',
+			message: 'Payment ID: '+paymentid,
+			amount: amount
+		}).then(function(){
+			res.redirect(303, '/services/debt');
+	  }).catch(next);
+  });
 });
 
 

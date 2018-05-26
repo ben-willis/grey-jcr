@@ -143,8 +143,16 @@ router.get('/:election_id/:position_id/results', function (req, res, next) {
 
 /* GET the edit election page */
 router.get('/:election_id', function (req, res, next) {
-	models.election.findById(req.params.election_id).then(function(election){
-			res.render('admin/elections_edit', {election: election.toJSON()});
+	models.election.findById(req.params.election_id, {
+		include: [
+			{
+				model: models.election_position,
+				as: "positions",
+				include: {model: models.election_position_nominee, as: "nominees"}
+			}
+		]
+	}).then(function(election){
+			res.render('admin/elections_edit', {election: election});
 		}).catch(next);
 });
 

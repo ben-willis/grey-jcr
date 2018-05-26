@@ -111,7 +111,13 @@ router.get('/:year/:month/:day/:slug/:ticket_id/booking', function (req, res, ne
 			}
 		}
 	});
-	var ticketPromise = models.ticket.findById(req.params.ticket_id);
+	var ticketPromise = models.ticket.findById(req.params.ticket_id, {include: [
+		{
+			model: models.ticket_option,
+			as: "options",
+			include: [{model: models.ticket_option_choice, as: "choices"}]
+		}
+	]});
 	var bookingsPromise = models.booking.findAll({
 		where: {
 			[Op.or]: [

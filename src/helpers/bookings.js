@@ -11,16 +11,16 @@ var bookings_manager = {
 		var currentBooking = this.queue.shift();
 
 		this.checkBookingValid(currentBooking).then(function(){
-			return models.booking.create(currentBooking.users.map((name) => {
+			return Promise.all(currentBooking.users.map((name) => {
 				var username = (name.match(/^[A-Za-z]{4}[0-9]{2}$/gi)) ? name.toLowerCase() : null;
         var guestname = (name.match(/^[A-Za-z]{4}[0-9]{2}$/gi)) ? null : name;
-				return {
+				return models.booking.create({
 					ticket_id: currentBooking.ticket_id,
 					event_id: currentBooking.event_id,
 					booked_by: currentBooking.booker,
 					username: username,
 					guestname: guestname
-				};
+				});
 			}));
 		}).then(function(bookings) {
       currentBooking.promise.resolve(bookings);
@@ -38,7 +38,7 @@ var bookings_manager = {
 		}.bind(this));
 	},
   checkBookingValid: function(booking) {
-  	models.ticket.findById(booking.ticket_id).then(function(ticket) {
+  	return models.ticket.findById(booking.ticket_id).then(function(ticket) {
   		if (ticket.open_booking > (new Date()) || ticket.close_booking < (new Date())) {
 				throw httpError(400, "Booking is closed");
 			}
@@ -52,19 +52,19 @@ var bookings_manager = {
 			return Promise.all(booking.users.map(function(name) {
 				if (name.match(/^[A-Za-z]{4}[0-9]{2}$/gi)) {
 					var username = name.toLowerCase();
-					return models.user.findById(username, {
-						include: [
-							models.debt,
-							{model: models.booking, where: {ticket_id: ticket.id}}
-						]
-					}).then(function(user) {
+					return Promise.all([
+						models.user.findById(username, {include: [models.debt]}),
+						models.booking.findAll({where: {
+							ticket_id: ticket.id,
+							username: username
+						}})
+					]).then(function([user, userBookings]) {
 						var totalDebt = user.debts.reduce((a, b) => a.amount + b.amount, 0);
 						if (totalDebt > 0 && !ticket.allow_debtors) {
 							throw httpError(400, user.name+" is a debtor and debtors are blocked");
 						}
-						if (!user.bookings) return;
-						for (var i = 0; i < user.bookings.length; i++) {
-							if (user.bookings[i].username == user.username) throw httpError(user.name+" is already booked on");
+						if (userBookings.length > 0) {
+							throw httpError(user.name+" is already booked on");
 						}
 					});
 				} else if (!ticket.allow_guests) {

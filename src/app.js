@@ -50,18 +50,15 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (username, done) {
-    var userPromise = models.user.findById(username);
+    var userPromise = models.user.findById(username, {include: [models.debt]});
     var rolesPromise = userPromise.then(function(user) {
-        return user.getRoles({
-            include: [models.folder]
-        });
+        return user.getRoles({include: [models.folder]});
     });
 
     Promise.all([userPromise, rolesPromise]).then(function([user, roles]){
         user.level = Math.max(...roles.map((role) => role.level));
         user.roles = roles;
-        // user.debt = user.getDebt();
-        user.debt = 0;
+        user.debt = user.debts.reduce((a,b) => a.amount + b.amount, 0);
         done(null, user);
     }).catch(done);
 });
