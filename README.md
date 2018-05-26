@@ -35,14 +35,18 @@ EMAIL_HOST=smtp.dur.ac.uk
 EMAIL_PORT=587
 EMAIL_USERNAME=hsdz38
 EMAIL_PASSWORD=password
+
+# This is used to set the docker container timezone
+TZ=Europe/London
 ```
 
-#### 4. Test the installation
-To check your configuration and set up the database first run `docker-compose up -d` to start the app and services in the background. Then run `docker-compose run app npm run test` to create the tables and run the tests.
+#### 4. Set up the Postgres database
+To set up the database you need to create the tables and add your user (defined in .env) as the website editor. To do this first run `docker-compose up -d` to start the app and services in the background, then run:
 
-Note this will add the user defined in the .env file as the website editor.
+ 1. `docker-compose run app npm run migrate-postgres` - this will create the required tables in the database
+ 2. `docker-compose run app npm run seed-postgres` - this will add the user defined in the .env file as the website editor
 
-After the tests have completed run `docker-compose down` to stop the services.
+ Note these steps are only required on installation and if you delete the postgres-data directory.
 
 #### 5. Running the app
 Simply run `docker-compose up` to start the app in the foreground. Then visit "localhost:3000" in your browser to view the site. To stop the app simple press ctrl+c.
