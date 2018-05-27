@@ -84,7 +84,7 @@ router.post('/:event_id/:ticket_id/book', function (req, res, next) {
 						// Set Debt
 						return models.debt.create({
 							name: ticket.name,
-							message: "Ticket for"+name,
+							message: "Ticket for "+name,
 							amount: amount,
 							username: user.username,
 							booking_id: booking.id

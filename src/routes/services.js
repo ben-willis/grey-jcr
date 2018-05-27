@@ -87,7 +87,7 @@ router.post('/rooms/:room_id/bookings', function (req, res, next) {
 
 /* GET a delete booking */
 router.get('/rooms/:room_id/bookings/:booking_id/delete', function (req, res, next) {
-	models.room_Booking.findById(req.params.booking_id).then(function(booking) {
+	models.room_booking.findById(req.params.booking_id).then(function(booking) {
 		return booking.destroy();
 	}).then(function () {
 		res.redirect(303, '/services/rooms#'+req.params.room_id);

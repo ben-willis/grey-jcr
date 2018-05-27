@@ -63,7 +63,7 @@ router.get('/:username', function (req, res, next) {
 router.post('/:username', function (req, res, next) {
 	var amount = Math.floor(req.body.amount*100);
 	models.user.findById(req.params.username).then(function(user) {
-		return user.addDebt({
+		return user.createDebt({
 			name: req.body.name,
 			message: req.body.message,
 			amount: amount
@@ -95,7 +95,7 @@ router.post('/', upload.single('debts'), function(req, res, next){
 				return Promise.all(
 					data.map(function(row){
 						return models.user.findById(row[0]).then(function(user){
-							return user.addDebt({
+							return user.createDebt({
 								name: req.body.name,
 								message: req.body.message,
 								amount: row[1]

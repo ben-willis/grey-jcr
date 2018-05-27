@@ -37,11 +37,6 @@ before_install:
 
 install: docker build . -t greyjcr/app
 
-before_script:
-  # Create database tables
-  - docker-compose up -d
-  - docker-compose run app npm run migrate-postgres
-
 script: docker-compose run app npm run test
 
 after_script:

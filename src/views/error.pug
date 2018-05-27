@@ -11,6 +11,6 @@ html
 			div(class="ui vertical segment")
 				h2= message
 				h3= error.status
-				if (user.level && user.level>4)
+				if (user && user.level>4)
 					pre #{error.stack}
 		include ./footer.pug

@@ -1,10 +1,10 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
-var models = require("../models");
+const models = require("../models");
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
