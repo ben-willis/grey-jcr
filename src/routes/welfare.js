@@ -1,24 +1,24 @@
 var express = require('express');
 var router = express.Router();
 
-var Role = require('../models/role');
+const Op = require("sequelize").Op;
+
+var models = require('../models');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-		Role.getByType("welfare").then(function(roles) {
-			return Promise.all(
-				roles.map(function(role) {
-					return role.getUsers().then(function(users) {
-						role.users = users;
-						return role;
-					});
-				})
-			);
-		}).then(function (roles) {
-			res.render('welfare/index', {welfare: roles});
-		}).catch(function (err) {
-			next(err);
-		});
+	models.role.findAll({
+		where: {
+			[Op.or]: [
+				{level: 2},
+				{slug: "male-welfare-officer"},
+				{slug: "female-welfare-officer"}
+			]
+		},
+		include: [models.user]
+	}).then(function (roles) {
+		res.render('welfare/index', {welfare: roles});
+	}).catch(next);
 });
 
 module.exports = router;

@@ -4,20 +4,34 @@ var fs = require('fs');
 var prettydate = require('pretty-date');
 var httpError = require('http-errors');
 
-var User = require('../models/user');
-var Folder = require('../models/folder');
-var Role = require('../models/role');
-var Event = require('../models/event');
-var Blog = require('../models/blog');
-var Election = require('../models/election');
-var Feedback = require('../models/feedback');
+const Op = require("sequelize").Op;
+
+var models = require("../models");
 
 // The main site search
 router.get('/search/', function (req, res, next) {
 	Promise.all([
-		User.search(req.query.q),
-		Blog.search(req.query.q),
-		Event.search(req.query.q)
+		models.user.findAll({
+			where: {
+				[Op.or]: [{
+					username: { [Op.iLike]: "%" + req.query.q + "%" }
+				},
+				{
+					name: { [Op.iLike]: "%" + req.query.q + "%" }
+				}]
+			}
+		}),
+		models.blog.findAll({
+			where: {
+				title: { [Op.iLike]: "%" + req.query.q + "%" }
+			},
+			include: [models.role]
+		}),
+		models.event.findAll({
+			where: {
+				name: { [Op.iLike]: "%" + req.query.q + "%" }
+			}
+		})
 	]).then(function(data) {
 		var users = data[0].map(function(user) {
 			return {
@@ -47,111 +61,125 @@ router.get('/search/', function (req, res, next) {
 				events: {name: "Upcoming Events", results: events}
 			}
 		});
-	}).catch( function (err) {
-		next(err);
-	});
+	}).catch(next);
 
 });
 
 // Needed for the calendar
 router.get('/events/:year/:month', function (req, res, next) {
-	Event.getByMonth(req.params.year, req.params.month).then(function (events) {
-			res.json(events);
-		}).catch(function (err) {
-			next(err);
-		});
+	models.event.findAll({
+		where: {
+			time: {
+				[Op.between]: [new Date(req.params.year, req.params - 1), new Date(req.params.year, req.params)]
+			}
+		}
+	}).then(function (events) {
+		res.json(events.toJSON());
+	}).catch(next);
 });
 
 // Needed for JCR, welfare and support page
 router.get('/roles/:role_id', function(req, res, next) {
-	Role.findById(req.params.role_id).then(function(role) {
-		res.json(role);
-	}).catch(function (err) {
-		next(err);
-	});
+	models.role.findById(req.params.role_id).then(function(role) {
+		res.json(role.toJSON());
+	}).catch(next);
 });
 
 // Needed for adding users to roles etc
 router.get('/users', function (req, res, next) {
-	User.search(req.query.q)
-		.then(function (users) {
-			res.json({success: true, users: users});
-		}).catch(function (err) {
-			next(err);
-		});
+	models.user.findAll({
+		where: {
+			[Op.or]: [{
+				username: { [Op.iLike]: "%" + req.query.q + "%" }
+			},
+			{
+				name: { [Op.iLike]: "%" + req.query.q + "%" }
+			}]
+		}
+	}).then(function (users) {
+		console.log(users);
+		res.json({success: true, users: users.map(x => x.toJSON())});
+	}).catch(next);
 });
 
 router.get('/users/:username/avatar', function (req, res, next) {
 	fs.access(__dirname+'/../public/files/avatars/'+req.params.username+'.png', function (err) {
 		if (!err) {
 			res.sendFile('public/files/avatars/'+req.params.username+'.png', {
-    			root: __dirname+'/../'
-    		});
+  			root: __dirname+'/../'
+  		});
 		} else {
 			res.sendFile('public/images/anon.png', {
-    			root: __dirname+'/../'
-    		});
+  			root: __dirname+'/../'
+  		});
 		}
 	});
 
 });
 
 router.get('/files/:folder_id', function (req, res, next) {
-	var current_folder = null;
-	Folder.findById(parseInt(req.params.folder_id)).then(function(folder) {
-		current_folder = folder;
+	var currentFolderPromise = models.folder.findById(req.params.folder_id);
+
+	var childrenPromise = currentFolderPromise.then(function(currentFolder) {
 		return Promise.all([
-			current_folder.getSubfolders(),
-			current_folder.getFiles()
+			models.folder.findAll({where: {parent_id: currentFolder.id}}),
+			models.file.findAll({where: {folder_id: currentFolder.id}})
 		]);
-	}).then(function (data) {
-		res.json({"current": current_folder, "folders": data[0], "files": data[1]});
-	}).catch(function (err) {
-		next(err);
 	});
+
+	Promise.all([currentFolderPromise, childrenPromise]).then(function([currentFolder, children]) {
+		res.json({
+			"current": currentFolder.toJSON(),
+			"folders": children[0].map(x => x.toJSON()),
+			"files": children[1].map(x => x.toJSON())
+		});
+	}).catch(next);
 });
 
 // Needed for menu notifications
 router.get('/elections/:status', function(req,res,next) {
 	if (!req.user) return res.json({"error": "You must be logged in"});
-	Election.getByStatus(req.params.status).then(function(elections) {
-		return Promise.all(
-			elections.map(function(election) {
-				return User.findByUsername(req.user.username).then(function(user) {
-					return user.getVote(election.id);
-				}).then(function(votes) {
-					if (votes) {
-						election.voted = true;
-					} else {
-						election.voted = false;
-					}
-					return election;
-				});
-			})
-		);
-	}).then(function(elections) {
-		res.json(elections);
-	}).catch(function (err) {
-		next(err);
-	});
+
+	models.election.findAll({
+		where: {
+			status: req.params.status
+		},
+		include: [{
+			model: models.election_vote,
+			as: "votes",
+			where: {
+				username: req.user.username
+			}
+		}]
+	}).then(function(rawElections) {
+		var elections = rawElections.map((election) => {
+			election.voted = (election.votes.length === 0);
+			return election;
+		});
+		res.json(elections.map(x => x.toJSON()));
+	}).catch(next);
 });
 
 router.get('/blogs/unread', function(req, res, next) {
 	if (!req.user) return next(httpError(401));
-	Blog.getByDateRange(req.user.last_login, new Date()).then(function(blogs) {
-		res.json(blogs);
-	}).catch(function (err) {
-		next(err);
-	});
+	models.blog.findAll({
+		where: {
+			updated: {
+				[Op.between]: [req.user.last_login, new Date()]
+			}
+		}
+	}).then(function(blogs) {
+		res.json(blogs.map(x => x.toJSON()));
+	}).catch(next);
 });
 
 router.get('/feedbacks', function(req, res, next) {
 	if (!req.user) return res.json({"error": "You must be logged in"});
-	Feedback.getAllByUser(req.user.username).then(function(feedbacks) {
-		res.json(feedbacks);
-	}).catch(function (err) {
-		next(err);
-	});
+	models.feedback.findAll({where: {author_username: req.user.username}}).then(function(feedbacks) {
+		res.json({
+			feedbacks: feedbacks.map(x => x.toJSON())
+		});
+	}).catch(next);
 });
 
 router.use(function(err, req, res, next) {

@@ -1,28 +1,9 @@
-var Role = require('../../models/role.js');
-var db = require('../../helpers/db');
+var models = require('../../models');
 
 var expect = require("chai").expect;
 
-describe('Static Methods', function() {
+describe.skip('Role model', function() {
     created_role_id = null;
-    beforeEach(function(done) {
-        db('roles').insert({
-            title: "Test Role",
-            slug: "test-role",
-            description: "test",
-            level: 5
-        }).returning("id").then(function(id) {
-            created_role_id = id[0];
-            done();
-        }).catch(done);
-    });
-
-    afterEach(function(done) {
-        db('roles').del().then(function() {
-            created_role_id = null;
-            done();
-        }).catch(done);
-    });
 
     it("should create new roles", function(done){
         Role.create("Test Role 2", 2).then(function(role) {
@@ -63,57 +44,6 @@ describe('Static Methods', function() {
         })
     });
 
-    it("should get a user by type", function(done) {
-        Role.getByType("exec").then(function(roles) {
-            expect(roles).to.have.length(1);
-            return Role.getByType("welfare");
-        }).then(function(roles) {
-            expect(roles).to.have.length(0);
-            done();
-        }).catch(function(err){
-            done(err);
-        })
-    })
-})
-
-describe('Role Object', function() {
-    var current_role = null;
-    var fake_username = null;
-
-    beforeEach(function(done) {
-        db('roles')
-            .insert({
-                title: "Test Role",
-                slug: "test-role",
-                description: "test",
-                level: 5
-            }).returning("id")
-            .then(function(id) {
-                return Role.findById(id[0])
-            }).then(function(role) {
-                current_role = role;
-                return db('users').insert({
-                    username: 'abcd12',
-                    email: 'fake@fake.com'
-                })
-            }).then(function() {
-                fake_username = 'abcd12';
-                done();
-            });
-    });
-
-    afterEach(function(done) {
-        current_role = null;
-        fake_username = null;
-        db('roles').del().then(function(){
-            return db('users').del();
-        }).then(function(){
-            return db('user_roles').del();
-        }).finally(function() {
-            done();
-        });
-    });
-
     it("should set it's description", function(done) {
         var description = "This is a test!";
         current_role.setDescription(description).then(function() {
@@ -123,17 +53,6 @@ describe('Role Object', function() {
             done();
         }).catch(function(err){
             done(err);
-        });
-    });
-
-    it("should delete itself", function(done) {
-        current_role_id = current_role.id;
-        current_role.delete().then(function() {
-            return Role.findById(current_role_id);
-        }).catch(function(err) {
-            expect(err.status).to.equal(404);
-        }).finally(function(){
-            done();
         });
     });
 
@@ -184,12 +103,15 @@ describe('Role Object', function() {
         });
     });
 
-    it("should find all blog posts from itself", function(done) {
-        current_role.getBlogs().then(function(blogs) {
-            expect(blogs).to.have.length(0);
-            done();
+
+    it("should delete itself", function(done) {
+        current_role_id = current_role.id;
+        current_role.delete().then(function() {
+            return Role.findById(current_role_id);
         }).catch(function(err) {
-            done(err);
+            expect(err.status).to.equal(404);
+        }).finally(function(){
+            done();
         });
     });
 })

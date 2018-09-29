@@ -57,6 +57,8 @@ Here are a few tips and tricks that will allow you to develop:
  - If you make any changes to any config or any of the source code you will need to run `docker-compose build` to rebuild the images
  - You can run the app in the background using `docker-compose up -d`. You can then follow the logs with `docker-compose logs -f` and stop the app with `docker-compose down`.
  - If you need to gain access to the postgres database cli run `docker-compose exec postgres psql -U grey`.
+ - You can drop the databases, recreate them and load with test data using by running the tests again at any time.
+ - If you want to make changes to the database schemas install [knex](http://knexjs.org) globally with `npm install -g knex` and create a new migration.
 
 More to be added...
 

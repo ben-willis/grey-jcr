@@ -1,4 +1,4 @@
-module.exports = {
+var knex = require('knex')({
     client: 'postgresql',
     connection: {
         host: process.env.DB_HOST,
@@ -18,4 +18,16 @@ module.exports = {
     seeds: {
         directory: './src/db/seeds'
     }
-};
+});
+
+before(function(done) {
+	knex.raw("DROP SCHEMA public CASCADE;").then(function() {
+		return knex.raw("CREATE SCHEMA public;");
+	}).then(function() {
+		return knex.migrate.latest();
+	}).then(function() {
+		return knex.seed.run();
+	}).then(function(){
+		done();
+	}).catch(done);
+});

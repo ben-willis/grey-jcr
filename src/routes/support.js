@@ -1,24 +1,23 @@
 var express = require('express');
 var router = express.Router();
 
-var Role = require('../models/role');
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
+
+var models = require("../models");
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-		Role.getByType("rep").then(function(roles) {
-			return Promise.all(
-				roles.map(function(role) {
-					return role.getUsers().then(function(users) {
-						role.users = users;
-						return role;
-					});
-				})
-			);
-		}).then(function (reps) {
-			res.render('support/index', {reps: reps});
-		}).catch(function (err) {
-			next(err);
-		});
+	models.role.findAll({
+		where: {
+			level: {
+				[Op.eq]: 1
+			}
+		},
+		include: models.user
+	}).then(function (reps) {
+		res.render('support/index', {reps: reps});
+	}).catch(next);
 });
 
 module.exports = router;

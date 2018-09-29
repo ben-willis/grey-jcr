@@ -51,6 +51,7 @@ session-data
 tmp
 
 .jshintrc
+.idea
 
 #Semantic-ui
 src/public/semantic/

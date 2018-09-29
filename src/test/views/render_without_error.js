@@ -6,13 +6,9 @@ var path = require('path');
 var chai = require("chai");
 var expect = chai.expect;
 
-var error = require('../fake_data/error.json');
-var user = require('../fake_data/user.json');
-var blogs = require('../fake_data/user.json');
-var events = require('../fake_data/events.json');
 
 var locals = {
-    user: user,
+    user: {},
     prettydate: prettydate
 };
 
@@ -53,10 +49,10 @@ describe('other views', function() {
         pug.renderFile(path.join(__dirname, '../../views/login.pug'), merge(locals, {}));
         pug.renderFile(path.join(__dirname, '../../views/header.pug'), merge(locals, {}));
         pug.renderFile(path.join(__dirname, '../../views/footer.pug'), merge(locals, {}));
-        pug.renderFile(path.join(__dirname, '../../views/error.pug'), merge(locals, {error: error}));
+        pug.renderFile(path.join(__dirname, '../../views/error.pug'), merge(locals, {error: {}}));
         pug.renderFile(path.join(__dirname, '../../views/error.pug'), merge(locals, {
-            blogs: blogs,
-            events: events
+            blogs: [],
+            events: []
         }));
     });
 });

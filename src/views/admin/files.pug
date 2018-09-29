@@ -15,7 +15,7 @@ html
 						h3 Your Files
 						select(class="ui role dropdown")
 							each role in user.roles
-								if (role.folder.id)
+								if (role.folder)
 									option(value=role.folder.id class="item")= role.title
 						script.
 							$('.ui.role.dropdown').dropdown();

@@ -24,8 +24,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-var User = require('./models/user');
-var Folder = require('./models/folder')
+var models = require('./models');
 
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -51,34 +50,17 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (username, done) {
-    var current_user = null;
-    User.findByUsername(username).then(function(user){
-        current_user = user;
-        return current_user.getRoles();
-    }).then(function(roles) {
-        return Promise.all(
-            roles.map(function(role) {
-                return Folder.findForRole(role.id).then(function(folder) {
-                    role.folder = folder;
-                    return role;
-                });
-            })
-        )
-    }).then(function(roles) {
-        current_user.level = 0;
-        for (var i = 0; i < roles.length; i++) {
-            if (roles[i].level > current_user.level) {
-                current_user.level = roles[i].level;
-            }
-        };
-        current_user.roles = roles;
-        return current_user.getDebt()
-    }).then(function(debt){
-        current_user.debt = debt;
-        done(null, current_user);
-    }).catch(function (err) {
-        return done(err);
+    var userPromise = models.user.findById(username, {include: [models.debt]});
+    var rolesPromise = userPromise.then(function(user) {
+        return user.getRoles({include: [models.folder]});
     });
+
+    Promise.all([userPromise, rolesPromise]).then(function([user, roles]){
+        user.level = Math.max(...roles.map((role) => role.level));
+        user.roles = roles;
+        user.debt = user.debts.reduce((a,b) => a.amount + b.amount, 0);
+        done(null, user);
+    }).catch(done);
 });
 
 passport.use(new LocalStrategy( function (username, password, done) {
@@ -86,21 +68,21 @@ passport.use(new LocalStrategy( function (username, password, done) {
     if (!password || !username) return done(null, false);
     var username = username.toLowerCase();
 
-    // authorize user
-    User.authorize(username, password)
-        .then(function() {
-            User.findByUsername(username).catch(function(err) {
-                if (err.status != 404) throw err;
-                return User.create(username);
-            }).then(function(user) {
-                done(null, user)
-            }).catch(function(err) {
-                done(err);
+    models.user.authenticate(username, password).then(function(authenticated) {
+        if (!authenticated) return done(null, false);
+        return models.user.count({where: {username: username}});
+    }).then(function(count) {
+        if (count > 0) return models.user.findById(username);
+        return models.user.fetchDetails(username).then(function(details) {
+            return models.user.create({
+                username: username,
+                email: details.email,
+                name: details.full_name
             });
-        })
-        .catch(function(err) {
-            done(null, false);
         });
+    }).then(function(user) {
+        done(null, user);
+    }).catch(done);
 }));
 
 /* PUG */

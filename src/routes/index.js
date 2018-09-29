@@ -3,9 +3,9 @@ var htmlToText = require('html-to-text');
 var router = express.Router();
 var httpError = require('http-errors');
 
-var Blog = require('../models/blog');
-var Event = require('../models/event');
-var Role = require('../models/role');
+const Op = require("sequelize").Op;
+
+var models = require("../models");
 
 var auth = require('./auth');
 var jcr = require('./jcr');
@@ -23,31 +23,37 @@ var api = require('./api');
 /* GET home page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		Blog.get(),
-		Event.getFutureEvents(6),
-		Role.getByType("exec").then(function(exec_members) {
-			return Promise.all(
-				exec_members.map(function(exec_member) {
-					return exec_member.getUsers().then(function(users) {
-						exec_member.users = users;
-						return exec_member;
-					});
-				})
-			);
+		models.blog.findAll({
+			limit: 9,
+			include: [{
+				model: models.user,
+				as: "author"
+			}, models.role],
+			order: [["updated", "DESC"]]
+		}),
+		models.event.findAll({
+			where: {
+				time: {[Op.gte]: new Date()}
+			},
+			order: [["time", "ASC"]]
+		}),
+		models.role.findAll({
+			where: {
+				level: { [Op.gte]: 4 }
+			},
+			include: [models.user]
 		})
 	]).then(function (data){
-		var blogs = data[0].splice(0,9);
-		for (blog of blogs) {
+		var blogs = data[0].map((blog) => {
 			blog.message = htmlToText.fromString(blog.message, {
 				wordwrap: false,
 				ignoreHref: true,
 				ignoreImage: true
 			}).slice(0, 200) + "...";
-		}
+			return blog;
+		});
 		res.render('home', {blogs: blogs, events: data[1], exec: data[2]});
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 /* GET offline page */

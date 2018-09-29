@@ -3,20 +3,15 @@ var router = express.Router();
 var io = require('../helpers/socketApi.js').io;
 var httpError = require('http-errors');
 
-var valentines = require('../models/valentines')
+var models = require('../models');
 
 router.use(function (req, res, next) {
-	valentines.getStatus().then(function(status){
-		valentines.open = status;
-
-		if (req.isAuthenticated()) {
-			next();
-		} else {
-			req.session.redirect_to = req.originalUrl;
-			res.redirect(401, '/login?unauthorised');
-		}
-	});
-	
+	if (req.isAuthenticated()) {
+		next();
+	} else {
+		req.session.redirect_to = req.originalUrl;
+		res.redirect(401, '/login?unauthorised');
+	}
 });
 
 function max(a,b) {
@@ -26,52 +21,54 @@ function max(a,b) {
 /* GET swapping page */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		valentines.getPairs(),
-		valentines.getSwaps(5),
-		valentines.getDebt(req.user.username),
-		valentines.getTotalRaised()
-	]).then(function(data){
+		models.valentines_pair.findAll(),
+		models.valentines_swap.findAll(),
+		models.valentines_status.findOne()
+	]).then(function([pairs, swaps, status]){
 		res.render('events/valentines', {
-			pairs: data[0],
-			swaps: data[1],
-			debt: data[2],
-			total: data[3],
-			swapping_open: valentines.open
+			pairs: pairs,
+			swaps: swaps.slice(0,5),
+			debt: swaps.filter((swap) => (swap.username == req.user.username)).reduce((a, b) => a.cost + b.cost, 0),
+			total: swaps.reduce((a, b) => a.cost + b.cost, 0),
+			swapping_open: status.open
 		});
-	}).catch(function(err){
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.get('/stats.json', function(req,res, next) {
-	valentines.getTotalRaised().then(function(total){
+	models.valentines_swap.sum("cost").then(function(total){
 		res.json({
 			"totalRaised": total
 		});
-	}).catch(function(err){
-		next(err);
-	});
+	}).catch(next);
 });
 
 /* Post a swap */
 router.post('/', function (req, res, next) {
-	if (!valentines.open) return next(httpError(400, 'Swapping is Closed'));
-
-	var pairA = parseInt(req.body.pairA);
-	var pairB = parseInt(req.body.pairB);
-	var swap_cost = 0;
-
-	valentines.swapPairs(pairA, pairB).then(function(data) {
-		var pairA_cost = data.rows[0].value - 50;
-		var pairB_cost = data.rows[1].value - 50;
-		swap_cost = (pairA_cost > pairB_cost) ? pairA_cost : pairB_cost;
-		return valentines.createSwap(pairA, pairB, req.user.username, swap_cost);
-	}).then(function() {
-		io.emit('swap', {paira: pairA, pairb: pairB, cost: swap_cost});
+	models.valentines_status.findOne(function(status) {
+		if (!status.open) return next(httpError(400, 'Swapping is Closed'));
+		return Promise.all([
+			models.valentines_pair.findById(req.body.pairA),
+			models.valentines_pair.findById(req.body.pairB)
+		]);
+	}).then(function([pairA, pairB]) {
+		var aPosition = pairA.position;
+		var bPosition = pairB.position;
+		return Promise.all([
+			pairA.update({position: bPosition, value: pairA.value + 50}),
+			pairB.update({position: aPosition, value: pairB.value + 50})
+		]);
+	}).then(function([newPairA, newPairB]) {
+		return models.valentines_swap.create({
+			paira: newPairA.id,
+			pairb: newPairB.id,
+			username: req.user.username,
+			cost: Math.max(newPairA.value - 50, newPairB.value - 50)
+		});
+	}).then(function(swap) {
+		io.emit('swap', swap.toJSON());
 		res.redirect(303, '/events/valentines');
-	}).catch(function(err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 module.exports = router;

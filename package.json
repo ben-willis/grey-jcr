@@ -8,8 +8,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "test": "mocha src/test --reporter spec --recursive --exit",
-    "migrate-postgres": "knex migrate:latest",
-    "seed-postgres": "knex seed:run"
+    "migrate-postgres": "knex migrate:latest"
   },
   "dependencies": {
     "async": "^1.5.2",
@@ -47,13 +46,14 @@
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "paypal-rest-sdk": "^1.6.8",
-    "pg": "^4.5.6",
+    "pg": "^6.0.0",
     "pretty-date": "^0.2.0",
     "pug": "^2.0.0-beta6",
     "request": "^2.75.0",
     "require-dot-file": "^0.4.0",
     "run-sequence": "^1.1.5",
     "semantic-ui": "^2.3.0",
+    "sequelize": "^4.37.6",
     "serve-favicon": "~2.3.0",
     "shortid": "^2.2.6",
     "slug": "^0.9.1",

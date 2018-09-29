@@ -1,135 +1,56 @@
-var Feedback = require('../../models/feedback');
-var db = require('../../helpers/db');
+var models = require('../../models');
 
 var expect = require("chai").expect;
 
-describe.skip('Static Feedback Methods', function() {
-    var test_feedback_id = null;
+describe('Feedback model', function() {
+    var testFeedbackId = null;
 
-    beforeEach(function(done) {
-        db('feedbacks').insert({
+    it("can create a piece of feedback", function(done) {
+        models.feedback.create({
             title: "Test Feedback",
-            message: "This is a test",
-            exec: false,
-            read_by_user: true,
-            anonymous: true,
-            archived: false,
-            author: 'hsdz38'
-        }).returning('id').then(function(id) {
-            test_feedback_id = id[0];
+            message: "test test test test",
+            anonymous: false,
+            author_username: "abcd12",
+            exec: false
+        }).then(function(feedback) {
+            expect(feedback.title).to.equal("Test Feedback");
+            testFeedbackId = feedback.id;
             done();
         }).catch(done);
     });
 
-    afterEach(function(done) {
-        db('feedbacks').del().then(function() {
+    it("it can find all feedback", function(done) {
+        models.feedback.findAll().then(function(feedbacks) {
+            expect(feedbacks).to.not.have.length(0);
             done();
         }).catch(done);
-    })
+    });
 
-    it("can find feedback by id", function(done) {
-        Feedback.findById(test_feedback_id).then(function(feedback){
+    it("can find a piece of feedback by id", function(done) {
+        models.feedback.findById(testFeedbackId).then(function(feedback) {
             expect(feedback.title).to.equal("Test Feedback");
             done();
         }).catch(done);
     });
 
-    it("can get all feedback", function(done) {
-        Feedback.getAll(false).then(function(feedbacks) {
-            expect(feedbacks).to.have.length(1);
-            done();
-        }).catch(done);
-    });
-
-    it("can get all feedback by a user", function(done) {
-        Feedback.getAllByUser('hsdz38').then(function(feedbacks) {
-            expect(feedbacks).to.have.length(1);
-            done();
-        }).catch(done);
-    });
-
-    it("can create new feedback", function(done) {
-        Feedback.create("Fake Feedback", "No Message", true, 'hsdz38').then(function(feedback) {
-            expect(feedback.title).to.equal("Fake Feedback");
-            done();
-        }).catch(done);
-    });
-});
-
-describe('Feedback Object', function() {
-    var test_feedback = null;
-
-    beforeEach(function(done) {
-        var now = new Date();
-        db('feedbacks').insert({
-            title: "Test Feedback",
-            message: "This is a test",
-            exec: false,
-            read_by_user: true,
-            anonymous: true,
-            archived: false,
-            created: now
-        }).returning('id').then(function(id) {
-            test_feedback = new Feedback({
-                id: id[0],
-                title: "Test Feedback",
-                message: "This is a test",
-                parent_id: null,
-                exec: false,
-                read_by_user: true,
-                anonymous: true,
-                archived: false,
-                created: now,
-                author: 'hsdz38'
+    it("can add a reply", function(done) {
+        models.feedback.findById(testFeedbackId).then(function(feedback) {
+            return feedback.createReply({
+                title: "reply",
+                message: "test reply test test test",
+                exec: false
             });
+        }).then(function(feedback) {
             done();
-        });
+        }).catch(done);
     });
 
-    afterEach(function(done) {
-        db('feedbacks').del().then(function() {
-            test_folder = null;
+    it("can list all replies", function(done) {
+        models.feedback.findById(testFeedbackId).then(function(feedback) {
+            return feedback.getReplies();
+        }).then(function(feedbacks){
+            expect(feedbacks).to.not.have.length(0);
             done();
-        });
-    })
-
-    it("can toggle archived state", function(done) {
-        test_feedback.toggleArchived().then(function(){
-            expect(this.archived).to.equal(true);
-            done();
-        }).catch(function(err){
-            done(err);
-        })
-    });
-
-    xit("can add a reply", function(done) {
-        test_feedback.addReply('test', true, 'hsdz38').then(function(){
-            return db('feedbacks').select().where({
-                parent_id: test_feedback.id
-            })
-        }).then(function(replies){
-            expect(replies).to.have.length(1);
-            done();
-        }).catch(function(err){
-            done(err);
-        })
-    });
-
-    xit("can get all replies", function(done){
-        db('feedbacks').insert({
-            title: 'reply',
-            message: 'test',
-            parent_id: test_feedback.id,
-            author: 'hsdz38',
-            exec: true,
-            read_by_user: false
-        }).then(function(){
-                return test_feedback.getReplies();
-        }).then(function(replies) {
-            expect(replies).to.have.length(1);
-            done();
-        }).catch(function(err){
-            done(err);
-        })
+        }).catch(done);
     });
 });

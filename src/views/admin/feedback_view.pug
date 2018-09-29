@@ -10,24 +10,24 @@ html
 			include ./menu.pug
 			h2= title
 			h3(class="ui header")
-				img(src=(!feedback.anonymous) ? "/api/users/"+feedback.author.username+"/avatar" : "/api/users/anon/avatar" class="ui circular image")
+				img(src=(!feedback.anonymous) ? "/api/users/"+author.username+"/avatar" : "/api/users/anon/avatar" class="ui circular image")
 				div(class="content")
 					= feedback.title
 					if (feedback.anonymous)
 						div(class="sub header") Anonymous
 					else
-						div(class="sub header")= feedback.author.name
+						div(class="sub header")= author.name
 			p= feedback.message
 			div(class="ui comments")
-				each reply in replies
+				each reply in feedback.replies
 					div(class="comment")
 						span(class="avatar")
-							img(src=(!feedback.anonymous || reply.exec) ? "/api/users/"+reply.author.username+"/avatar" : "/api/users/anon/avatar")
+							img(src=(!feedback.anonymous || reply.exec) ? "/api/users/"+author.username+"/avatar" : "/api/users/anon/avatar")
 						div(class="content")
 							if (reply.exec)
 								span(class="author") Exec
 							else if (!feedback.anonymous)
-								span(class="author")= reply.author.name
+								span(class="author")= author.name
 							else
 								span(class="author") Anonymous
 							div(class="metadata")

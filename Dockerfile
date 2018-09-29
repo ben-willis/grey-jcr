@@ -13,7 +13,6 @@ RUN npm install --quiet
 
 COPY bin bin
 COPY src src
-COPY knexfile.js .
 
 EXPOSE 3000
 

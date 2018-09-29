@@ -1,29 +1,11 @@
-var Room = require('../../models/room');
-var db = require('../../helpers/db');
-var slug = require('slug');
+var models = require('../../models');
 
 var chai = require("chai");
 var expect = chai.expect;
 
-describe('Static Event Methods', function() {
+describe.skip('Room model', function() {
     var test_room_id = null;
 
-    beforeEach(function(done) {
-        db('rooms').insert({
-            name: "Test Room",
-            description: "Test Room description"
-        }).returning('id').then(function(id) {
-            test_room_id = id[0];
-            done();
-        }).catch(done);
-    });
-
-    afterEach(function(done) {
-        db('rooms').del().then(function() {
-            test_room_id = null;
-            done();
-        });
-    })
 
     it("should find a room by id", function(done) {
         Room.findById(test_room_id).then(function(room) {
@@ -47,12 +29,11 @@ describe('Static Event Methods', function() {
             done();
         }).catch(done);
     })
-});
 
-describe('Room Methods', function() {
     it("should get all bookings for a date of each type");
     it("should get all future bookings");
     it("should add a booking");
     it("should delete a booking");
-    it("should edit a room")
+    it("should edit a room");
+    it("should delete a room");
 })

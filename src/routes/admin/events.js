@@ -6,26 +6,24 @@ var upload = multer({dest: __dirname+'/../../../tmp'});
 var mv = require('mv');
 var mime = require('mime');
 var csv = require('csv');
-var slug = require('slug');
+var slugify = require('slug');
 var shortid = require('shortid');
 var fs = require('fs');
 var httpError = require('http-errors');
 
+const Op = require("sequelize").Op;
 
 var io = require('../../helpers/socketApi.js').io;
 
-var Event = require('../../models/event');
-var Ticket = require('../../models/ticket');
-var User = require('../../models/user');
-var valentines = require('../../models/valentines');
+var models = require("../../models");
 
 
 /* GET events page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
-		Event.getFutureEvents(),
-		Event.getPastEvents(),
-		valentines.getStatus()
+		models.event.findAll({where: {time: {[Op.gte]: new Date()}}}),
+		models.event.findAll({where: {time: {[Op.lt]: new Date()}}}),
+		models.valentines_status.findOne().then(function(valentinesStatus) {return valentinesStatus.status;})
 	]).then(function (data) {
 		res.render('admin/events', {future_events: data[0], past_events: data[1], valentines_swapping_open: data[2]});
 	}).catch(function (err) {
@@ -38,11 +36,14 @@ router.post('/new', function (req, res, next) {
 	var date = (req.body.date).split('-');
 	var time = (req.body.time).split(':');
 	var timestamp = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
-	Event.create(req.body.name, req.body.description, timestamp, null).then(function (event){
+	models.event.create({
+		name: req.body.name,
+		slug: slugify(req.body.name),
+		description: req.body.description,
+		time: timestamp
+	}).then(function (event){
 		res.redirect('/admin/events/'+event.id+'/edit');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.post('/valentines/pairs', upload.single('pairs'), function(req, res, next) {
@@ -52,70 +53,78 @@ router.post('/valentines/pairs', upload.single('pairs'), function(req, res, next
 		csv.parse(data, function(err, data) {
 			if (err) return next(err);
 			Promise.all([
-				valentines.clearPairs(),
-				valentines.clearSwaps()
+				models.valentines_pair.destroy(),
+				models.valentines_swap.destroy()
 			]).then(function() {
 				return Promise.all(
 					data.map(function(row, index){
 						if (row.length != 2) return httpError(400, "CSV should have two columns");
-						return valentines.createPair(row[0], row[1], index);
+						return models.valentines_pair.create({
+							leader: row[0],
+							partner: row[1],
+							position: index
+						});
 					})
 				);
 			}).then(function(){
 				res.redirect(303, '/admin/events');
-			}).catch(function(err){
-				return next(err);
-			});
+			}).catch(next);
 		});
 	});
 });
 
 router.get('/valentines/open', function(req, res, next) {
-	valentines.setStatus(true).then(function() {
+	models.valentines_status.findOne().then(function(valentinesStatus) {
+		return valentinesStatus.update({status: true});
+	}).then(function() {
 		res.redirect('/admin/events');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 router.get('/valentines/close', function(req, res, next) {
-	valentines.setStatus(false).then(function() {
+	models.valentines_status.findOne().then(function(valentinesStatus) {
+		return valentinesStatus.update({status: false});
+	}).then(function() {
 		io.emit('close_swapping');
 		res.redirect('/admin/events');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 router.get('/valentines/debts', function(req, res, next) {
-	valentines.getDebts().then(function(debtors) {
-		Promise.all(debtors.map(function(debtor) {
-			return User.addDebtToUsername(debtor.username, 'Valentines Swapping', '', debtor.debt);
+	models.valentines_swap.findAll().then(function(swaps) {
+		var debts = {};
+		swaps.forEach((swap) => {
+			if (swap.username === null) return;
+			if (debts[swap.username] === undefined) {
+				debts[swap.username] = 0;
+			}
+			debts[swap.username] += swap.cost;
+		});
+		return Promise.all(debts.map((username, debt) => {
+			return models.debt.create({
+				name: "Valentines Swapping",
+				amount: debt,
+				username: username
+			});
 		}));
 	}).then(function(){
-		return valentines.clearDebts();
+		return models.valentines_swap.findAll();
+	}).then(function(swaps) {
+		return Promise.all(swaps.map((swap) => swap.update({username: null})));
 	}).then(function(){
 		res.redirect('/admin/events');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 /* GET edit events page. */
 router.get('/:event_id/edit', function (req, res, next) {
-	var event;
-	Event.findById(parseInt(req.params.event_id)).then(function (data) {
-		event = data;
-		return Promise.all([
-			event.getTickets(),
-			Ticket.getAll()
-		]);
-	}).then(function (data) {
-		event.tickets = data[0];
-		res.render('admin/events_edit', {event: event, tickets: data[1]});
-	}).catch(function (err) {
-		next(err);
-	});
+	Promise.all([
+		models.event.findById(req.params.event_id, {include: [models.ticket]}),
+		models.ticket.findAll()
+	]).then(function ([event, tickets]) {
+		event.tickets = event.tickets.map(x => x.id);
+		res.render('admin/events_edit', {event: event, tickets: tickets});
+	}).catch(next);
 });
 
 /* POST an update to an event */
@@ -125,38 +134,43 @@ router.post('/:event_id/edit', upload.single('image'), function (req, res, next)
 	var timestamp = new Date(date[2], date[1] - 1, date[0], time[0], time[1]);
 	var ticket_ids = (!req.body.tickets) ? [] : [].concat(req.body.tickets);
 
-	Event.findById(parseInt(req.params.event_id)).then(function(event) {
-		return Promise.all([
-			event,
-			event.setTickets(ticket_ids)
-		]);
-	}).then(function(data) {
-		var event = data[0];
+	var imagePromise = new Promise(function(resolve, reject) {
 		if (req.file) {
-			var image_name = event.name+shortid.generate()+'.'+mime.extension(req.file.mimetype);
-			mv(req.file.path, __dirname+'/../../public/files/events/'+image_name, function (err) {
-				if (err) throw err;
-				return event.update(req.body.name, req.body.description, timestamp, image_name);
+			const imageName = event.name+shortid.generate()+'.'+mime.extension(req.file.mimetype);
+			mv(req.file.path, __dirname+'/../../public/files/events/'+imageName, function (err) {
+				if (err)  reject(err);
+				else resolve(imageName);
 			});
-		} else {
-			return event.update(req.body.name, req.body.description, timestamp, null);
-		}
+		} else resolve(null);
+	});
+
+	Promise.all([
+		models.event.findById(req.params.event_id),
+		Promise.all(ticket_ids.map((id) => models.ticket.findById(id))),
+		imagePromise
+	]).then(function([event, tickets, imageName]){
+		return Promise.all([
+			event.addTickets(tickets),
+			event.update({
+				name: req.body.name,
+				slug: slugify(req.body.name),
+				description: req.body.description,
+				time: timestamp,
+				image: imageName || event.image
+			})
+		]);
 	}).then(function () {
 		res.redirect('/admin/events/'+req.params.event_id+'/edit?success');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 /* GET a delete events event */
 router.get('/:event_id/delete', function (req, res, next) {
-	Event.findById(req.params.event_id).then(function (event) {
-		return event.delete();
+	models.event.findById(req.params.event_id).then(function (event) {
+		return event.destroy();
 	}).then(function(){
 		res.redirect('/admin/events');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.post('/tableplanner', upload.single('bookings'), function(req, res, next) {

@@ -4,7 +4,7 @@ var validator = require('validator');
 var httpError = require('http-errors');
 var moment = require('moment');
 
-var Room = require('../../models/room');
+var models = require('../../models');
 
 router.use(function (req, res, next) {
 	if (req.user.level < 4) {
@@ -16,38 +16,44 @@ router.use(function (req, res, next) {
 
 /* GET room page. */
 router.get('/', function (req, res, next) {
-	Room.getAll().then(function(rooms){
+	models.room.findAll().then(function(rooms){
 		res.render('admin/rooms', {rooms: rooms});
 	}).catch(next);
 });
 
 /* POST a new room */
 router.post('/', function (req, res, next) {
-	Room.create(req.body.name, req.body.description).then(function () {
+	models.room.create({
+		name: req.body.name,
+		description: req.body.description
+	}).then(function (room) {
 		res.redirect(303, '/admin/rooms');
 	}).catch(next);
 });
 
 /* GET room edit page */
 router.get('/:room_id', function (req, res, next) {
-	Room.findById(req.params.room_id).then(function(room) {
+	models.room.findById(req.params.room_id).then(function(room) {
 		res.render('admin/rooms_edit', {room: room});
 	}).catch(next);
 });
 
 /* POST a new name for a room */
 router.post('/:room_id', function (req, res, next) {
-	Room.findById(req.params.room_id).then(function(room) {
-		return room.update(req.body.name, req.body.description);
-	}).then(function () {
+	models.room.findById(req.params.room_id).then(function(room) {
+		return room.update({
+			name: req.body.name,
+			description: req.body.description
+		});
+	}).then(function (room) {
 		res.redirect(303, '/admin/rooms');
 	}).catch(next);
 });
 
 /* GET a delete a room */
 router.get('/:room_id/delete', function (req, res, next) {
-	Room.findById(req.params.room_id).then(function(room) {
-		return room.delete();
+	models.room.findById(req.params.room_id).then(function(room) {
+		return room.destroy();
 	}).then(function () {
 		res.redirect(303, '/admin/rooms');
 	}).catch(next);
@@ -55,16 +61,17 @@ router.get('/:room_id/delete', function (req, res, next) {
 
 /* GET room bookings page */
 router.get('/:room_id/bookings', function (req, res, next) {
-	var room;
-	Room.findById(req.params.room_id).then(function(room) {
+	var roomPromise = models.room.findById(req.params.room_id);
+	var bookingsPromise = roomPromise.then(function(room) {
 		return Promise.all([
-			room,
-			room.getFutureBookings(0),
-			room.getFutureBookings(1),
-			room.getFutureBookings(2)
+			room.getBookings({where: {status: 0}}),
+			room.getBookings({where: {status: 1}}),
+			room.getBookings({where: {status: 2}})
 		]);
-	}).then(function(data) {
-		res.render('admin/room_bookings', {room: data[0], pending_bookings: data[1], accepted_bookings: data[2],  rejected_bookings: data[3]});
+	});
+
+	Promise.all([roomPromise, bookingsPromise]).then(function([room, bookings]) {
+		res.render('admin/room_bookings', {room: room, pending_bookings: bookings[0], accepted_bookings: bookings[1],  rejected_bookings: bookings[2]});
 	}).catch(next);
 });
 
@@ -80,13 +87,19 @@ router.post('/:room_id/bookings', function (req, res, next) {
 	var occurrences = (repeats === 0) ? 1 : req.body.occurrences;
 
 
-	Room.findById(req.params.room_id).then(function(room) {
+	models.room.findById(req.params.room_id).then(function(room) {
 		var booking_promises = [];
 		for (var i = 0; i < occurrences; i++) {
 			var startWrapper = moment(start);
 			startWrapper.add(i*repeats, 'days');
 			booking_promises.push(
-				room.addBooking(req.body.name, startWrapper.toDate(), duration, req.user.username, 1)
+				room.addBooking({
+					name: req.body.name,
+					start_time: startWrapper.toDate(),
+					duration: duration,
+					username: req.user.username,
+					status: 1
+				})
 			);
 		}
 		return Promise.all(booking_promises);
@@ -97,26 +110,24 @@ router.post('/:room_id/bookings', function (req, res, next) {
 
 /* GET a accept a room booking */
 router.get('/:room_id/bookings/:booking_id/accept', function (req, res, next) {
-	Room.findById(req.params.room_id).then(function(room) {
-		return room.updateBooking(req.params.booking_id, 1);
+	models.room_booking.findById(req.params.booking_id).then(function(booking) {
+		return booking.update({status: 1});
 	}).then(function () {
 		res.redirect(303, '/admin/rooms/'+req.params.room_id+'/bookings');
 	}).catch(next);
 });
 
-/* GET a reject a room booking */
 router.get('/:room_id/bookings/:booking_id/reject', function (req, res, next) {
-	Room.findById(req.params.room_id).then(function(room) {
-		return room.updateBooking(req.params.booking_id, 2);
+	models.room_booking.findById(req.params.booking_id).then(function(booking) {
+		return booking.update({status: 2});
 	}).then(function () {
 		res.redirect(303, '/admin/rooms/'+req.params.room_id+'/bookings');
 	}).catch(next);
 });
 
-/* GET a revert a room booking */
 router.get('/:room_id/bookings/:booking_id/revert', function (req, res, next) {
-	Room.findById(req.params.room_id).then(function(room) {
-		return room.updateBooking(req.params.booking_id, 0);
+	models.room_booking.findById(req.params.booking_id).then(function(booking) {
+		return booking.update({status: 0});
 	}).then(function () {
 		res.redirect(303, '/admin/rooms/'+req.params.room_id+'/bookings');
 	}).catch(next);
