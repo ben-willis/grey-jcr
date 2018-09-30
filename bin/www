@@ -4,7 +4,7 @@
 var cluster = require('cluster');
 
 if (cluster.isMaster) {
-    console.log('Master ${process.pid} is running');
+    console.log('Master ' + process.pid + ' is running');
 
     var numCPUs = require('os').cpus().length;
 
@@ -14,7 +14,7 @@ if (cluster.isMaster) {
     }
 
     cluster.on('exit', (worker, code, signal) => {
-            console.log('worker ${worker.process.pid} died');
+            console.log('worker ' + worker.process.pid + ' died');
             cluster.fork();
             });
 } else {
@@ -111,5 +111,5 @@ if (cluster.isMaster) {
         debug('Listening on ' + bind);
     }
 
-    console.log('Worker ${worker.process.pid} started');
+    console.log('Worker ' + process.pid + ' started');
 }
