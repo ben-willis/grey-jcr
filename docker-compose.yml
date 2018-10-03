@@ -26,7 +26,7 @@ services:
   postgres:
     image: "postgres:9.5"
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - ./postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: zYSbtLwTVJt74SRh
       POSTGRES_USER: grey
@@ -39,7 +39,4 @@ services:
     image: "redis:3"
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
-      - session:/data
-volumes:
-    postgres:
-    session:
+      - ./session-data:/data
