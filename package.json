@@ -53,7 +53,7 @@
     "request": "^2.75.0",
     "require-dot-file": "^0.4.0",
     "run-sequence": "^1.1.5",
-    "semantic-ui": "^2.3.0",
+    "semantic-ui": "2.3.1",
     "serve-favicon": "~2.3.0",
     "shortid": "^2.2.6",
     "slug": "^0.9.1",
