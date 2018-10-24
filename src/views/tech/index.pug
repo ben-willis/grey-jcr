@@ -1,0 +1,49 @@
+- var title = 'Tech'
+
+doctype html
+html
+  head
+    include ../head.pug
+  body
+    div(class='ui container')
+      include ../header.pug
+      - var current="tech";
+      include ../menu.pug
+      h2(class="ui header")= title
+      p
+        | Tech Comm are responsible for all the lighting, sound and staging at 
+        | every college event, including Bops, PGN, Barfest, Grey Day, open mic 
+        | nights, JCR meetings, and anything else that needs any kind of set-up 
+        | in Grey!
+      p
+        | If you’re interested in joining, anyone is welcome with no previous 
+        | experience needed.
+      div(class="ui vertical segment")
+        h3(class="ui header") Equipment Hire
+        p
+          | We also hire out our equipment! Equipment can be hired for a variety
+          | of events, such as socials, other colleges events, theatre productions, 
+          | or private events. You can see the list of equipment our and their 
+          | respective hire prices at 
+          | <a href="https://durhamtech.org.uk/grey" target="_blank">durhamtech.org.uk/grey</a>
+        p
+          | Official Grey JCR sports and societies get equipment hire free! 
+        p
+          | If you know exactly what you’d like to hire simply look through the 
+          | <a href=”https://durhamtech.org.uk/grey” target="_blank">hires catalogue</a>,
+          | but if you’re not sure what you’ll need, fill in the google form 
+          | below with info about your event and we’ll help you work out what to 
+          | hire.
+        p
+          | If you have any queries, feel free to email us at grey.tech@durham.ac.uk 
+          | or speak to one of the Tech Managers, Kiran Crawford or Will Morrice.
+
+      iframe(width="100%" 
+        height="800" 
+        src="https://docs.google.com/forms/d/e/1FAIpQLSdUX8G1jD5k0fKTNdLDGlrcdM99jKeVqBD2Xw881WUzSiAgJQ/viewform?embedded=true" 
+        frameborder="0" 
+        marginheight="15px" 
+        marginwidth="0" 
+        style="margin-top: 15px;")= 'Loading form...'
+
+    include ../footer.pug
