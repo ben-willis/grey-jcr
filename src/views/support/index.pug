@@ -22,7 +22,44 @@ html
 				p Representatives Committee (Reps Comm) are elected roles in Grey that cover all people in the JCR, from minority groups, such as LGBTa and Mature students (among others) to entire year groups, such as freshers and finalists. The committee members hold events, raise awareness and provide a signposting role allowing the individuals from these groups extra support and ensuring their views are heard. Grey is committed to ensuring all members of the JCR can be involved in all parts of college, and this committee is a vital part in making sure all JCR members are welcomed and find their home in Grey.
 				p If you have any queries, concerns or feedback for indvidual reps, please feel free to contact them. Any general queries please contact the Representatives Officer.
 				div(class="ui six doubling link cards")
+					if (reps_officer.users.length < 1)
+						div(class="card" data-role=reps_officer.id)
+							div(class="image")
+								img(src="/images/anon.png")
+							div(class="content")
+								div(class="header")= reps_officer.title
+								div(class="meta")="Position Open"
+					each user in reps_officer.users
+						div(class="card" data-role=reps_officer.id)
+							div(class="image")
+								img(src="/api/users/"+user.username+"/avatar")
+							div(class="content")
+								div(class="header")= reps_officer.title
+								div(class="meta")=user.name
+								
+					if (sf_rep.users.length < 1)
+						div(class="card" data-role=sf_rep.id)
+							div(class="image")
+								img(src="/images/anon.png")
+							div(class="content")
+								div(class="header")= sf_rep.title
+								div(class="meta")="Position Open"
+					each user in sf_rep.users
+						div(class="card" data-role=sf_rep.id)
+							div(class="image")
+								img(src="/api/users/"+user.username+"/avatar")
+							div(class="content")
+								div(class="header")= sf_rep.title
+								div(class="meta")=user.name
+						
 					each role in reps
+						if (role.users.length < 1)
+							div(class="card" data-role=role.id)
+								div(class="image")
+									img(src="/images/anon.png")
+								div(class="content")
+									div(class="header")= role.title
+									div(class="meta")="Position Open"
 						each user in role.users
 							div(class="card" data-role=role.id)
 								div(class="image")
