@@ -61,5 +61,23 @@ html
               div(class="content")
                 div(class="header")= tech.title
                 div(class="meta")=user.name
+      
+    div(class="ui modal")
+      div(class="header") No Position
+      div(class="content")
+        p No description
+      div(class="actions")
+        div(class="ui ok button") Done
+
+    script.
+      $(".card").click(function (e) {
+        e.preventDefault();
+        var role_id = $(this).attr('data-role');
+        $.get('/api/roles/'+role_id, function (data) {
+          $('.ui.modal .header').text(data.title);
+          $('.ui.modal .content').text(data.description);
+          $('.ui.modal').modal('show');
+        });
+      });
 
     include ../footer.pug
