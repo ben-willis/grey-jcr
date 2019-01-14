@@ -1,11 +1,14 @@
 div(class='ui stackable red inverted menu')
 	a(class=(current=="home")?'active item':'item' href='/') Home
-	a(class=(current=="jcr")?'active item':'item' href='/jcr') The JCR
-	a(class=(current=="support")?'active item':'item' href='/support') Support
+	div(class="ui floating dropdown item") The JCR
+		i(class="dropdown icon")
+		div(id="jcr-dropdown" class="menu")
+			a(class="item" href="/jcr") About
+			a(class="item" href="/support") Support
+			a(class="item" href="/facilities") Facilities
 	a(class=(current=="mcr")?'active item':'item' href='/mcr') The MCR
 	a(class=(current=="sportsandsocs")?'active item':'item' href='/sportsandsocs') Sports & Societies
 	a(class=(current=="events")?'active item':'item' href='/events') Events
-	a(class=(current=="facilities")?'active item':'item' href='/facilities') Facilities
 	a(class=(current=="tech")?'active item':'item' href='/tech') Tech
 	a(class='item' href='/welfare' style='background-color: #42bff4;') Welfare
 	a(class='item' href='/reps' style='background-color: #3dbb38;') Representatives
@@ -19,6 +22,8 @@ div(class='ui stackable red inverted menu')
 		div(class="results")
 
 		script.
+			$('.ui.dropdown').dropdown();
+
 			$('.ui.search').search({
 				apiSettings: {
 					url: '/api/search?q={query}',

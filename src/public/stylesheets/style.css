@@ -19,6 +19,14 @@ td .cell {
 	min-height: 5rem !important;
 }
 
+#jcr-dropdown {
+	background-color: #DB2828;
+}
+
+#jcr-dropdown > .item {
+	color: white !important;
+}
+
 /*body {
 	display: flex;
   	min-height: 100vh;
