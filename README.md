@@ -12,7 +12,7 @@ Either use the command `git clone` from your command line or use the download li
 #### 2. Install project dependencies
 There are three core dependencies required to install this project:
  - Node.js - Use [nvm](https://github.com/creationix/nvm/blob/master/README.md) to manage the version of node installed. Once nvm is installed simply go in to the root directory of this project and type `nvm use` to switch to the correct version of node.js.
- - PostgreSQL 9.5 - Download from [here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads).
+ - PostgreSQL 9.6 - Download from [here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads).
  - Redis 3
 
 After install these run `npm install` to install the required node dependencies.
@@ -49,6 +49,9 @@ DB_PASSWORD=password
 # Connection details for redis
 REDIS_HOST=localhost
 REDIS_PORT=6379
+
+# Somewhere to store static files (avatars, manifestos etc)
+FILES_DIRECTORY=/home/me/projects/grey-jcr/files/
 ```
 
 #### 4. Set up the Postgres database
