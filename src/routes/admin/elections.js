@@ -204,7 +204,7 @@ router.post('/:election_id/:position_id/newnominee', upload.single('manifesto'),
 	moveManifesto = new Promise(function(resolve, reject){
 		if (req.file) {
 			var manifesto_name = slug(req.body.name)+'-'+shortid.generate()+'.'+mime.extension(req.file.mimetype);
-			mv(req.file.path, __dirname+'/../../public/files/manifestos/'+manifesto_name, function (err) {
+			mv(req.file.path, process.env.FILES_DIRECTORY+'/manifestos/'+manifesto_name, function (err) {
 				if(err) return reject(err);
 				return resolve(manifesto_name);
 			});

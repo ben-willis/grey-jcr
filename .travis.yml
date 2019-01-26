@@ -21,7 +21,7 @@ before_deploy:
 deploy:
   - provider: script
     script: 
-      - scp -oStrictHostKeyChecking=no ./grey-jcr.tgz webeditor@greyjcr.com:./grey-jcr/ && ssh -oStrictHostKeyChecking=no -t webeditor@greyjcr.com < ./deploy.sh
+      - scp -oStrictHostKeyChecking=no ./grey-jcr.tgz webeditor@greyjcr.com:./grey-jcr-new/ && ssh -oStrictHostKeyChecking=no -t webeditor@greyjcr.com < ./deploy.sh
     skip_cleanup: true
     on:
       branch: master
