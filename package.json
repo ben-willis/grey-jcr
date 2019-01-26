@@ -6,7 +6,9 @@
   "licence": "MIT",
   "private": true,
   "scripts": {
-    "build": "tsc && cp -r src/views src/public dist/",
+    "build-ui": "webpack --config src/ui/webpack.config.js && cp -r src/public/* dist/ui/",
+    "build-api": "tsc && cp -r src/views dist/",
+    "build": "rm -rf dist && npm run build-ui && npm run build-api",
     "start": "node ./bin/www",
     "test": "mocha dist/test --reporter spec --recursive --exit",
     "migrate-postgres": "knex migrate:latest --knexfile dist/knexfile.js",
@@ -65,6 +67,24 @@
     "yamljs": "^0.2.6"
   },
   "devDependencies": {
-    "typescript": "^3.2.4"
+    "@types/react": "^16.7.21",
+    "@types/react-dom": "^16.0.11",
+    "awesome-typescript-loader": "^5.2.1",
+    "dynamic-cdn-webpack-plugin": "^4.0.0",
+    "file-loader": "^3.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "less": "^3.9.0",
+    "less-loader": "^4.1.0",
+    "mini-css-extract-plugin": "^0.5.0",
+    "module-to-cdn": "^3.1.2",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "semantic-ui-less": "^2.4.1",
+    "semantic-ui-react": "^0.84.0",
+    "typescript": "^3.2.4",
+    "url-loader": "^1.1.2",
+    "webpack": "^4.29.0",
+    "webpack-bundle-analyzer": "^3.0.3",
+    "webpack-cli": "^3.2.1"
   }
 }

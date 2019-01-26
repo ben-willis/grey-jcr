@@ -1,0 +1,7 @@
+/*******************************
+         Site Overrides
+*******************************/
+
+.ui.menu .ui.dropdown.item .menu .item {
+    color: @textColor;
+}

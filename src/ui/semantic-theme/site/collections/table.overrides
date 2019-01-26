@@ -1,0 +1,11 @@
+/*******************************
+         Site Overrides
+*******************************/
+
+td .cell {
+    min-height: 5rem;
+}
+
+.ui.table.selectable tr {
+    cursor: pointer;
+}

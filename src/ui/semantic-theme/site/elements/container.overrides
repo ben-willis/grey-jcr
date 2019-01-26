@@ -1,0 +1,8 @@
+/*******************************
+         Site Overrides
+*******************************/
+
+.main-menu-container {
+  background-color: @primaryColor;
+  margin: 0rem 0rem 1rem;
+}

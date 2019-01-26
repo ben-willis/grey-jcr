@@ -29,7 +29,7 @@ app.set('view engine', 'pug');
 var User = require('./models/user');
 var Folder = require('./models/folder')
 
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'ui', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(helmet());
 app.use(compress());
@@ -45,7 +45,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'ui')));
 
 /* PASSPORT */
 passport.serializeUser(function (user, done) {

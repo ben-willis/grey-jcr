@@ -1,0 +1,16 @@
+/*******************************
+         Site Overrides
+*******************************/
+
+.header.segment {
+	background-image: url("../../../static/header-bg.png") !important;
+	background-repeat: no-repeat !important;
+	background-position: 53% 53% !important;
+}
+
+.footer.segment {
+	border-top: 5px solid #DB2828 !important;
+	background-image: url("../../../static/footer-bg.png") !important;
+	background-repeat: no-repeat !important;
+	background-position: 30% 30% !important;
+}
