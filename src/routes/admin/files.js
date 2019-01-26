@@ -52,7 +52,7 @@ router.post('/uploadfile', upload.single('file'), function (req, res, next) {
 		return new Promise(function(resolve, reject) {
 			if (!req.file) return reject(httpError(400, "No file submitted"));
 			var file_name = slug(req.body.name)+"-"+shortid.generate()+"."+mime.extension(req.file.mimetype);
-			mv(req.file.path, __dirname+'/../../public/files/uploaded/'+file_name, function (err) {
+			mv(req.file.path, process.env.FILES_DIRECTORY+'/uploaded/'+file_name, function (err) {
 				if(err) return reject(err);
 				return resolve(file_name);
 			});
