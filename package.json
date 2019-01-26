@@ -6,10 +6,11 @@
   "licence": "MIT",
   "private": true,
   "scripts": {
+    "build": "tsc && cp -r src/views src/public dist/",
     "start": "node ./bin/www",
-    "test": "mocha src/test --reporter spec --recursive --exit",
-    "migrate-postgres": "knex migrate:latest",
-    "seed-postgres": "knex seed:run"
+    "test": "mocha dist/test --reporter spec --recursive --exit",
+    "migrate-postgres": "knex migrate:latest --knexfile dist/knexfile.js",
+    "seed-postgres": "knex seed:run --knexfile dist/knexfile.js"
   },
   "dependencies": {
     "async": "^1.5.2",
@@ -62,5 +63,8 @@
     "sqlite3": "^3.1.4",
     "validator": "^5.1.0",
     "yamljs": "^0.2.6"
+  },
+  "devDependencies": {
+    "typescript": "^3.2.4"
   }
 }
