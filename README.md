@@ -4,18 +4,21 @@ This is the code running the [Grey JCR website](https://greyjcr.com). Making the
 
 ## Installation
 
-This application follows [12 factor](https://12factor.net/) principles and runs inside a docker container defined in the Dockerfile. The external dependencies are defined in docker-compose.yml. Instrcutions on how to install, run and develop this application are detailed below.
+This application follows [12 factor](https://12factor.net/) principles. Instrcutions on how to install, run and develop this application are detailed below.
 
 #### 1. Clone this project
 Either use the command `git clone` from your command line or use the download link and extract the zip file.
 
-#### 2. Install Docker and Docker Compose
-These are the only two requirements for this projects. Instructions on how to install them can be found [here](https://docs.docker.com/compose/install/#install-compose).
+#### 2. Install project dependencies
+There are three core dependencies required to install this project:
+ - Node.js - Use [nvm](https://github.com/creationix/nvm/blob/master/README.md) to manage the version of node installed. Once nvm is installed simply go in to the root directory of this project and type `nvm use` to switch to the correct version of node.js.
+ - PostgreSQL 9.5 - Download from [here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads).
+ - Redis 3
 
-There appears to be [a bug in docker-compose v1.19.0](https://github.com/docker/compose/issues/5686) so v1.18.0 is recommended.
+After install these run `npm install` to install the required node dependencies.
 
 #### 3. Create Environment File
-Some environment variables are passed in to the container in the docker-compose.yml, others are listed in a file called ".env" in the main directory of the site. You will need to create this file and define the following variables:
+Some environment variables are used by the app and are listed in a file called ".env" in the main directory of the site. You will need to create this file and define the following variables:
 ```
 # This is used for storing user sessions
 SESSION_SECRET=supersecretphrase
@@ -36,32 +39,38 @@ EMAIL_PORT=587
 EMAIL_USERNAME=hsdz38
 EMAIL_PASSWORD=password
 
-# This is used to set the docker container timezone
-TZ=Europe/London
+# Connection details for Postgres database
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=grey
+DB_USERNAME=grey
+DB_PASSWORD=password
+
+# Connection details for redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
 ```
 
 #### 4. Set up the Postgres database
-To set up the database you need to create the tables and add your user (defined in .env) as the website editor. To do this first run `docker-compose up -d` to start the app and services in the background, then run:
+To set up the database you need to create the tables and add your user (defined in .env) as the website editor. To do this run the following:
 
- 1. `docker-compose run app npm run migrate-postgres` - this will create the required tables in the database
- 2. `docker-compose run app npm run seed-postgres` - this will add the user defined in the .env file as the website editor
+ 1. `npm run migrate-postgres` - this will create the required tables in the database
+ 2. `npm run seed-postgres` - this will add the user defined in the .env file as the website editor
 
  Note these steps are only required on installation and if you delete the postgres-data directory.
 
 #### 5. Running the app
-Simply run `docker-compose up` to start the app in the foreground. Then visit "localhost:3000" in your browser to view the site. To stop the app simple press ctrl+c.
+Simply run `npm run start` to start the app in the foreground. Then visit "localhost:3000" in your browser to view the site. To stop the app simple press ctrl+c.
 
 ## Development Tips
 Here are a few tips and tricks that will allow you to develop:
 
- - If you make any changes to any config or any of the source code you will need to run `docker-compose build` to rebuild the images
- - You can run the app in the background using `docker-compose up -d`. You can then follow the logs with `docker-compose logs -f` and stop the app with `docker-compose down`.
- - If you need to gain access to the postgres database cli run `docker-compose exec postgres psql -U grey`.
+ - If you need to gain access to the postgres database cli run `psql -U grey`.
 
 More to be added...
 
 ## Tests
-There are currently some tests in the test directory which can be run with something like `docker-compose run app npm run test`.
+There are currently some tests in the test directory which can be run with something like `npm run test`.
 
 ## Contributors
 If you want to get involved in the website feel free to email me at [benwillis0612@gmail.com](mailto:benwillis0612@gmail.com) or the current website editor if you have any questions!
