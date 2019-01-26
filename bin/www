@@ -22,8 +22,8 @@ if (cluster.isMaster) {
      * Module dependencies.
      */
 
-    var app = require('../src/app');
-    var socketApi = require('../src/helpers/socketApi');
+    var app = require('../dist/app');
+    var socketApi = require('../dist/helpers/socketApi');
     var debug = require('debug')('grey:server');
     var http = require('http');
 

@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config({path: __dirname + "/../.env"});
 
 module.exports = {
     client: 'postgresql',
@@ -14,10 +14,10 @@ module.exports = {
         max: 10
     },
     migrations: {
-        directory: './src/db/migrations',
+        directory: './db/migrations',
         tableName: 'knex_migrations'
     },
     seeds: {
-        directory: './src/db/seeds'
+        directory: './db/seeds'
     }
 };

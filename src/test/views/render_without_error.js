@@ -6,10 +6,10 @@ var path = require('path');
 var chai = require("chai");
 var expect = chai.expect;
 
-var error = require('../fake_data/error.json');
-var user = require('../fake_data/user.json');
-var blogs = require('../fake_data/user.json');
-var events = require('../fake_data/events.json');
+var error = require('../fake_data/error.js');
+var user = require('../fake_data/user.js');
+var blogs = require('../fake_data/user.js');
+var events = require('../fake_data/events.js');
 
 var locals = {
     user: user,

@@ -1,11 +1,12 @@
 .git/
 
-# For VS code
 .vscode/
 
 node_modules/
 semantic/
 files/
+
+src
 
 .env
 .env.example
