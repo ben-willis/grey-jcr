@@ -7,7 +7,7 @@ addons:
 
 before_script:
   - psql -c 'CREATE DATABASE "grey-test";' -U postgres
-  - bash ./scripts/run-migrations.sh
+  - npm run migrate-postgres
 
 before_deploy:
   - npm pack
