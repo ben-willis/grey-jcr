@@ -12,10 +12,12 @@
     "start": "node ./bin/www",
     "test": "mocha dist/test --reporter spec --recursive --exit",
     "migrate-postgres": "knex migrate:latest --knexfile dist/knexfile.js",
-    "seed-postgres": "knex seed:run --knexfile dist/knexfile.js"
+    "seed-postgres": "knex seed:run --knexfile dist/knexfile.js",
+    "storybook": "start-storybook -p 9001 -c src/ui/.storybook"
   },
   "dependencies": {
     "async": "^1.5.2",
+    "axios": "^0.18.0",
     "bcryptjs": "^2.4.3",
     "better-console": "^0.2.4",
     "body-parser": "~1.13.2",
@@ -67,6 +69,9 @@
     "yamljs": "^0.2.6"
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^4.1.11",
+    "@storybook/addon-info": "^4.1.11",
+    "@storybook/react": "^4.1.11",
     "@types/react": "^16.7.21",
     "@types/react-dom": "^16.0.11",
     "awesome-typescript-loader": "^5.2.1",
@@ -78,9 +83,13 @@
     "mini-css-extract-plugin": "^0.5.0",
     "module-to-cdn": "^3.1.2",
     "react": "^16.7.0",
+    "react-docgen-typescript-webpack-plugin": "^1.1.0",
     "react-dom": "^16.7.0",
+    "react-router": "^4.3.1",
     "semantic-ui-less": "^2.4.1",
     "semantic-ui-react": "^0.84.0",
+    "source-map-loader": "^0.2.4",
+    "storybook-react-router": "^1.0.2",
     "typescript": "^3.2.4",
     "url-loader": "^1.1.2",
     "webpack": "^4.29.0",

@@ -10,6 +10,7 @@ html
 			include ../menu.pug
 			h2(class="ui header")= title
 
+			EventsCalendar(year=year months=month)
 			div(class="ui vertical loading segment" id="calendar")
 				h3(class="ui header") {{ months[month-1] }} {{ year }}
 				table(class="ui celled fixed seven column table")
