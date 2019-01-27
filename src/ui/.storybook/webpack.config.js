@@ -12,7 +12,7 @@ module.exports = (storybookConfig, configType) => {
     storybookConfig.module.rules = storybookConfig.module.rules.concat(projectConfig.module.rules);
     storybookConfig.resolve.extensions = storybookConfig.resolve.extensions.concat(projectConfig.resolve.extensions);
     storybookConfig.plugins.push(new MiniCssExtractPlugin(), new TSDocgenPlugin(), new webpack.DefinePlugin({
-        GREY_API_URL: JSON.stringify("http://localhost:3000"),
+        GREY_API_URL: JSON.stringify("http://localhost:3000/api"),
         PAYPAL_MODE: JSON.stringify(process.env.PAYPAL_MODE),
     }));
     

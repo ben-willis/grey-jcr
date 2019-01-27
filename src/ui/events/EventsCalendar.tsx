@@ -1,4 +1,5 @@
-import * as React from "react";
+import React from "react";
+import ReactDOM from "react-dom";
 
 import { Button, Header, Icon, Label, Segment, Table } from "semantic-ui-react";
 import greyAPI from "../greyAPI";
@@ -24,7 +25,7 @@ interface EventsCalendarState {
     events: Event[];
 }
 
-export class EventsCalendar extends React.Component<EventsCalendarProps, EventsCalendarState> {
+export default class EventsCalendar extends React.Component<EventsCalendarProps, EventsCalendarState> {
 
     // tslint:disable-next-line:max-line-length
     private months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -143,14 +144,14 @@ export class EventsCalendar extends React.Component<EventsCalendarProps, EventsC
                         {this.getEventsForDate(cellDate).map((event) => {
                             const eventTime = new Date(event.time);
                             return (
-                                <Link to={
+                                <a href={
                                     "/events/" + eventTime.getFullYear() +
                                     "/" + (eventTime.getMonth() + 1) +
                                     "/" + eventTime.getDate() +
                                     "/" + event.slug
-                                }>
+                                } key={event.slug}>
                                     <Label size="small">{event.name}</Label>
-                                </Link>
+                                </a>
                             );
                         })}
                     </div>
@@ -161,7 +162,7 @@ export class EventsCalendar extends React.Component<EventsCalendarProps, EventsC
 
     private getEvents() {
         greyAPI.get<Event[]>(
-            "/events/?year=" + this.state.year + "&month=" + this.state.month,
+            "/events/" + this.state.year + "/" + this.state.month,
         ).then((res) => {
             this.setState({events: res.data});
         });
@@ -177,3 +178,6 @@ export class EventsCalendar extends React.Component<EventsCalendarProps, EventsC
         return this.state.events.filter((event) => (new Date(event.time).getDate() === date.getDate()));
     }
 }
+
+
+ReactDOM.render(<EventsCalendar initialYear={2019} initialMonth={1}/>, document.getElementById("events-calendar"));

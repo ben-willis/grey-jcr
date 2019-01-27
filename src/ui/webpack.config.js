@@ -52,16 +52,18 @@ module.exports = {
 
     externals: {
         "paypal-checkout": "paypal",
+        "react": "React",
+        "react-dom": "ReactDOM"
     },
 
     plugins: [
-      new DynamicCdnWebpackPlugin(),
+    //   new DynamicCdnWebpackPlugin(),
       new BundleAnalyzerPlugin({analyzerMode: "static", openAnalyzer: false}),
       new MiniCssExtractPlugin(),
       new webpack.DefinePlugin({
             GREY_API_URL: JSON.stringify(process.env.NODE_ENV === "production"
                 ? "http://greyjcr.com/api"
-                : "http://localhost:3000"),
+                : "http://localhost:3000/api"),
       })
     ]
 };
