@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
+import "semantic-ui-less/semantic.less";
+
 import { Button, Header, Icon, Label, Segment, Table } from "semantic-ui-react";
 import greyAPI from "../greyAPI";
 
