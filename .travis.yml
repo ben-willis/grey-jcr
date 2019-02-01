@@ -27,5 +27,9 @@ deploy:
     on:
       branch: master
 
+branches:
+  only:
+  - master
+
 notifications:
   - email: false
