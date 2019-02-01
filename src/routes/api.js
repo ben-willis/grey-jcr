@@ -86,7 +86,7 @@ router.get('/users/:username/avatar', function (req, res, next) {
 		if (!err) {
 			res.sendFile(process.env.FILES_DIRECTORY + '/avatars/'+req.params.username+'.png');
 		} else {
-			res.sendFile('public/images/anon.png', {
+			res.sendFile('ui/images/anon.png', {
     			root: __dirname+'/../'
     		});
 		}

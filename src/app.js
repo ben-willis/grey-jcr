@@ -1,6 +1,8 @@
 require('dotenv').config({path: __dirname + "/../.env"})
 
 /* REQUIREMENTS*/
+import cors from "cors";
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -22,6 +24,16 @@ var admin = require('./routes/admin/index');
 var app = express();
 
 /* SET UP */
+
+const corsOptions = {
+    origin: ["http://localhost:9000", "http://localhost:9001"],
+    credentials: true,
+};
+  
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -29,7 +41,7 @@ app.set('view engine', 'pug');
 var User = require('./models/user');
 var Folder = require('./models/folder')
 
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'ui', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(helmet());
 app.use(compress());
@@ -45,7 +57,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'ui')));
 
 /* PASSPORT */
 passport.serializeUser(function (user, done) {

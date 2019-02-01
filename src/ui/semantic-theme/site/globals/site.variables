@@ -4,4 +4,4 @@
 
 @defaultBorderRadius: 0.2rem;
 
-@primaryColor        : @red;
+@primaryColor        : #db2828;
