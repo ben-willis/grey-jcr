@@ -22,10 +22,10 @@ export default class Article {
     @Column({type: "integer", name: "role_id", nullable: true})
     public roleId: number;
 
-    public role: any;
+    public role?: any;
 
     @Column({type: "varchar", length: 6, name: "author", nullable: true})
     public authorUsername: string;
 
-    public author: any;
+    public author?: any;
 }
