@@ -1,8 +1,7 @@
-
 import { expect } from "chai";
 import "mocha";
 import sinon from "sinon";
-import { Connection, createConnections, getConnection, createConnection } from "typeorm";
+import { Connection, createConnection } from "typeorm";
 
 import CreateArticleRequest from "./../models/CreateArticleRequest";
 import UpdateArticleRequest from "./../models/UpdateArticleRequest";

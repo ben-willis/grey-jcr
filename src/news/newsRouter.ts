@@ -20,9 +20,9 @@ export default function getNewsRouter(newsClient: NewsClient, routerOptions?: ex
             page: 1,
             limit: 1,
             date: {
-                year: req.params.year,
-                month: req.params.month,
-                day: req.params.day,
+                year: Number(req.params.year),
+                month: Number(req.params.month),
+                day: Number(req.params.day),
             },
             slug: req.params.slug,
         }).then((article) =>  res.json(article)).catch(next);

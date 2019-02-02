@@ -74,8 +74,8 @@ export default class NewsService extends NewsClient {
     
         if (getArticlesRequest.date) {
             articleQuery = articleQuery
-                .andWhere("EXTRACT(YEAR FROM created) = :year", { month: getArticlesRequest.date.year})
-                .andWhere("EXTRACT(MONTH FROM created) = :month", { month: getArticlesRequest.date.month});
+                .andWhere("EXTRACT(YEAR FROM updated) = :year", { year: getArticlesRequest.date.year})
+                .andWhere("EXTRACT(MONTH FROM updated) = :month", { month: getArticlesRequest.date.month});
         }
     
         const articles = await articleQuery.getMany();
