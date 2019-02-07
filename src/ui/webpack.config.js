@@ -11,9 +11,7 @@ const path = require('path');
 
 module.exports = {
     mode: process.env.NODE_ENV === "production" ? "production" : "development",
-    entry: [
-        path.join(__dirname, "./events/EventsCalendar.tsx")
-    ],
+    entry: path.join(__dirname, "./index.tsx"),
     output: {
         filename: "bundle.js",
         path: path.join(__dirname, "../../dist/ui"),
