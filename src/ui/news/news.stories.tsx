@@ -5,31 +5,17 @@ import NewsArticle from "./NewsArticle";
 import Article from "../../news/entities/Article";
 
 import faker from "faker";
+import NewsFeed from "./NewsFeed";
 
-const mockArticles: Article[] = Array(20).fill(undefined).map((n, id) => ({
-    id: id + 1,
-    title: faker.commerce.productName(),
-    slug: faker.lorem.slug(),
-    content: "<p>" + faker.lorem.paragraphs(3, "</p><p>") + "</p>",
-    updated: faker.date.past(),
-    roleId: faker.random.number(30),
-    role: {
-        id: faker.random.number(30),
-        title: faker.name.jobTitle(),
-        slug: faker.lorem.slug(),
-        level: faker.random.number(5),
-    },
-    authorUsername: faker.random.alphaNumeric(6),
-    author: {
-        email: faker.internet.email(),
-        username: faker.random.alphaNumeric(6),
-        name: faker.name.findName(),
-        last_login: faker.date.past(),
-    },
-}));
+import {articles} from "../../news/tests/newsFixtures";
 
-console.log(mockArticles);
+const now = new Date();
 
 storiesOf("News Article", module)
-    .add("Full Article", () => <NewsArticle article={mockArticles[0]}/>)
-    .add("Article Summary", () => <NewsArticle article={mockArticles[1]} initiallySummaryOnly/>);
+    .add("Full Article", () => <NewsArticle article={articles[0]}/>)
+    .add("Article Summary", () => <NewsArticle article={articles[0]} initiallySummaryOnly/>);
+
+storiesOf("News Feed", module)
+    .add("Standard news feed", () => <NewsFeed/>)
+    .add("Filtered news feed by query", () => <NewsFeed filter={{query: "Table"}}/>)
+    .add("Filtered news feed by month", () => <NewsFeed filter={{month: now.getMonth() + 1, year: now.getFullYear()}}/>);

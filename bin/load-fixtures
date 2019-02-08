@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+const FixturesLoader = require("../dist/helpers/FixturesLoader").default;
+
+require("typeorm").createConnection("grey").then((connection) => {
+    const fixturesLoader = new FixturesLoader(connection);
+    return fixturesLoader.loadFixtures();
+});

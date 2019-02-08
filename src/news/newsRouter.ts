@@ -12,6 +12,8 @@ export default function getNewsRouter(newsClient: NewsClient, routerOptions?: ex
             page: Number(req.query.page || 1),
             limit: Number(req.query.limit || 10),
             query: req.query.q,
+            roleId: Number(req.query.role) || undefined,
+            author: req.query.author || undefined,
         }).then((articles) => res.json(articles)).catch(next);
     });
     

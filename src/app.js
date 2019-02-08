@@ -136,7 +136,7 @@ app.use('/', routes);
 app.use('/admin/', admin);
 
 const newsService = new NewsService(databaseConnection);
-app.use("/news/", getNewsRouter(newsService))
+app.use("/api/news/", getNewsRouter(newsService));
 
 app.use("/files/", (req, res, next) => {
     res.sendFile(process.env.FILES_DIRECTORY + decodeURIComponent(req.path));

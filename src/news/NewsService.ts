@@ -89,8 +89,25 @@ export default class NewsService extends NewsClient {
     }
 
     private async populateArticleUserRole(article: Article): Promise<Article> {
-        const author = await User.findByUsername(article.authorUsername);
-        const role = await Role.findById(article.roleId);
+        const author = await User.findByUsername(article.authorUsername).catch((err) => {
+            if (err.status === 404) {
+                return {
+                    username: article.authorUsername,
+                    name: "Unknown",
+                    email: "Unknown"
+                }
+            } else throw err;
+        });
+
+        const role = await Role.findById(article.roleId).catch((err) => {
+            if (err.status === 404) {
+                return {
+                    id: article.roleId,
+                    title: "Unknown",
+                    slug: "unknown"
+                }
+            } else throw err;
+        });;
     
         article.role = role;
         article.author = author;

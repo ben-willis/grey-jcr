@@ -5,20 +5,11 @@ import "mocha";
 import MockNewsService from "./MockNewsService";
 import express from "express";
 import getNewsRouter from "../newsRouter";
-import faker from "faker";
+import {articles as fakeArticles} from "./newsFixtures";
 
 chai.use(chaiHttp);
 
 describe("News router", () => {
-    const fakeArticles = [{
-        id: faker.random.number(100),
-        title: faker.lorem.words(),
-        slug: faker.lorem.slug(),
-        content: faker.lorem.paragraph(),
-        updated: faker.date.past(),
-        roleId: faker.random.number(100),
-        authorUsername: faker.random.alphaNumeric(6),
-    }];
     const mockNewsService = new MockNewsService(fakeArticles);
 
     const app = express();
