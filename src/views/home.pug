@@ -13,32 +13,10 @@ html
 			div(class="ui vertical segment")
 				div(class="ui divided padded stackable grid")
 					div(class="ten wide column")
-						h2(class="ui left floated header") Latest News
-						a(class="ui right floated basic button" href="/jcr/blog/") All News
-						div(class="ui divided items")
-							each blog in blogs
-								div(class="item")
-									div(class="ui tiny image")
-										img(src="/api/users/"+blog.author.username+"/avatar")
-									div(class="content")
-										a(class="header" href="/jcr/blog/"+blog.role.slug+"/"+blog.permalink)= blog.title
-										div(class="meta")
-											span(class="author")
-												i(class="ui user icon")
-												| #{blog.author.name}  (#{blog.role.title})
-											span(class="timestamp")
-												i(class="ui clock icon")
-												= prettydate.format(blog.updated)
-										div(class="article description" style="white-space: pre-line")!= blog.message
-										div(class="extra")
-											- url = "https://greyjcr.com/jcr/blog/"+blog.role.slug+"/"+blog.permalink
-											a(class="ui mini facebook share button" data-href=url)
-												i(class="facebook icon")
-												| Share
-											a(class="ui mini twitter tweet button" target="_blank" href="https://twitter.com/share?url="+encodeURIComponent(url))
-												i(class="twitter icon")
-												| Tweet
-											a(class="right floated" href="/jcr/blog/"+blog.role.slug+"/"+blog.permalink) Read More
+						h2(class="ui header")
+							| Latest News
+							a(class="ui right floated basic button" href="/jcr/blog/") All News
+						div(id="news-feed")
 					div(class="six wide column")
 						div(class="ui vertical clearing segment")
 							h2(class="ui header") Upcoming Events
@@ -97,31 +75,5 @@ html
 				if ('serviceWorker' in navigator) {
 					navigator.serviceWorker.register('/sw.js');
 				}
-
-			script.
-				window.fbAsyncInit = function() {
-					FB.init({
-						appId      : '634847773365124',
-						version    : 'v2.8'
-					});
-				};
-
-				(function(d, s, id){
-					var js, fjs = d.getElementsByTagName(s)[0];
-					if (d.getElementById(id)) {return;}
-					js = d.createElement(s); js.id = id;
-					js.src = "//connect.facebook.net/en_US/sdk.js";
-					fjs.parentNode.insertBefore(js, fjs);
-				}(document, 'script', 'facebook-jssdk'));
-
-				$('.facebook.share.button').click(function() {
-					FB.ui({
-						method: 'share',
-						display: 'popup',
-						href: this.getAttribute("data-href"),
-					}, function(response){
-						console.log(response)
-					});
-				})
 
 		include ./footer.pug
