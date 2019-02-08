@@ -1,8 +1,3 @@
-interface DateFilter {
-    month: number;
-    year: number;
-}
-
 export default interface NewsFilter {
     month?: number;
     year?: number;

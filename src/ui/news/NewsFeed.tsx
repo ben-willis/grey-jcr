@@ -33,6 +33,14 @@ export default class NewsFeed extends React.Component<NewsFeedProps, NewsFeedSta
         this.getMoreArticles();
     }
 
+    public componentWillReceiveProps(newProps) {
+        this.setState({
+            articles: [],
+            page: 1,
+            allArticlesLoaded: false,
+        }, this.getMoreArticles);
+    }
+
     public render() {
         return (
             <div>
