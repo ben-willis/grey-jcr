@@ -2,7 +2,7 @@ import express from "express";
 
 import httpError from "http-errors";
 
-import NewsClient from "./newsClient";
+import NewsClient from "./NewsClient";
 
 export default function getNewsRouter(newsClient: NewsClient, routerOptions?: express.RouterOptions) {
     const newsRouter = express.Router(routerOptions);

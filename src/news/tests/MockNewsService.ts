@@ -1,4 +1,4 @@
-import NewsClient from "../newsClient";
+import NewsClient from "../NewsClient";
 import GetArticlesRequest from "../models/GetArticlesRequest";
 import CreateArticleRequest from "../models/CreateArticleRequest";
 import UpdateArticleRequest from "../models/UpdateArticleRequest";

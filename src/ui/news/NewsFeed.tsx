@@ -4,7 +4,7 @@ import Article from "../../news/entities/Article";
 import { Segment, Header, Icon, Image, Divider, Grid, Button, Visibility, Message } from "semantic-ui-react";
 import greyAPI from "../greyAPI";
 import NewsArticle from "./NewsArticle";
-import NewsFilter from "./models/newsFilter";
+import NewsFilter from "./models/NewsFilter";
 
 interface NewsFeedProps {
     filter?: NewsFilter;

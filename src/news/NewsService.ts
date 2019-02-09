@@ -5,7 +5,7 @@ import UpdateArticleRequest from "./models/UpdateArticleRequest";
 
 import Article from "./entities/Article";
 import CreateArticleRequest from "./models/CreateArticleRequest";
-import NewsClient from "./newsClient";
+import NewsClient from "./NewsClient";
 
 import User from "../models/user";
 import Role from "../models/role";

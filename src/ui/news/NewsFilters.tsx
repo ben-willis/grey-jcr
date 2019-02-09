@@ -1,5 +1,5 @@
 import React from "react";
-import NewsFilter from "./models/newsFilter";
+import NewsFilter from "./models/NewsFilter";
 import { Menu, Dropdown, Input, InputOnChangeData, Icon } from "semantic-ui-react";
 
 interface NewsFiltersProps {

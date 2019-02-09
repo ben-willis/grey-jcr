@@ -6,8 +6,8 @@
   "licence": "MIT",
   "private": true,
   "scripts": {
-    "build-ui": "webpack --config src/ui/webpack.config.js && cp -r src/public/* dist/ui/",
-    "build-api": "tsc && cp -r src/static src/views dist/",
+    "build-ui": "webpack --config src/ui/webpack.config.js",
+    "build-api": "tsc && cp -r src/static src/views dist/ && cp -r src/public/* dist/ui/",
     "build": "rm -rf dist && npm run build-ui && npm run build-api",
     "start": "node ./bin/www",
     "test": "mocha dist/test dist/**/*.spec.js --reporter spec --recursive --exit",

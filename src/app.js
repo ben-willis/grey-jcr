@@ -3,7 +3,7 @@ require('dotenv').config({path: __dirname + "/../.env"})
 /* REQUIREMENTS*/
 import cors from "cors";
 import getNewsRouter from "./news/newsRouter";
-import NewsService from "./news/newsService";
+import NewsService from "./news/NewsService";
 import { getConnection } from "typeorm";
 
 var express = require('express');
