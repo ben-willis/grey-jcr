@@ -40,33 +40,6 @@ router.get('/', function (req, res, next) {
 router.get('/blog', function (req, res, next) {
 	if (req.user) req.user.updateLastLogin();
 	res.render("jcr/blog");
-	// var filters = {
-	// 	role_id: parseInt(req.query.role_id) || 0,
-	// 	year: parseInt(req.query.year) || 0,
-	// 	month: parseInt(req.query.month) || 0
-	// };
-	// var page = parseInt(req.query.page) || 1;
-	// var limit = parseInt(req.query.limit) || 10;
-	// Promise.all([
-	// 	Blog.get(filters.role_id, filters.year, filters.month),
-	// 	Role.getByType("exec"),
-	// 	Role.getByType("officer")
-	// ]).then(function(data) {
-	// 	var blogs = data[0];
-	// 	var total_pages = Math.ceil(blogs.length / limit);
-	// 	page = (blogs.length == 0) ? 0 : page;
-	// 	res.render('jcr/blog', {
-	// 		page: page,
-	// 		limit: limit,
-	// 		total_pages: total_pages,
-	// 		filters: filters,
-	// 		blogs: blogs.splice((page-1) * limit, page*limit),
-	// 		roles: data[1].concat(data[2])
-	// 	});
-	// }).catch(function (err) {
-	// 	next(err);
-	// });
-
 });
 
 /* GET profile for a role page. */
