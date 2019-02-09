@@ -78,7 +78,7 @@ export default class NewsService extends NewsClient {
                 .andWhere("EXTRACT(MONTH FROM updated) = :month", { month: getArticlesRequest.date.month});
         }
     
-        const articles = await articleQuery.orderBy("updated", "ASC").getMany();
+        const articles = await articleQuery.orderBy("updated", "DESC").getMany();
     
         return Promise.all(articles.map(this.populateArticleUserRole));
     }

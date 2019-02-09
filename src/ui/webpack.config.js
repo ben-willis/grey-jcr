@@ -35,7 +35,7 @@ module.exports = {
                 test: /\.(le|c)ss$/,
                 use: [MiniCssExtractPlugin.loader, "css-loader", "less-loader"]
             },
-            { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
+            { test: /\.tsx?$/, loader: "ts-loader" },
             { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
             {
                 test: /\.jpe?g$|\.gif$|\.png$|\.ttf$|\.eot$|\.svg$/,
