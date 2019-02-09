@@ -5,6 +5,7 @@ import * as timeago from "timeago.js";
 import Article from "../../news/entities/Article";
 import { Segment, Header, Icon, Image, Divider, Grid, Button } from "semantic-ui-react";
 import greyAPI from "../greyAPI";
+import { Link } from "react-router-dom";
 
 interface NewsArticleProps {
     article: Article;
@@ -44,7 +45,7 @@ export default class NewsArticle extends React.Component<NewsArticleProps, NewsA
                         this.props.article.authorUsername + "/avatar"
                     }/>
                     <Header.Content>
-                        {this.props.article.title}
+                        <a href={articlePath}>{this.props.article.title}</a>
                         <Header.Subheader>
                             <Icon name="user"/>
                             {this.props.article.author.name} ({this.props.article.role.title})

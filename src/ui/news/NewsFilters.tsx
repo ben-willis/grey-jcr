@@ -21,11 +21,11 @@ export default class NewsFilters extends React.Component<NewsFiltersProps, NewsF
 
     public render() {
         return (
-            <Menu>
+            <Menu secondary>
                 <Menu.Item>
                     <Input icon="search" placeholder="Search..." onChange={this.handleQueryChange} value={this.state.query}/>
                 </Menu.Item>
-                <Menu.Item position="right" onClick={this.clearFilters} icon="delete" content="Clear"/>
+                <Menu.Item position="right" onClick={this.clearFilters} icon="delete" content="Clear Filters"/>
             </Menu>
         );
     }

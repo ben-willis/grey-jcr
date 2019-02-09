@@ -8,12 +8,19 @@ import NewsArticle from "./NewsArticle";
 import NewsFeed from "./NewsFeed";
 import {articles} from "../../news/tests/newsFixtures";
 import NewsFilters from "./NewsFilters";
+import NewsArticleLoader from "./NewsArticleLoader";
 
 const now = new Date();
 
 storiesOf("News Article", module)
     .add("Full Article", () => <NewsArticle article={articles[0]}/>)
-    .add("Article Summary", () => <NewsArticle article={articles[0]} initiallySummaryOnly/>);
+    .add("Article Summary", () => <NewsArticle article={articles[0]} initiallySummaryOnly/>)
+    .add("Using article loader", () => <NewsArticleLoader
+        slug={"quo-est-praesentium"}
+        year={now.getFullYear()}
+        month={now.getMonth() + 1}
+        date={now.getDate() - 1}
+    />);
 
 storiesOf("News Feed", module)
     .add("Standard news feed", () => <NewsFeed/>)
