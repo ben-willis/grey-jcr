@@ -1,5 +1,6 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 import { readFile } from "fs";
+import path from "path";
 
 export class CreateBaseTables1549056925424 implements MigrationInterface {
 
@@ -8,7 +9,7 @@ export class CreateBaseTables1549056925424 implements MigrationInterface {
         const existingTableNames = existingTables.map((t) => t.table_name);
 
         const createBaseTablesSQL = await new Promise<string>((resolve, reject) => {
-            readFile(__dirname + "../../../../static/CreateBaseTables.sql", "utf8", (err, data) => {
+            readFile(path.resolve(__dirname, "../../../static/CreateBaseTables.sql"), "utf8", (err, data) => {
                 if (err) reject(err);
                 else resolve(data);
             });
