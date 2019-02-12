@@ -238,7 +238,7 @@ router.post('/elections/:election_id', function (req, res, next) {
 		.then(function(election){
 			return Promise.all(
 				req.body.ballot.map(function(ballot){
-					election.castVote(req.user.username, ballot.position_id, Object.keys(ballot.votes).map(k => ballot.votes[k]));
+					election.castVote(req.user.username, ballot.position_id, ballot.votes);
 				})
 			);
 

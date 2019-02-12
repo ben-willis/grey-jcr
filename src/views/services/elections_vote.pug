@@ -31,18 +31,18 @@ html
 			div(class="ui vertical segment")
 				if (user_vote == null)
 					form(class="ui form" action="/services/elections/"+election.id method="POST")
-						each position in election.positions
+						each position, positionIndex in election.positions
 							h4(class="ui dividing header")= position.name
-							input(type="text" name="ballot["+position.id+"][position_id]" value=position.id hidden)
+							input(type="text" name="ballot["+positionIndex+"][position_id]" value=position.id hidden)
 							div(class="ui middle aligned two column stackable vertically divided grid")
-								each nominee in position.nominees
-									input(type="text" name="ballot["+position.id+"][votes]["+nominee.id+"][nominee_id]" value=nominee.id hidden)
+								each nominee, nomineeIndex in position.nominees
+									input(type="text" name="ballot["+positionIndex+"][votes]["+nomineeIndex+"][nominee_id]" value=nominee.id hidden)
 									div(class="row")
 										div(class="column")
 											label= nominee.name
 										div(class="column")
 											div(class="ui input")
-												input(type="text" name="ballot["+position.id+"][votes]["+nominee.id+"][preference]" size="1")
+												input(type="text" name="ballot["+positionIndex+"][votes]["+nomineeIndex+"][preference]" size="1")
 						div(class="inline field")
 							div(class="ui checkbox")
 								input(type="checkbox" name="confirm")
