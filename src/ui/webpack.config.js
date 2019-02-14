@@ -3,20 +3,16 @@ require("dotenv").config();
 
 const webpack = require("webpack");
 
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const DynamicCdnWebpackPlugin = require('dynamic-cdn-webpack-plugin');
 const path = require('path');
 
 module.exports = {
     mode: process.env.NODE_ENV === "production" ? "production" : "development",
-    entry: [
-        path.join(__dirname, "./events/EventsCalendar.tsx")
-    ],
+    entry: path.resolve(__dirname, "./index.tsx"),
     output: {
         filename: "bundle.js",
-        path: path.join(__dirname, "../../dist/ui"),
+        path: path.resolve(__dirname, "../../dist/ui"),
         publicPath: "/"
     },
 
@@ -37,7 +33,7 @@ module.exports = {
                 test: /\.(le|c)ss$/,
                 use: [MiniCssExtractPlugin.loader, "css-loader", "less-loader"]
             },
-            { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
+            { test: /\.tsx?$/, loader: "ts-loader" },
             { enforce: "pre", test: /\.js$/, loader: "source-map-loader" },
             {
                 test: /\.jpe?g$|\.gif$|\.png$|\.ttf$|\.eot$|\.svg$/,

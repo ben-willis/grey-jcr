@@ -5,8 +5,8 @@ tar -xf grey-jcr.tgz
 cp .env package/
 cd package
 nvm use
-npm install
-npm run migrate-postgres
+npm install --production
+npm run migrate
 
 # Restart the new app
 pm2 delete grey-jcr

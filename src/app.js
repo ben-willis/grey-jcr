@@ -2,6 +2,9 @@ require('dotenv').config({path: __dirname + "/../.env"})
 
 /* REQUIREMENTS*/
 import cors from "cors";
+import getNewsRouter from "./news/newsRouter";
+import NewsService from "./news/NewsService";
+import { getConnection } from "typeorm";
 
 var express = require('express');
 var path = require('path');
@@ -127,8 +130,13 @@ app.use(function (req, res, next) {
 });
 
 /* ROUTING AND ERRORS */
+const databaseConnection = getConnection("grey");
+
 app.use('/', routes);
 app.use('/admin/', admin);
+
+const newsService = new NewsService(databaseConnection);
+app.use("/api/news/", getNewsRouter(newsService));
 
 app.use("/files/", (req, res, next) => {
     res.sendFile(process.env.FILES_DIRECTORY + decodeURIComponent(req.path));

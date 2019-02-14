@@ -6,9 +6,9 @@ addons:
   ssh_known_hosts: greyjcr.com
 
 before_script:
-  - npm run build
+  - NODE_ENV=production npm run build
   - psql -c 'CREATE DATABASE "grey-test";' -U postgres
-  - npm run migrate-postgres
+  - npm run migrate
 
 before_deploy:
   - npm pack

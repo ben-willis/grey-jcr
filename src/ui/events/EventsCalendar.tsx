@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from "react-dom";
 
 import "semantic-ui-less/semantic.less";
 
@@ -180,6 +179,3 @@ export default class EventsCalendar extends React.Component<EventsCalendarProps,
         return this.state.events.filter((event) => (new Date(event.time).getDate() === date.getDate()));
     }
 }
-
-
-ReactDOM.render(<EventsCalendar initialYear={2019} initialMonth={1}/>, document.getElementById("events-calendar"));
