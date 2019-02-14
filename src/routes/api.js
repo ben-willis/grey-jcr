@@ -12,11 +12,16 @@ var Blog = require('../models/blog');
 var Election = require('../models/election');
 var Feedback = require('../models/feedback');
 
+import NewsService from "../news/NewsService";
+import { getConnection } from "typeorm";
+
+const newsService = new NewsService(getConnection("grey"));
+
 // The main site search
 router.get('/search/', function (req, res, next) {
 	Promise.all([
 		User.search(req.query.q),
-		Blog.search(req.query.q),
+		newsService.getArticles({query: req.query.q, limit: 100, page: 1}),
 		Event.search(req.query.q)
 	]).then(function(data) {
 		var users = data[0].map(function(user) {
@@ -136,7 +141,7 @@ router.get('/elections/:status', function(req,res,next) {
 
 router.get('/blogs/unread', function(req, res, next) {
 	if (!req.user) return next(httpError(401));
-	Blog.getByDateRange(req.user.last_login, new Date()).then(function(blogs) {
+	newsService.getArticles({sinceTime: req.user.last_login, limit: 99, page: 1}).then(function(blogs) {
 		res.json(blogs);
 	}).catch(function (err) {
 		next(err);
