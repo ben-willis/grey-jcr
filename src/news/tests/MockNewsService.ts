@@ -16,11 +16,12 @@ export default class MockNewsService extends NewsClient {
             && (!req.query || article.title.indexOf(req.query) > -1)
             && (!req.roleId || article.roleId === req.roleId)
             && (!req.slug || article.slug === req.slug)
-            && (!req.date || 
-                (!req.date.day || article.updated.getDate() === req.date.day)
-                && (req.date.month === article.updated.getMonth() + 1)
-                && (req.date.year === article.updated.getFullYear())
+            && (!req.onDate || 
+                (!req.onDate.day || article.updated.getDate() === req.onDate.day)
+                && (req.onDate.month === article.updated.getMonth() + 1)
+                && (req.onDate.year === article.updated.getFullYear())
             )
+            && (!req.sinceTime || article.updated > req.sinceTime)
         )).slice((req.page - 1) * req.limit, req.page * req.limit);
     }
 
