@@ -52,8 +52,6 @@ postgres-data
 session-data
 tmp
 
-.jshintrc
-
 #Semantic-ui
 src/public/semantic/
 semantic/gulpfile.js
