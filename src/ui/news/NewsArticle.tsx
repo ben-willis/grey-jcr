@@ -33,7 +33,7 @@ export default class NewsArticle extends React.Component<NewsArticleProps, NewsA
             + new Date(this.props.article.updated).getDate() + "/"
             + this.props.article.slug
 
-        const articleContent = this.state.summaryOnly
+        const articleContent = this.state.summaryOnly && this.props.article.content
             ? this.props.article.content.replace("<[^>]*>", "").slice(0, 200) + "..."
             : this.props.article.content;
 
