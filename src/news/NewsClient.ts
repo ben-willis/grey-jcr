@@ -9,7 +9,7 @@ import UpdateArticleRequest from "./models/UpdateArticleRequest";
 export default abstract class NewsClient {
 
     async getArticle(getArticlesRequest: GetArticlesRequest): Promise<Article> {
-        const articles = await this.getArticles(getArticlesRequest);
+        const articles = await this.getArticles({...getArticlesRequest, limit: 1, page: 1});
         if (articles.length === 0) {
             throw httpError(404, "Article not found");
         } else {

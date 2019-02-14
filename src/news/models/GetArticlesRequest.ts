@@ -8,7 +8,8 @@ export default interface GetArticlesRequest {
     page: number;
     limit: number;
     articleId?: number;
-    date?: DateFilter;
+    onDate?: DateFilter;
+    sinceTime?: number | Date;
     slug?: string;
     query?: string;
     author?: string;

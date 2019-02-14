@@ -14,6 +14,7 @@ export default function getNewsRouter(newsClient: NewsClient, routerOptions?: ex
             query: req.query.q,
             roleId: Number(req.query.role) || undefined,
             author: req.query.author || undefined,
+            sinceTime: req.query.since || undefined
         }).then((articles) => res.json(articles)).catch(next);
     });
     
@@ -21,7 +22,7 @@ export default function getNewsRouter(newsClient: NewsClient, routerOptions?: ex
         newsClient.getArticle({
             page: 1,
             limit: 1,
-            date: {
+            onDate: {
                 year: Number(req.params.year),
                 month: Number(req.params.month),
                 day: Number(req.params.day),

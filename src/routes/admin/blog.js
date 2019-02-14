@@ -1,21 +1,18 @@
 var express = require('express');
 var router = express.Router();
-var validator = require('validator');
-var Blog = require('../../models/blog');
-var Role = require('../../models/role');
+
+import NewsService from "../../news/NewsService";
+import { getConnection } from "typeorm";
+
+
+const newsService = new NewsService(getConnection("grey"));
 
 /* GET blog page. */
 router.get('/', function (req, res, next) {
-	req.user.getBlogs().then(function(blog_datas) {
-		return Promise.all(
-			blog_datas.map(function(data){
-				return Role.findById(data.role_id).then(function(role_data){
-					blog = new Blog(data);
-					blog.role = new Role(role_data);
-					return blog;
-				});
-			})
-		);
+	newsService.getArticles({
+		author: req.user.username,
+		page: 1,
+		limit: 1000,
 	}).then(function (blogs) {
 		return res.render('admin/blog', {blogs: blogs});
 	}).catch(function (err) {
@@ -25,11 +22,11 @@ router.get('/', function (req, res, next) {
 
 /* POST a new blog */
 router.post('/new', function (req, res, next) {
-	Blog.create({
+	newsService.createArticle({
 		title: req.body.title,
-		message: req.body.message,
+		content: req.body.content,
 		author: req.user.username,
-		role_id: parseInt(req.body.role)
+		roleId: Number(req.body.role)
 	}).then(function (){
 		return res.redirect('/admin/blog');
 	}).catch(function (err) {
@@ -39,7 +36,7 @@ router.post('/new', function (req, res, next) {
 
 /* GET edit blog page. */
 router.get('/:blog_id/edit', function (req, res, next) {
-	Blog.findById(parseInt(req.params.blog_id)).then(function (blog) {
+	newsService.getArticle({articleId: Number(req.params.blog_id)}).then(function (blog) {
 		return res.render('admin/blog_edit', {blog: blog});
 	}).catch(function (err) {
 		return next(err);
@@ -48,11 +45,10 @@ router.get('/:blog_id/edit', function (req, res, next) {
 
 /* POST and update to a blog */
 router.post('/:blog_id/edit', function (req, res, next) {
-	Blog.findById(parseInt(req.params.blog_id)).then(function (blog) {
-		return blog.update({
-			title: req.body.title,
-			message: req.body.message
-		});
+	newsService.updateArticle({
+		articleId: Number(req.params.blog_id),
+		title: req.body.title,
+		content: req.body.content
 	}).then(function () {
 		return res.redirect('/admin/blog');
 	}).catch(function (err) {
@@ -62,8 +58,8 @@ router.post('/:blog_id/edit', function (req, res, next) {
 
 /* GET a delete blog post */
 router.get('/:blog_id/delete', function (req, res, next) {
-	Blog.findById(parseInt(req.params.blog_id)).then(function (blog) {
-		return blog.delete();
+	newsService.getArticle({articleId: Number(req.params.blog_id)}).then(function (article) {
+		return newsService.deleteArticle(article);
 	}).then(function () {
 		return res.redirect('/admin/blog');
 	}).catch(function (err) {

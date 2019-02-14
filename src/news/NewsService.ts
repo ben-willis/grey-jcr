@@ -72,10 +72,19 @@ export default class NewsService extends NewsClient {
                 .andWhere("article.slug = :slug", {slug: getArticlesRequest.slug});
         }
     
-        if (getArticlesRequest.date) {
+        if (getArticlesRequest.onDate) {
             articleQuery = articleQuery
-                .andWhere("EXTRACT(YEAR FROM updated) = :year", { year: getArticlesRequest.date.year})
-                .andWhere("EXTRACT(MONTH FROM updated) = :month", { month: getArticlesRequest.date.month});
+                .andWhere("EXTRACT(YEAR FROM article.updated) = :year", { year: getArticlesRequest.onDate.year})
+                .andWhere("EXTRACT(MONTH FROM article.updated) = :month", { month: getArticlesRequest.onDate.month});
+        }
+
+        if (getArticlesRequest.sinceTime) {
+            const epochSinceTime = (getArticlesRequest.sinceTime instanceof Date)
+                ? getArticlesRequest.sinceTime.getTime()
+                : getArticlesRequest.sinceTime
+
+            articleQuery = articleQuery
+                .andWhere("EXTRACT(EPOCH FROM article.updated) > :time", {time: ~~(epochSinceTime / 1000)})
         }
     
         const articles = await articleQuery.orderBy("updated", "DESC").getMany();
