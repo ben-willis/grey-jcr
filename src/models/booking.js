@@ -11,7 +11,7 @@ var Booking = function (data) {
     this.event_id = data.event_id;
     this.ticket_id = data.ticket_id;
     this.choices = [];
-
+    this.debt_id = data.debt_id;
 };
 
 Booking.prototype.updateNotes = function(notes) {
@@ -50,6 +50,28 @@ Booking.prototype.setChoices = function(choices) {
         this.choices = choices;
         return;
     });
+};
+
+Booking.prototype.setDebtForBooking = function(username, name, message, amount) {
+    if (this.debt_id) {
+        return db("debts").update({
+            name: name,
+            message: message,
+            amount: amount
+        }).where("id", "=", this.debt_id);
+    } else {
+        return db("debts").insert({
+            username: username,
+            name: name,
+            message: message,
+            amount: amount
+        }).returning('id').then((id) => {
+            this.debt_id = id[0];
+            return db("bookings").update({
+                debt_id: id[0]
+            }).where("id", "=", this.id);
+        });
+    }
 };
 
 

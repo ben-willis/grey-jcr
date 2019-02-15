@@ -71,18 +71,6 @@ User.prototype.payDebt = function(name, message, amount) {
     });
 };
 
-User.prototype.setDebtForBooking = function(name, message, amount, booking_id) {
-    return db('debts').del().where({booking_id: booking_id}).then(function() {
-        return db('debts').insert({
-            username: this.username,
-            name: name,
-            message: message,
-            amount: amount,
-            booking_id: booking_id
-        });
-    }.bind(this));
-};
-
 User.prototype.assignRole = function(role_id) {
     return db('user_roles').insert({
         username: this.username,

@@ -88,7 +88,7 @@ router.post('/:event_id/:ticket_id/book', function (req, res, next) {
 						Mail.send(user.email, event.name+" Booking Confirmation", email_text);
 
 						// Set Debt
-						return user.setDebtForBooking(ticket.name, "Ticket for "+name, amount, booking.id);
+						return booking.setDebtForBooking(username, ticket.name, "Ticket for "+name, amount);
 					});
 				})
 			);
@@ -164,11 +164,8 @@ router.post('/:booking_id', function (req, res, next) {
 		.then(function(choice_prices) {
 			amount += choice_prices.reduce((a,b) => a+b, 0);
 			var username = (booking.username !== null) ? booking.username : booking.booked_by;
-			return User.findByUsername(username);
-		})
-		.then(function(user) {
 			var name = (booking.username !== null) ? booking.username : booking.guestname;
-			return user.setDebtForBooking(ticketName, "Ticket for "+name, amount, booking.id);
+			return booking.setDebtForBooking(username, ticketName, "Ticket for "+name, amount);
 		})
 		.then(function() {
 			return Event.findById(parseInt(req.body.event_id));
