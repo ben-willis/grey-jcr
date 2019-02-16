@@ -5,9 +5,12 @@ import AddDebtRequest from "./models/AddDebtRequest";
 import Debt from "./entities/Debt";
 
 export default class DebtsService extends DebtsClient {
-    constructor(private debtsRepo: Repository<Debt>) {
+    constructor(dbConnection: Connection) {
         super();
+        this.debtsRepo = dbConnection.getRepository(Debt);
     };
+
+    private debtsRepo: Repository<Debt>;
 
     async addDebt(addDebtRequest: AddDebtRequest): Promise<Debt> {
         return this.debtsRepo.save({

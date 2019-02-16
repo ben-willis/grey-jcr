@@ -15,7 +15,7 @@ describe("Debts service", () => {
     before(async () => {
         connection = await createConnection("grey");
         debtsRepo = connection.getRepository(Debt);
-        debtsService = new DebtsService(debtsRepo);
+        debtsService = new DebtsService(connection);
     });
 
     beforeEach(async () => {

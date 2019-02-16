@@ -5,6 +5,8 @@ import cors from "cors";
 import getNewsRouter from "./news/newsRouter";
 import NewsService from "./news/NewsService";
 import { getConnection } from "typeorm";
+import DebtsService from './debts/DebtsService';
+import DebtsRouter from './debts/DebtsRouter';
 
 var express = require('express');
 var path = require('path');
@@ -136,7 +138,10 @@ app.use('/', routes);
 app.use('/admin/', admin);
 
 const newsService = new NewsService(databaseConnection);
+const debtsService = new DebtsService(databaseConnection);
+
 app.use("/api/news/", getNewsRouter(newsService));
+app.use("/api/debts/", new DebtsRouter(debtsService).router);
 
 app.use("/files/", (req, res, next) => {
     res.sendFile(process.env.FILES_DIRECTORY + decodeURIComponent(req.path));
