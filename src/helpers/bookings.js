@@ -5,7 +5,12 @@ var Ticket = require('../models/ticket');
 var Booking = require('../models/booking');
 var User = require('../models/user');
 
-bookings_manager = {
+import DebtsService from "../debts/DebtsService";
+import { getConnection } from "typeorm";
+
+const debtsService = new DebtsService(getConnection("grey"));
+
+const bookings_manager = {
 	queue: [],
     processing: false,
 	processQueue: function() {
@@ -67,8 +72,9 @@ bookings_manager = {
 							var user = null;
 							return User.findByUsername(username).then(function(data) {
 								user = data;
-								return user.getDebt();
-							}).then(function(debt){
+								return debtsService.getDebts(user.username);
+							}).then(function(debts){
+								const debt = debts.reduce((a, b) => a + b.amount, 0);
 								if (debt > 0 && !ticket.allow_debtors) {
 									throw httpError(400, user.name+" is a debtor and debtors are blocked");
 								}

@@ -1,6 +1,11 @@
 var db = require('../helpers/db');
 var httpError = require('http-errors');
 
+import DebtsService from "../debts/DebtsService";
+import { getConnection } from "typeorm";
+
+const debtsService = new DebtsService(getConnection("grey"));
+
 /* Booking Object*/
 var Booking = function (data) {
     this.id = data.id;
@@ -11,13 +16,13 @@ var Booking = function (data) {
     this.event_id = data.event_id;
     this.ticket_id = data.ticket_id;
     this.choices = [];
-
+    this.debt_id = data.debt_id;
 };
 
 Booking.prototype.updateNotes = function(notes) {
     return db('bookings').where({id: this.id}).update({
         notes: notes
-    }).then(function(id){
+    }).then(() => {
         this.notes = notes;
     });
 };
@@ -46,10 +51,31 @@ Booking.prototype.setChoices = function(choices) {
                 };
             })
         );
-    }).then(function() {
+    }).then(() => {
         this.choices = choices;
-        return;
     });
+};
+
+Booking.prototype.setDebtForBooking = function(username, name, message, amount) {
+    if (this.debt_id) {
+        return debtsService.updateDebt(this.debt_id, {
+            name,
+            message,
+            amount
+        });
+    } else {
+        return debtsService.addDebt({
+            name,
+            message,
+            amount,
+            username
+        }).then((debt) => {
+            this.debt_id = debt.id;
+            return db("bookings").update({
+                debt_id: debt.id
+            }).where("id", "=", this.id);
+        });
+    }
 };
 
 

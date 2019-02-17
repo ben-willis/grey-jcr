@@ -5,6 +5,13 @@ import cors from "cors";
 import getNewsRouter from "./news/newsRouter";
 import NewsService from "./news/NewsService";
 import { getConnection } from "typeorm";
+import DebtsService from './debts/DebtsService';
+import DebtsRouter from './debts/DebtsRouter';
+
+const databaseConnection = getConnection("grey");
+
+const newsService = new NewsService(databaseConnection);
+const debtsService = new DebtsService(databaseConnection);
 
 var express = require('express');
 var path = require('path');
@@ -89,9 +96,9 @@ passport.deserializeUser(function (username, done) {
             }
         };
         current_user.roles = roles;
-        return current_user.getDebt()
-    }).then(function(debt){
-        current_user.debt = debt;
+        return debtsService.getDebts(current_user.username);
+    }).then(function(debts){
+        current_user.debt = debts.reduce((a, b) => a + b.amount, 0);
         done(null, current_user);
     }).catch(function (err) {
         return done(err);
@@ -130,13 +137,11 @@ app.use(function (req, res, next) {
 });
 
 /* ROUTING AND ERRORS */
-const databaseConnection = getConnection("grey");
-
 app.use('/', routes);
 app.use('/admin/', admin);
 
-const newsService = new NewsService(databaseConnection);
 app.use("/api/news/", getNewsRouter(newsService));
+app.use("/api/debts/", new DebtsRouter(debtsService).router);
 
 app.use("/files/", (req, res, next) => {
     res.sendFile(process.env.FILES_DIRECTORY + decodeURIComponent(req.path));

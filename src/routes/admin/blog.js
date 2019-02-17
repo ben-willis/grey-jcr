@@ -4,7 +4,6 @@ var router = express.Router();
 import NewsService from "../../news/NewsService";
 import { getConnection } from "typeorm";
 
-
 const newsService = new NewsService(getConnection("grey"));
 
 /* GET blog page. */

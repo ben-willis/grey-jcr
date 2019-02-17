@@ -119,42 +119,6 @@ describe('User Object', function() {
         });
     });
 
-    it("should get its total debt and all debts", function(done) {
-        current_user.getDebt().then(function(amount) {
-            expect(amount).to.equal(10)
-            return current_user.getDebts();
-        }).then(function(debts) {
-            expect(debts).to.have.length(1)
-            done();
-        }).catch(function(err){
-            done(err);
-        })
-    });
-
-    it("should pay its debt", function(done) {
-        current_user.payDebt("Test Payment", "message", 10)
-            .then(function() {
-                return current_user.getDebt();
-            }).then(function(amount) {
-                expect(amount).to.equal(0);
-                done();
-            }).catch(function(err){
-                done(err);
-            })
-    });
-
-    it("should add to its debt", function(done) {
-        current_user.addDebt("Test Debt 2", "Message", 10)
-            .then(function() {
-                return current_user.getDebt();
-            }).then(function(amount) {
-                expect(amount).to.equal(20);
-                done();
-            }).catch(function(err){
-                done(err);
-            })
-    });
-
     it("should assign itself to a role", function(done) {
         current_user.assignRole(fake_role_id).then(function() {
             return db('user_roles').select().where({

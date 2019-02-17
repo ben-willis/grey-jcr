@@ -26,7 +26,7 @@ export default class MockNewsService extends NewsClient {
     }
 
     async createArticle(createArticleRequest: CreateArticleRequest): Promise<Article> {
-    return {
+        return {
             id: 1,
             title: createArticleRequest.title,
             slug: createArticleRequest.title,
