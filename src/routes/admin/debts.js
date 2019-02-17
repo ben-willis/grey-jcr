@@ -10,6 +10,11 @@ var mime = require('mime');
 
 var User = require('../../models/user');
 
+import DebtsService from "../../debts/DebtsService";
+import { getConnection } from "typeorm";
+
+const debtsService = new DebtsService(getConnection("grey"));
+
 router.use(function (req, res, next) {
 	if (req.user.level < 5) {
 		return next(httpError(403));
@@ -51,34 +56,27 @@ router.get('/totals.csv', function (req, res, next) {
 });
 
 /* GET debts page. */
-router.get('/:username', function (req, res, next) {
-	var user;
-	User.findByUsername(req.params.username)
-		.then(function(data) {
-			user = data;
-			return user.getDebts();
-		})
-		.then(function (debts) {
-			res.render('admin/debts_individual', {debts: debts, debtor: user});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+router.get('/:username', async function (req, res, next) {
+	try {
+		const debtor = await User.findByUsername(req.params.username);
+		const debts = await debtsService.getDebts(req.params.username);
+		res.render("admin/debts_individual", {debts, debtor});
+	} catch (err) {
+		next(err);
+	}
 });
 
 /* POST a new debt */
 router.post('/:username', function (req, res, next) {
 	var amount = Math.floor(req.body.amount*100);
-	User.findByUsername(req.params.username)
-		.then(function(user) {
-			return user.addDebt(req.body.name, req.body.message, amount);
-		})
-		.then(function() {
-			res.redirect(303, '/admin/debts/'+req.params.username+'?post-success');
-		})
-		.catch(function (err){
-			next(err);
-		});
+	debtsService.addDebt({
+		name: req.body.name,
+		message: req.body.message,
+		amount,
+		username: req.params.username
+	}).then(function() {
+		res.redirect(303, '/admin/debts/'+req.params.username+'?post-success');
+	}).catch(next);
 });
 
 /* POST a batch of debts */
@@ -90,25 +88,18 @@ router.post('/', upload.single('debts'), function(req, res, next){
 			if (err) return next(err);
 			Promise.all(
 				data.map(function(row){
-					return User.findByUsername(row[0]).then(function(user){
-						if (row.length != 2) throw httpError(400, "CSV should have two columns");
-						if (!Number.isInteger(Number(row[1]))) throw httpError(400, "The second column should be the amount of debt in pence");
-						return;
+					if (row.length != 2) throw httpError(400, "CSV should have two columns");
+					if (!Number.isInteger(Number(row[1]))) throw httpError(400, "The second column should be the amount of debt in pence");
+					return debtsService.addDebt({
+						name: req.body.name,
+						message: req.body.message,
+						username: row[0],
+						amount: row[1]
 					});
 				})
 			).then(function(){
-				return Promise.all(
-					data.map(function(row){
-						return User.findByUsername(row[0]).then(function(user){
-							return user.addDebt(req.body.name, req.body.message, row[1]);
-						});
-					})
-				);
-			}).then(function(){
 				res.redirect(303, '/admin/debts/?post-success');
-			}).catch(function(err){
-				return next(err);
-			});
+			}).catch(next);
 		});
 	});
 });

@@ -20,6 +20,11 @@ var User = require('../../models/user');
 var valentines = require('../../models/valentines');
 
 
+import DebtsService from "../../debts/DebtsService";
+import { getConnection } from "typeorm";
+
+const debtsService = new DebtsService(getConnection("grey"));
+
 /* GET events page. */
 router.get('/', function (req, res, next) {
 	Promise.all([
@@ -90,7 +95,11 @@ router.get('/valentines/close', function(req, res, next) {
 router.get('/valentines/debts', function(req, res, next) {
 	valentines.getDebts().then(function(debtors) {
 		Promise.all(debtors.map(function(debtor) {
-			return User.addDebtToUsername(debtor.username, 'Valentines Swapping', '', debtor.debt);
+			return debtsService.addDebt({
+				name: "Valentines Swapping",
+				amount: debtor.debt,
+				username: debtor.username
+			});
 		}));
 	}).then(function(){
 		return valentines.clearDebts();

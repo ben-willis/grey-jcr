@@ -12,6 +12,11 @@ var User = require('../models/user');
 var Election = require('../models/election');
 var Room = require('../models/room');
 
+import DebtsService from "../debts/DebtsService";
+import { getConnection } from "typeorm";
+
+const debtsService = new DebtsService(getConnection("grey"));
+
 /* GET room booking page */
 router.get('/rooms/', function (req, res, next) {
 	var week_offset = (req.query.week_offset) ? req.query.week_offset : 0;
@@ -260,20 +265,17 @@ paypal.configure({
 
 /* GET the debts page */
 router.get('/debt', function (req, res, next) {
-	Promise.all([
-		req.user.getDebt(),
-		req.user.getDebts()
-	]).then(function (data) {
-		res.render('services/debt', {debts: data[1], total_debt: data[0]});
-	}).catch(function (err) {
-		next(err);
-	});
+	debtsService.getDebts(req.user.username).then((debts) => {
+		const total_debt = debts.reduce((a, b) => a + b.amount, 0);
+		res.render('services/debt', {debts, total_debt});
+	}).catch(next);
 });
 
 /* GET pay a debt */
 router.get('/debt/pay', function (req, res, next){
 	var host = req.get('host');
-	req.user.getDebt().then(function (debt) {
+	debtsService.getDebts(req.user.username).then(function(debts) {
+		const debt = debts.reduce((a, b) => a + b.amount, 0);
 		var payment = {
 			"intent": "sale",
 			"payer": {
@@ -318,12 +320,10 @@ router.get('/debt/pay', function (req, res, next){
 
 /* GET the confirmation page */
 router.get('/debt/pay/confirm', function (req, res, next) {
-	req.user.getDebt().then(function(debt) {
-		res.render('services/debt_confirm', {"payerId": req.query.PayerID, debt_amount: debt});
-	})
-	.catch(function (err) {
-		next(err);
-	});
+	debtsService.getDebts(req.user.username).then(function(debts) {
+		const debt_amount = debts.reduce((a, b) => a + b.amount, 0);
+		res.render('services/debt_confirm', {"payerId": req.query.PayerID, debt_amount});
+	}).catch(next);
 });
 
 /* GET execute the payment */
@@ -333,14 +333,17 @@ router.get('/debt/pay/execute', function (req, res, next) {
 
 	paypal.payment.execute(paymentId, { 'payer_id': PayerID }, function (err, payment) {
 	    if (err) return next(err);
-	    var amount = Math.floor(parseFloat(payment.transactions[0].amount.total)*100);
+	    var amount = -1 * Math.floor(parseFloat(payment.transactions[0].amount.total)*100);
 	   	var paymentid = payment.transactions[0].related_resources[0].sale.id;
-	   	delete req.session.paymentId;
-		req.user.payDebt('PayPal Payment', 'Payment ID: '+paymentid, amount).then(function(){
+		delete req.session.paymentId;
+		debtsService.addDebt({
+			name: "PayPal Payment",
+			message: "Payment ID: " + paymentid,
+			amount,
+			username: req.user.username
+		}).then(function(){
 	    	res.redirect(303, '/services/debt');
-	    }).catch(function (err) {
-	    	next(err);
-	    });
+	    }).catch(next);
   	});
 });
 

@@ -35,39 +35,12 @@ User.prototype.delete = function(){
     return db('users').del().where('username', this.username);
 };
 
-User.prototype.getDebt = function() {
-    return db('debts')
-        .sum('amount as total_debt')
-        .where('username', this.username)
-        .first()
-        .then(function(data) {
-            if(!data.total_debt) return 0;
-            return parseInt(data.total_debt);
-        });
-};
-
-User.prototype.getDebts = function() {
-    return db('debts')
-        .select()
-        .orderBy('debt_added', 'desc')
-        .where('username', this.username);
-};
-
 User.prototype.addDebt = function(name, message, amount) {
     return db('debts').insert({
         username: this.username,
         name: name,
         message: message,
         amount: amount
-    });
-};
-
-User.prototype.payDebt = function(name, message, amount) {
-    return db('debts').insert({
-        username: this.username,
-        name: name,
-        message: message,
-        amount: -amount
     });
 };
 
@@ -200,15 +173,6 @@ User.getDebtors = function() {
                 return debtor;
             });
         });
-};
-
-User.addDebtToUsername = function(username, name, message, amount) {
-    return db('debts').insert({
-        username: username,
-        name: name,
-        message: message,
-        amount: amount
-    });
 };
 
 module.exports = User;
