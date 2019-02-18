@@ -25,7 +25,7 @@ export default class DebtsService extends DebtsClient {
     async updateDebt(debtId: number, addDebtRequest: AddDebtRequest): Promise<Debt> {
         const debt = await this.debtsRepo.findOneOrFail(debtId);
         const updatedDebt = this.debtsRepo.merge(debt, addDebtRequest);
-        
+
         return this.debtsRepo.save(updatedDebt);
     }
 
@@ -34,7 +34,10 @@ export default class DebtsService extends DebtsClient {
     }
 
     async getDebts(username: string): Promise<Debt[]> {
-        return this.debtsRepo.find({where: {username}});
+        return this.debtsRepo.createQueryBuilder("debt")
+            .where("debt.username = :username", { username: username })
+            .orderBy("debt.debt_added",  "DESC")
+            .getMany();
     }
 
     async getDailyDebts(): Promise<Array<{date: Date, amount: number}>> {
