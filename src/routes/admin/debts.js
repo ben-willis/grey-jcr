@@ -60,19 +60,7 @@ router.get('/:username', async function (req, res, next) {
 	try {
 		const debtor = await User.findByUsername(req.params.username);
 		const debts = await debtsService.getDebts(req.params.username);
-		const sortedDebts = debts.sort((debtA, debtB) => {
-			let dateA = new Date(debtA.added);
-			let dateB = new Date(debtB.added);
-
-			console.log(dateA + ' | ' + dateB);
-
-			if (dateA < dateB) {
-				return 1;
-			}
-			return -1;
-		});
-
-		res.render("admin/debts_individual", {debts: sortedDebts, debtor});
+		res.render("admin/debts_individual", {debts, debtor});
 	} catch (err) {
 		next(err);
 	}
