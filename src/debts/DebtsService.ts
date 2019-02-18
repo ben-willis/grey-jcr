@@ -42,9 +42,9 @@ export default class DebtsService extends DebtsClient {
 
     async getDailyDebts(): Promise<Array<{date: Date, amount: number}>> {
         const rawDailyTotals = await this.debtsRepo.createQueryBuilder("debt")
-            .select("date(debt.debt_added), sum(debt.amount)")
-            .groupBy("date(debt.debt_added)")
-            .orderBy("date(debt.debt_added)", "DESC")
+            .select("date(debt.added), sum(debt.amount)")
+            .groupBy("date(debt.added)")
+            .orderBy("date(debt.added)")
             .getRawMany();
 
         let runningTotal = 0;
