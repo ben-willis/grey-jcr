@@ -336,15 +336,26 @@ router.get('/debt/pay/execute', function (req, res, next) {
 	    var amount = -1 * Math.floor(parseFloat(payment.transactions[0].amount.total)*100);
 	   	var paymentid = payment.transactions[0].related_resources[0].sale.id;
 		delete req.session.paymentId;
-		debtsService.addDebt({
-			name: "PayPal Payment",
-			message: "Payment ID: " + paymentid,
-			amount,
-			username: req.user.username
-		}).then(function(){
-	    	res.redirect(303, '/services/debt');
-	    }).catch(next);
-  	});
+
+		debtsService.getDebts(req.user.username).then(function(debts) {
+			var duplicate = debts.find(function(debt) {
+				return debt.message === "Payment ID: " + paymentid;
+			});
+
+			if (duplicate) {
+				return res.redirect(303, '/services/debt');
+			}
+
+			debtsService.addDebt({
+				name: "PayPal Payment",
+				message: "Payment ID: " + paymentid,
+				amount,
+				username: req.user.username
+			}).then(function(){
+					res.redirect(303, '/services/debt');
+				}).catch(next);
+			});
+		}).catch(next);
 });
 
 
