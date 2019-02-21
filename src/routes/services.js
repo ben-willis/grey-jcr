@@ -343,6 +343,7 @@ router.get('/debt/pay/execute', function (req, res, next) {
 			});
 
 			if (duplicate) {
+				console.log('Duplicated PayPal debt found. ID: ' + duplicate.id);
 				return res.redirect(303, '/services/debt');
 			}
 
