@@ -8,6 +8,7 @@ addons:
 before_script:
   - NODE_ENV=production npm run build
   - psql -c 'CREATE DATABASE "grey-test";' -U postgres
+  - cd $TRAVIS_BUILD_DIR; mkdir --verbose tmp avatars events manifestos uploaded ; cd -
   - npm run migrate
 
 before_deploy:
