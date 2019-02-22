@@ -47,7 +47,7 @@ sessions
 
 # Files
 src/public/files
-files
+/files
 postgres-data
 session-data
 tmp

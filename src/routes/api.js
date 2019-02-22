@@ -5,7 +5,6 @@ var prettydate = require('pretty-date');
 var httpError = require('http-errors');
 
 var User = require('../models/user');
-var Folder = require('../models/folder');
 var Role = require('../models/role');
 var Event = require('../models/event');
 var Blog = require('../models/blog');
@@ -13,9 +12,12 @@ var Election = require('../models/election');
 var Feedback = require('../models/feedback');
 
 import NewsService from "../news/NewsService";
+
 import { getConnection } from "typeorm";
 
-const newsService = new NewsService(getConnection("grey"));
+const connection = getConnection("grey");
+
+const newsService = new NewsService(connection);
 
 // The main site search
 router.get('/search/', function (req, res, next) {
@@ -97,21 +99,6 @@ router.get('/users/:username/avatar', function (req, res, next) {
 		}
 	});
 
-});
-
-router.get('/files/:folder_id', function (req, res, next) {
-	var current_folder = null;
-	Folder.findById(parseInt(req.params.folder_id)).then(function(folder) {
-		current_folder = folder;
-		return Promise.all([
-			current_folder.getSubfolders(),
-			current_folder.getFiles()
-		]);
-	}).then(function (data) {
-		res.json({"current": current_folder, "folders": data[0], "files": data[1]});
-	}).catch(function (err) {
-		next(err);
-	});
 });
 
 // Needed for menu notifications

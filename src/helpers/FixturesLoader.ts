@@ -2,6 +2,7 @@ import { Connection } from "typeorm";
 
 import {articles} from "../news/tests/newsFixtures";
 import DebtsFixtures from "..//debts/tests/DebtsFixtures";
+import FileFixtureManager from "../files/tests/FileFixtureManager";
 
 export default class FixturesLoader {
     constructor(private connection: Connection) {};
@@ -16,6 +17,7 @@ export default class FixturesLoader {
             fixturesRepo.save(this.fixtureSets[fixture]);
         })).then(() => {
             new DebtsFixtures(this.connection.getRepository("Debt")).load();
+            new FileFixtureManager(this.connection.getRepository("File"), this.connection.getRepository("Folder")).load();
         });
     }
 }

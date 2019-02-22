@@ -29,46 +29,45 @@ html
 								tbody
 
 						script.
-							var parent = 0;
 							var current = !{user.roles[0].folder.id};
 							function getFiles(dirid) {
 								parent = current;
 								$('.files.table').addClass("loading");
 								$('.files.table tbody').html("");
-								$.get('/api/files/'+dirid, function (data) {
+								$.get('/api/files/folders/'+dirid, function (folder) {
 									$('.curdir').val(dirid);
 									$('.files.table').removeClass("loading");
-									current = data.current;
-									if (current.parent_id != 0) {
+									current = folder.id;
+									if (folder.parentId) {
 										$('.files.table tbody').append(
-											"<tr><td colspan='3'><a class='directory link' data-id="+current.parent_id+" href='#'><i class='level up icon'></i>Up a level</a></td></tr>"
+											"<tr><td colspan='3'><a class='directory link' data-id="+folder.parentId+" href='#'><i class='level up icon'></i>Up a level</a></td></tr>"
 										);
 									}
-									for (i=0; i<data.folders.length; i++) {
+									for (i=0; i<folder.subfolders.length; i++) {
 										var directory = "<tr>";
 										directory += "<td>";
 										directory += "<i class='folder icon'></i>";
-										directory += "<a class='directory link' data-id='"+data.folders[i].id+"' href='#'>"+data.folders[i].name+"</a>";
+										directory += "<a class='directory link' data-id='"+folder.subfolders[i].id+"' href='#'>"+folder.subfolders[i].name+"</a>";
 										directory += "</td>";
 										directory += "<td></td>";
 										directory += "<td>";
-										directory += "<a href='/admin/files/"+current.id+"/deletefolder/"+data.folders[i].id+"' class='ui negative small button' onclick=\"return confirm('Are you sure you want to delete this folder?');\"><i class='delete icon'></i>Delete</a>";
+										directory += "<a href='/admin/files/"+current.id+"/deletefolder/"+folder.subfolders[i].id+"' class='ui negative small button' onclick=\"return confirm('Are you sure you want to delete this folder?');\"><i class='delete icon'></i>Delete</a>";
 										directory += "</td>"
 										directory += "</tr>";
 										$('.files.table tbody').append(directory);
 									}
-									for (i=0; i<data.files.length; i++) {
+									for (i=0; i<folder.files.length; i++) {
 										var file = "<tr>";
 										file += "<td>";
 										file += "<i class='file icon'></i>";
-										file +="<a href='/files/uploaded/"+data.files[i].path+"' class='item'>";
-										file += data.files[i].name;
+										file +="<a href='/api/files/"+folder.files[i].id+"/download/"+folder.files[i].path+"' class='item'>";
+										file += folder.files[i].name;
 										file += "</a></td>";
 										file += "<td>";
-										file += (new Date(data.files[i].updated)).toDateString();
+										file += (new Date(folder.files[i].updated)).toDateString();
 										file += "</td>";
 										file += "<td>";
-										file += "<a href='/admin/files/"+current.id+"/deletefile/"+data.files[i].id+"' class='ui negative small button' onclick=\"return confirm('Are you sure you want to delete this file?');\"><i class='delete icon'></i>Delete</a>";
+										file += "<a href='/admin/files/"+current.id+"/deletefile/"+folder.files[i].id+"' class='ui negative small button' onclick=\"return confirm('Are you sure you want to delete this file?');\"><i class='delete icon'></i>Delete</a>";
 										file += "</td>"
 										file += "</tr>";
 										$('.files.table tbody').append(file);

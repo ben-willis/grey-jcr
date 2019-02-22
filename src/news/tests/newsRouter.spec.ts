@@ -1,4 +1,4 @@
-import * as chai from "chai";
+import chai from "chai";
 import { expect } from "chai";
 import chaiHttp from "chai-http";
 import "mocha";
