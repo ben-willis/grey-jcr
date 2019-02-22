@@ -4,7 +4,13 @@ var router = express.Router();
 var User = require('../models/user');
 var Role = require('../models/role');
 var Blog = require('../models/blog');
-var Folder = require('../models/folder');
+
+import FileServiceImpl from "../files/FileServiceImpl";
+import { getConnection } from "typeorm";
+
+const connection = getConnection("grey");
+
+const fileService = new FileServiceImpl(connection.getRepository("File"), connection.getRepository("Folder"));
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -54,7 +60,7 @@ router.get('/blog/:role_slug', function (req, res, next) {
 			role,
 			Blog.get(role.id),
 			role.getUsers(),
-			Folder.findForRole(role.id)
+			fileService.getFolderForOwner(role.id)
 		]);
 	}).then(function(data) {
 		data[0].users = data[2];

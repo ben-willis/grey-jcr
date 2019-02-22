@@ -7,11 +7,16 @@ import NewsService from "./news/NewsService";
 import { getConnection } from "typeorm";
 import DebtsService from './debts/DebtsService';
 import DebtsRouter from './debts/DebtsRouter';
+import FileServiceImpl from "./files/FileServiceImpl";
+import FileRouter from "./files/FileRouter";
+
+const connection = getConnection("grey");
 
 const databaseConnection = getConnection("grey");
 
 const newsService = new NewsService(databaseConnection);
 const debtsService = new DebtsService(databaseConnection);
+const fileService = new FileServiceImpl(connection.getRepository("File"), connection.getRepository("Folder"));
 
 var express = require('express');
 var path = require('path');
@@ -49,7 +54,6 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 var User = require('./models/user');
-var Folder = require('./models/folder')
 
 app.use(favicon(path.join(__dirname, 'ui', 'favicon.ico')));
 app.use(logger('dev'));
@@ -82,7 +86,7 @@ passport.deserializeUser(function (username, done) {
     }).then(function(roles) {
         return Promise.all(
             roles.map(function(role) {
-                return Folder.findForRole(role.id).then(function(folder) {
+                return fileService.getFolderForOwner(role.id).then((folder) => {
                     role.folder = folder;
                     return role;
                 });
@@ -142,6 +146,7 @@ app.use('/admin/', admin);
 
 app.use("/api/news/", getNewsRouter(newsService));
 app.use("/api/debts/", new DebtsRouter(debtsService).router);
+app.use("/api/files/", new FileRouter(fileService).router);
 
 app.use("/files/", (req, res, next) => {
     res.sendFile(process.env.FILES_DIRECTORY + decodeURIComponent(req.path));

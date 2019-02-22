@@ -52,9 +52,9 @@ describe("File Service", () => {
         const parentFolder = fileFixtureManager.folders[0];
         const testFileTmpPath = path.join(__dirname, "../../../tmp/testFile.txt");
         fs.writeFileSync(testFileTmpPath, "Test File");
-        return fileService.uploadFile("Test File", testFileTmpPath, parentFolder.id).then((file) => {
+        return fileService.uploadFile("Test File", testFileTmpPath, "text/plain", parentFolder.id).then((file) => {
             expect(file.name).to.equal("Test File");
-            expect(fs.existsSync(file.path)).to.be.true;
+            expect(fs.existsSync(path.join(process.env.FILES_DIRECTORY, "uploaded", file.path))).to.be.true;
             return file.parent;
         }).then((parent) => {
             expect(parent.name).to.equal(parentFolder.name);
@@ -74,6 +74,13 @@ describe("File Service", () => {
             expect(folder.name).to.equal(folderToGet.name);
             expect(folder.subfolders).to.have.length(folderToGet.subfolders.length);
             expect(folder.files).to.have.length(folderToGet.files.length);
+        });
+    });
+
+    it("should get a folder for an owner", () => {
+        const folderToGet = fileFixtureManager.folders.filter(f => f.owner)[0];
+        return fileService.getFolderForOwner(folderToGet.owner).then((folder) => {
+            expect(folder.name).to.equal(folderToGet.name);
         });
     });
 

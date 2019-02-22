@@ -1,5 +1,6 @@
 import express, { Router } from "express";
 import FileService from "./FileService";
+import path from "path";
 
 export default class FileRouter {
     public router: Router;
@@ -19,9 +20,9 @@ export default class FileRouter {
             }).catch(next);
         });
 
-        this.router.get("/:fileId/download", (req, res, next) => {
+        this.router.get("/:fileId/download/:fileName", (req, res, next) => {
             fileService.getFile(Number(req.params.fileId)).then((file) => {
-                res.sendFile(file.path);
+                res.sendFile(path.join(process.env.FILES_DIRECTORY, "uploaded", file.path));
             }).catch(next);
         });
     }

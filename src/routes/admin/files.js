@@ -1,16 +1,16 @@
 var express = require('express');
 var router = express.Router();
-var validator = require('validator');
 var multer = require('multer');
 var upload = multer({dest: __dirname+'/../../../tmp'});
-var mv = require('mv');
-var mime = require('mime');
 var httpError = require('http-errors');
-var slug = require('slug');
-var shortid = require('shortid');
 var httpError = require('http-errors');
 
-var Folder = require('../../models/folder');
+import FileServiceImpl from "../../files/FileServiceImpl";
+import { getConnection } from "typeorm";
+
+const connection = getConnection("grey");
+
+const fileService = new FileServiceImpl(connection.getRepository("File"), connection.getRepository("Folder"));
 
 router.use(function (req, res, next) {
 	if (req.user.level < 4) {
@@ -26,54 +26,33 @@ router.get('/', function (req, res, next) {
 });
 
 router.post('/newfolder', function (req, res, next) {
-	Folder.findById(parseInt(req.body.folder)).then(function(folder){
-		folder.createSubfolder(req.body.name);
-	}).then(function () {
+	fileService.createFolder(req.body.name, Number(req.body.folder)).then((folder) => {
 		res.redirect(303, '/admin/files');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.get('/:folder_id/deletefolder/:subfolder_id', function (req, res, next) {
-	Folder.findById(parseInt(req.params.folder_id)).then(function(folder){
-		return folder.removeSubfolder(parseInt(req.params.subfolder_id));
-	}).then(function () {
+	fileService.deleteFileOrFolder("FOLDER", Number(req.params.subfolder_id)).then(() => {
 		res.redirect(303, '/admin/files');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.post('/uploadfile', upload.single('file'), function (req, res, next) {
-	var current_folder = null;
-	Folder.findById(parseInt(req.body.folder)).then(function(folder){
-		current_folder = folder;
-		return new Promise(function(resolve, reject) {
-			if (!req.file) return reject(httpError(400, "No file submitted"));
-			var file_name = slug(req.body.name)+"-"+shortid.generate()+"."+mime.extension(req.file.mimetype);
-			mv(req.file.path, process.env.FILES_DIRECTORY+'/uploaded/'+file_name, function (err) {
-				if(err) return reject(err);
-				return resolve(file_name);
-			});
-		});
-	}).then(function(file_name) {
-		return current_folder.createFile(req.body.name, req.body.description, file_name);
-	}).then(function (){
+	fileService.uploadFile(
+		req.body.name,
+		req.file.path,
+		req.file.mimetype,
+		Number(req.body.folder),
+		req.body.description,
+	).then((file) => {
 		res.redirect(303, '/admin/files');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.get('/:folder_id/deletefile/:file_id', function (req, res, next) {
-	Folder.findById(parseInt(req.params.folder_id)).then(function(folder){
-		return folder.removeFile(parseInt(req.params.file_id));
-	}).then(function () {
+	fileService.deleteFileOrFolder("FILE", Number(req.params.file_id)).then(() => {
 		res.redirect(303, '/admin/files');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 module.exports = router;

@@ -23,11 +23,15 @@ export default class MockFileServiceImp implements FileService {
         return folder;
     }
 
+    async getFolderForOwner(owner: number): Promise<Folder> {
+        throw new Error("Method not implemented.");
+    }
+
     async createFolder(name: string, parentId?: number, owner?: number): Promise<Folder> {
         throw new Error("Method not implemented.");
     }
 
-    async uploadFile(name: string, tmpPath: string, folderId: number, description?: string): Promise<File> {
+    async uploadFile(name: string, tmpPath: string, mimeType: string, folderId: number, description?: string): Promise<File> {
         throw new Error("Method not implemented.");
     }
 

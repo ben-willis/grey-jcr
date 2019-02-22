@@ -6,6 +6,7 @@ import slugify from "slugify";
 import FileService from "./FileService";
 import Folder from "./entities/Folder";
 import File from "./entities/File";
+import mime from "mime";
 
 export default class FileServiceImpl implements FileService {
     private fileRepo: Repository<File>;
@@ -22,6 +23,13 @@ export default class FileServiceImpl implements FileService {
     
     async getFolder(folderId: number): Promise<Folder> {
         return this.folderRepo.findOneOrFail(folderId, {relations: ["subfolders", "files"]});
+    }
+
+    async getFolderForOwner(owner: number): Promise<Folder> {
+        return this.folderRepo.findOneOrFail({
+            where: {owner},
+            relations: ["subfolders", "files"]
+        });
     }
 
     async createFolder(name: string, parentId?: number, owner?: number): Promise<Folder> {
@@ -42,27 +50,32 @@ export default class FileServiceImpl implements FileService {
         return this.folderRepo.save(newFolder);
     }
 
-    async uploadFile(name: string, tmpPath: string, folderId: number, description?: string): Promise<File> {
+    async uploadFile(name: string, tmpPath: string, mimeType: string, folderId: number, description?: string): Promise<File> {
         const file = new File();
         file.name = name;
         file.description = description;
-        file.path = await this.moveFileFromTmp(name, tmpPath);
-        file.parent = this.folderRepo.findOneOrFail(folderId);
+        file.path = await this.moveFileFromTmp(name, tmpPath, mimeType);
+        file.parent = Promise.resolve(await this.folderRepo.findOneOrFail(folderId));
 
         return this.fileRepo.save(file);
     }
 
-    async moveFileFromTmp(name: string, tmpPath: string): Promise<string> {
-        const newName = slugify(name) + "-" + (+new Date * Math.random()).toString(36).substr(2, 5);
-        const fileExtensoion = /(?:\.([^.]+))?$/.exec(tmpPath);
-        const newPath = path.join(process.env.FILES_DIRECTORY, newName + "." + fileExtensoion);
+    async moveFileFromTmp(name: string, tmpPath: string, mimeType: string): Promise<string> {
+        const newName = [
+            slugify(name),
+            "-",
+            (+new Date * Math.random()).toString(36).substr(2, 5),
+            ".",
+            mime.getExtension(mimeType)
+        ].join("");
+        const newPath = path.join(process.env.FILES_DIRECTORY, "uploaded", newName);
 
         return new Promise((resolve, reject) => {
             fs.rename(tmpPath, newPath, (err) => {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(newPath);
+                    resolve(newName);
                 }
             });
         });

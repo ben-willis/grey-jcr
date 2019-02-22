@@ -4,7 +4,13 @@ var validator = require('validator');
 var httpError = require('http-errors');
 
 var Role = require('../../models/role');
-var Folder = require('../../models/folder');
+
+import FileServiceImpl from "../../files/FileServiceImpl";
+import { getConnection } from "typeorm";
+
+const connection = getConnection("grey");
+
+const fileService = new FileServiceImpl(connection.getRepository("File"), connection.getRepository("Folder"));
 
 router.use(function (req, res, next) {
 	if (req.user.level < 3) {
@@ -52,14 +58,12 @@ router.post('/new', function (req, res, next) {
 	}
 	Role.create(req.body.title, parseInt(req.body.level)).then(function (role) {
 		if (role.level == 4 || role.level == 5) {
-			return Folder.create(role.title, role.id);
+			return fileService.createFolder(role.title, undefined, role.id);
 		}
 		return;
 	}).then(function(){
 		res.redirect('/admin/roles');
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.post('/:role_id/addUser', function (req, res, next) {

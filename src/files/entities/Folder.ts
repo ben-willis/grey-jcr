@@ -15,6 +15,9 @@ export default class Folder extends BaseEntity {
     @JoinColumn({name: "parent_id"})
     public parent?: Promise<Folder>;
 
+    @Column({type: "integer", name: "parent_id", nullable: true})
+    public parentId: number;
+
     @OneToMany(type => Folder, (folder) => folder.parent)
     public subfolders: Folder[];
 

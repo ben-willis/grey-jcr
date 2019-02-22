@@ -50,9 +50,10 @@ DB_PASSWORD=password
 REDIS_HOST=localhost
 REDIS_PORT=6379
 
-# Somewhere on your machine to store static files (avatars, manifestos etc)
+# Somewhere on your machine to store static files
 FILES_DIRECTORY=/home/me/projects/grey-jcr/files/
 ```
+Inside your files directory you will need the following folders: avatars, events, uploaded, manifestos.
 
 #### 4. Build the application
 This project is migrating to typescript so we need to transpile to regular javascript. To do this run `npm run build`. You'll need to rerun this after any changes you make. You can also run `npm run build-api` or `npm run build-ui` to build just the backend or frontend individually.

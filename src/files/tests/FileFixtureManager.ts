@@ -14,15 +14,16 @@ export default class FileFixtureManager {
     }
 
     public async load(): Promise<void> {
-        const subFolder = await this.folderRepo.save({
+        const subFolder = this.folderRepo.create({
             name: "Sub Folder"
         });
 
-        const filePath = path.join(process.env.FILES_DIRECTORY, "mockFileTest.txt");
+        const fileName = "mockfiletest-3123.txt";
+        const filePath = path.join(process.env.FILES_DIRECTORY, "uploaded", fileName);
         fs.writeFileSync(filePath, "This file is a test");
         const file = await this.fileRepo.save({
             name: "Mock File",
-            path: filePath,
+            path: fileName,
         });
 
         const topLevelFolder = await this.folderRepo.save({
@@ -32,12 +33,16 @@ export default class FileFixtureManager {
             owner: 1
         });
 
+        subFolder.parent = Promise.resolve(topLevelFolder);
+        await this.folderRepo.save(subFolder);
+
         this.folders = [topLevelFolder, subFolder];
         this.files = [file];
     }
 
     public async clear(): Promise<void> {
-        this.files.map((file) => fs.unlinkSync(file.path));
+        this.files.map((file) => fs.unlinkSync(path.join(process.env.FILES_DIRECTORY, "uploaded", file.path)));
         await this.folderRepo.delete({});
+        await this.fileRepo.delete({});
     }
 }
