@@ -4,7 +4,7 @@ import Folder from "./Folder";
 @Entity({
     name: "files",
 })
-export default class Debt extends BaseEntity {
+export default class File extends BaseEntity {
     @PrimaryGeneratedColumn()
     public id: number;
 
@@ -17,7 +17,7 @@ export default class Debt extends BaseEntity {
     @Column({type: "text"})
     public path: string;
 
-    @ManyToOne(type => Folder, (folder) => folder.files)
+    @ManyToOne(type => Folder, (folder) => folder.files, {onDelete: "CASCADE"})
     @JoinColumn({name: "folder_id"})
     public parent: Promise<Folder>;
 
