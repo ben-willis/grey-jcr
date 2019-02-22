@@ -11,8 +11,8 @@ export default class Role {
     @Column({type: "varchar", length: 255})
     public title: string;
 
-    @Column({type: "text", nullable: true})
-    public description?: string;
+    @Column({type: "text"})
+    public description: string;
 
     @Column({type: "integer"})
     public level: number;

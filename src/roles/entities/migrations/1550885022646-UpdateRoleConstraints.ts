@@ -1,6 +1,6 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class AlterConstraintsOnRolesTables1550783990820 implements MigrationInterface {
+export class UpdateRoleConstraints1550885022646 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`ALTER TABLE "user_roles" DROP CONSTRAINT "user_roles_username_foreign"`);
@@ -10,6 +10,7 @@ export class AlterConstraintsOnRolesTables1550783990820 implements MigrationInte
         await queryRunner.query(`ALTER TABLE "user_roles" ALTER COLUMN "username" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "user_roles" ALTER COLUMN "role_id" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "title" SET NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "description" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "level" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "level" DROP DEFAULT`);
         await queryRunner.query(`ALTER TABLE "user_roles" ADD CONSTRAINT "FK_b23c65e50a758245a33ee35fda1" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE`);
@@ -19,6 +20,7 @@ export class AlterConstraintsOnRolesTables1550783990820 implements MigrationInte
         await queryRunner.query(`ALTER TABLE "user_roles" DROP CONSTRAINT "FK_b23c65e50a758245a33ee35fda1"`);
         await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "level" SET DEFAULT 0`);
         await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "level" DROP NOT NULL`);
+        await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "description" DROP NOT NULL`);
         await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "title" DROP NOT NULL`);
         await queryRunner.query(`ALTER TABLE "user_roles" ALTER COLUMN "role_id" DROP NOT NULL`);
         await queryRunner.query(`ALTER TABLE "user_roles" ALTER COLUMN "username" DROP NOT NULL`);

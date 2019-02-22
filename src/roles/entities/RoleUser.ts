@@ -13,5 +13,5 @@ export default class RoleUser {
 
     @ManyToOne((type) => Role, (role) => role.roleUsers, {onDelete: "CASCADE"})
     @JoinColumn({name: "role_id"})
-    public role?: Role;
+    public role: Promise<Role>;
 }

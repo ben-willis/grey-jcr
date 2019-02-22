@@ -24,7 +24,7 @@ describe('Static Methods', function() {
         }).catch(done);
     });
 
-    it("should create new roles", function(done){
+    xit("should create new roles", function(done){
         Role.create("Test Role 2", 2).then(function(role) {
             expect(role.title).to.equal("Test Role 2");
             expect(role.slug).to.equal("Test-Role-2");

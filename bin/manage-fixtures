@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+
+const FixturesLoader = require("../dist/helpers/FixturesLoader").default;
+
+const mode = process.argv[process.argv.length - 1];
+if (mode !== "load" && mode !== "clear") {
+    throw new Error("Mode must be 'load' or 'clear'");
+}
+
+require("typeorm").createConnection("grey").then((connection) => {
+    const fixturesLoader = new FixturesLoader(connection);
+    if (mode === "load") {
+        console.log("Loading fixtures");
+        return fixturesLoader.loadFixtures();
+    } else {
+        console.log("Clearing fixtures");
+        return fixturesLoader.clearFixtures();
+    }
+}).then(() => {
+    console.log("Fixtures " + mode + "ed");
+}).catch((err) => {
+    console.error("Error " + mode + "ing fixtures");
+    console.error(err);
+});
