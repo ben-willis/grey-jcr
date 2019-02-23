@@ -8,12 +8,19 @@ export default class FileFixtureManager {
     public files: File[];
     public folders: Folder[];
     
-    constructor(private fileRepo: Repository<File>, private folderRepo: Repository<Folder>) {
+    constructor(
+        private fileRepo: Repository<File>,
+        private folderRepo: Repository<Folder>,
+    ) {
         this.files = [];
         this.folders = [];
     }
 
-    public async load(): Promise<void> {
+    public async load(validRoleIds: number[]): Promise<void> {
+        if (validRoleIds.length === 0) {
+            throw new Error("Must provide valid role IDs");
+        }
+
         const subFolder = this.folderRepo.create({
             name: "Sub Folder"
         });
@@ -30,7 +37,7 @@ export default class FileFixtureManager {
             name: "Top Folder",
             subfolders: [subFolder],
             files: [file],
-            owner: 1
+            owner: validRoleIds[0]
         });
 
         subFolder.parent = Promise.resolve(topLevelFolder);

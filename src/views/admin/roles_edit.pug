@@ -12,9 +12,11 @@ html
 				h2 Edit Role
 				form(class="ui edit form" method="POST" action="/admin/roles/"+role.id+"/edit")
 					h3= role.title
+					input(name="title" value=role.title hidden)
 					div(class="field")
 						label Description
 						textarea(rows="3" name="description")=role.description
+					input(name="level" value=role.level hidden)
 					button(type="submit" class="ui submit button")
 						i(class="save icon")
 						| Save

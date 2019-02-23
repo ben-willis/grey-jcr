@@ -3,8 +3,12 @@ var router = express.Router();
 
 import NewsService from "../../news/NewsService";
 import { getConnection } from "typeorm";
+import RoleServiceImpl from '../../roles/RoleServiceImpl';
 
-const newsService = new NewsService(getConnection("grey"));
+const connection = getConnection("grey");
+
+const roleService = new RoleServiceImpl(connection.getRepository("Role"), connection.getRepository("RoleUser"));
+const newsService = new NewsService(connection, roleService);
 
 /* GET blog page. */
 router.get('/', function (req, res, next) {

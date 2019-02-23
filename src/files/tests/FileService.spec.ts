@@ -23,7 +23,7 @@ describe("File Service", () => {
         fileService = new FileServiceImpl(fileRepo, folderRepo);
     });
 
-    beforeEach(() => fileFixtureManager.load());
+    beforeEach(() => fileFixtureManager.load([1]));
 
     afterEach(() => fileFixtureManager.clear());
 

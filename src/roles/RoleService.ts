@@ -1,6 +1,6 @@
 import Role from "./entities/Role";
 
-export interface RoleService {
+export default interface RoleService {
     getRoles(level?: number): Promise<Role[]>;
     getRolesForUser(username: string): Promise<Role[]>;
     getRoleById(roleId: number): Promise<Role>;

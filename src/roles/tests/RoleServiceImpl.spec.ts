@@ -3,7 +3,7 @@ import { Repository, Connection, createConnection } from 'typeorm';
 import RoleFixtures from "./RoleFixtures";
 import RoleUser from '../entities/RoleUser';
 import Role from '../entities/Role';
-import { RoleService } from '../RoleService';
+import RoleService from '../RoleService';
 import RoleServiceImpl from '../RoleServiceImpl';
 
 describe("Role Service", () => {
@@ -21,7 +21,7 @@ describe("Role Service", () => {
         roleService = new RoleServiceImpl(roleRepo, roleUserRepo);
     });
 
-    beforeEach(() => roleFixtures.load());
+    beforeEach(() => roleFixtures.load(["aaaa11"]));
 
     afterEach(() => roleFixtures.clear());
 

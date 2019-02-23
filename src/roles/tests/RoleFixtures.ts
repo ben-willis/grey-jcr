@@ -12,9 +12,13 @@ export default class RoleFixtures {
         this.roles = [];
     };
 
-    public async load(): Promise<void> {
+    public async load(validUsernames: string[]): Promise<void> {
+        if (validUsernames.length === 0) {
+            throw new Error("Must provide valid usernames");
+        }
+
         this.roles = await this.roleRepo.save([
-            {title: "President", slug: "president", description: "", level: 4, roleUsers: []},
+            {title: "President", slug: "president", description: "", level: 5, roleUsers: []},
             {title: "FACSO", slug: "facso", description: "", level: 4, roleUsers: []},
             {title: "Secretary", slug: "secretary", description: "", level: 3, roleUsers: []},
             {title: "Welfare Officer", slug: "welfare-officer", description: "", level: 2, roleUsers: []},
@@ -22,7 +26,7 @@ export default class RoleFixtures {
         ]);
 
         let roleUser = new RoleUser();
-        roleUser.username = "aaaa11";
+        roleUser.username = validUsernames[0];
         roleUser.roleId = this.roles[0].id;
         roleUser.role = Promise.resolve(this.roles[0]);
         

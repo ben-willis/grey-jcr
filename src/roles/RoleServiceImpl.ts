@@ -1,7 +1,7 @@
 import slugify from 'slugify';
 import { Repository, FindManyOptions, In } from 'typeorm';
 
-import { RoleService } from "./RoleService";
+import RoleService from "./RoleService";
 import Role from "./entities/Role";
 import RoleUser from './entities/RoleUser';
 
@@ -33,7 +33,7 @@ export default class RoleServiceImpl implements RoleService {
     }
 
     getRoleBySlug(slug: string): Promise<Role> {
-        return this.roleRepo.findOneOrFail({where: {slug}});
+        return this.roleRepo.findOne({where: {slug}});
     }
 
     createRole(title: string, description: string, level: number): Promise<Role> {

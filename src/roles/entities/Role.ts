@@ -22,4 +22,6 @@ export default class Role {
 
     @OneToMany((type) => RoleUser, (roleUser) => roleUser.role, {eager: true})
     public roleUsers: RoleUser[];
+
+    public users?: any[];
 }

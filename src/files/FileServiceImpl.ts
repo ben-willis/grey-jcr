@@ -26,7 +26,7 @@ export default class FileServiceImpl implements FileService {
     }
 
     async getFolderForOwner(owner: number): Promise<Folder> {
-        return this.folderRepo.findOneOrFail({
+        return this.folderRepo.findOne({
             where: {owner},
             relations: ["subfolders", "files"]
         });

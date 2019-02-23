@@ -1,57 +1,38 @@
 #!/usr/bin/env node
 
-// For clustering
-var cluster = require('cluster');
+// Create DB connections
+require("typeorm").createConnections().then(() => {
 
-if (cluster.isMaster) {
-    console.log('Master ' + process.pid + ' is running');
+    /**
+     * Module dependencies.
+     */
 
-    var numCPUs = require('os').cpus().length;
+    var app = require('../dist/app');
+    var socketApi = require('../dist/helpers/socketApi');
+    var http = require('http');
 
-    // Fork workers.
-    for (let i = 0; i < numCPUs; i++) {
-        cluster.fork();
-    }
+    /**
+     * Store port in Express.
+     */
 
-    cluster.on('exit', (worker, code, signal) => {
-            console.log('worker ' + worker.process.pid + ' died');
-            cluster.fork();
-            });
-} else {
-    // Create DB connections
-    require("typeorm").createConnections().then(() => {
+    app.set('port', '3000');
 
-        /**
-         * Module dependencies.
-         */
+    /**
+     * Create HTTP server.
+     */
 
-        var app = require('../dist/app');
-        var socketApi = require('../dist/helpers/socketApi');
-        var http = require('http');
-
-        /**
-         * Store port in Express.
-         */
-
-        app.set('port', '3000');
-
-        /**
-         * Create HTTP server.
-         */
-
-        var server = http.createServer(app);
-        var io = socketApi.io;
-        io.attach(server);
+    var server = http.createServer(app);
+    var io = socketApi.io;
+    io.attach(server);
 
 
-        /**
-         * Listen on provided port, on all network interfaces.
-         */
+    /**
+     * Listen on provided port, on all network interfaces.
+     */
 
     
-        server.listen(3000);
-        server.on('error', (err) => {throw err});
+    server.listen(3000);
+    server.on('error', (err) => {throw err});
 
-        console.log('Worker ' + process.pid + ' started');
-    });
-}
+    console.log('Worker ' + process.pid + ' started');
+}).catch(console.log);

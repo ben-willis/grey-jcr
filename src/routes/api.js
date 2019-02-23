@@ -5,19 +5,20 @@ var prettydate = require('pretty-date');
 var httpError = require('http-errors');
 
 var User = require('../models/user');
-var Role = require('../models/role');
 var Event = require('../models/event');
 var Blog = require('../models/blog');
 var Election = require('../models/election');
 var Feedback = require('../models/feedback');
 
 import NewsService from "../news/NewsService";
+import RoleServiceImpl from "../roles/RoleServiceImpl";
 
 import { getConnection } from "typeorm";
 
 const connection = getConnection("grey");
 
-const newsService = new NewsService(connection);
+const roleService = new RoleServiceImpl(connection.getRepository("Role"), connection.getRepository("RoleUser"));
+const newsService = new NewsService(connection, roleService);
 
 // The main site search
 router.get('/search/', function (req, res, next) {
@@ -71,11 +72,9 @@ router.get('/events/:year/:month', function (req, res, next) {
 
 // Needed for JCR, welfare and support page
 router.get('/roles/:role_id', function(req, res, next) {
-	Role.findById(req.params.role_id).then(function(role) {
+	roleService.getRoleById(Number(req.params.role_id)).then(function(role) {
 		res.json(role);
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 // Needed for adding users to roles etc

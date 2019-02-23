@@ -9,12 +9,14 @@ import DebtsService from './debts/DebtsService';
 import DebtsRouter from './debts/DebtsRouter';
 import FileServiceImpl from "./files/FileServiceImpl";
 import FileRouter from "./files/FileRouter";
+import RoleServiceImpl from './roles/RoleServiceImpl';
 
 const connection = getConnection("grey");
 
 const databaseConnection = getConnection("grey");
 
-const newsService = new NewsService(databaseConnection);
+const rolesService = new RoleServiceImpl(connection.getRepository("Role"), connection.getRepository("RoleUser"))
+const newsService = new NewsService(databaseConnection, rolesService);
 const debtsService = new DebtsService(databaseConnection);
 const fileService = new FileServiceImpl(connection.getRepository("File"), connection.getRepository("Folder"));
 

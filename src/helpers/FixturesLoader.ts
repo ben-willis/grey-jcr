@@ -12,21 +12,21 @@ export default class FixturesLoader {
         "Article": articles
     };
 
-    private fixtureManagers = [
-        new DebtsFixtures(this.connection.getRepository("Debt")),
-        new RoleFixtures(this.connection.getRepository("Role"), this.connection.getRepository("RoleUser")),
-        new FileFixtureManager(this.connection.getRepository("File"), this.connection.getRepository("Folder"))
-    ]
+    private fixtureManagers = {
+        debts: new DebtsFixtures(this.connection.getRepository("Debt")),
+        roles: new RoleFixtures(this.connection.getRepository("Role"), this.connection.getRepository("RoleUser")),
+        files: new FileFixtureManager(this.connection.getRepository("File"), this.connection.getRepository("Folder"))
+    };
 
-    public loadFixtures(): Promise<any> {
+    public async loadFixtures(): Promise<void> {
         const loadFromFixtureSets = Object.keys(this.fixtureSets).map((fixture) => {
             const fixturesRepo = this.connection.getRepository(fixture);
             return fixturesRepo.save(this.fixtureSets[fixture]);
         });
 
-        const loadFromFixtureManagers = this.fixtureManagers.map(fm => fm.load());
-
-        return Promise.all(loadFromFixtureSets.concat(loadFromFixtureManagers));
+        await this.fixtureManagers.debts.load();
+        await this.fixtureManagers.roles.load([process.env.CIS_USERNAME]);
+        await this.fixtureManagers.files.load(this.fixtureManagers.roles.roles.map(r => r.id));
     }
 
     public clearFixtures(): Promise<any> {
@@ -35,7 +35,7 @@ export default class FixturesLoader {
             return fixturesRepo.delete({}).then(() => null);
         });
 
-        const clearFromFixtureManagers = this.fixtureManagers.map(fm => fm.clear());
+        const clearFromFixtureManagers = Object.keys(this.fixtureManagers).map(fm => this.fixtureManagers[fm].clear());
 
         return Promise.all(clearFromFixtureSets.concat(clearFromFixtureManagers));
     }
