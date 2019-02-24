@@ -54,13 +54,14 @@ html
       
       div(class="ui vertical segment")
         div(class="ui seven doubling link cards")
-          each user in tech.users
-            div(class="card" data-role=tech.id)
-              div(class="image")
-                img(src="/api/users/"+user.username+"/avatar")
-              div(class="content")
-                div(class="header")= tech.title
-                div(class="meta")=user.name
+          if tech
+            each user in tech.users
+              div(class="card" data-role=tech.id)
+                div(class="image")
+                  img(src="/api/users/"+user.username+"/avatar")
+                div(class="content")
+                  div(class="header")= tech.title
+                  div(class="meta")=user.name
       
     div(class="ui modal")
       div(class="header") No Position

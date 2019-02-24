@@ -16,6 +16,7 @@ exports.seed = function(knex, Promise) {
                 }).returning('username'),
                 knex('roles').insert({
                     title: 'Website Editor',
+                    description: "",
                     level: 6,
                     slug: 'Website-Editor'
                 }).returning('id')

@@ -3,14 +3,16 @@ var router = express.Router();
 var validator = require('validator');
 var httpError = require('http-errors');
 
-var Role = require('../../models/role');
+var User = require('../../models/user');
 
 import FileServiceImpl from "../../files/FileServiceImpl";
+import RoleServiceImpl from "../../roles/RoleServiceImpl";
 import { getConnection } from "typeorm";
 
 const connection = getConnection("grey");
 
 const fileService = new FileServiceImpl(connection.getRepository("File"), connection.getRepository("Folder"));
+const roleService = new RoleServiceImpl(connection.getRepository("Role"), connection.getRepository("RoleUser"));
 
 router.use(function (req, res, next) {
 	if (req.user.level < 3) {
@@ -22,12 +24,13 @@ router.use(function (req, res, next) {
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	Role.getAll().then(function (roles) {
-		return Promise.all(roles.map(function(role){
-			return role.getUsers().then(function(users) {
-				role.users = users;
-				return role;
-			});
+	roleService.getRoles().then((roles) => {
+		return Promise.all(roles.map(async role => {
+			const users = await Promise.all(role.roleUsers.map(ru => {
+				return User.findByUsername(ru.username);
+			}));
+			role.users = users;
+			return role;
 		}));
 	}).then(function(roles){
 		var exec = [];
@@ -46,77 +49,55 @@ router.get('/', function (req, res, next) {
 			}
 		}
 		res.render('admin/roles', {exec: exec, officers: officers, welfare: welfare, reps: reps});
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.post('/new', function (req, res, next) {
-	if (validator.isNull(req.body.title) || !validator.isIn(req.body.level, ["1", "2", "3", "4", "5"])) {
-		var err = new Error("Bad Request");
-		return next(err);
-	}
-	Role.create(req.body.title, parseInt(req.body.level)).then(function (role) {
+	roleService.createRole(req.body.title, "", Number(req.body.level)).then(role => {
 		if (role.level == 4 || role.level == 5) {
 			return fileService.createFolder(role.title, undefined, role.id);
+		} else {
+			return;
 		}
-		return;
 	}).then(function(){
 		res.redirect('/admin/roles');
 	}).catch(next);
 });
 
 router.post('/:role_id/addUser', function (req, res, next) {
-	var role_id = parseInt(req.params.role_id);
-	var username = req.body.username;
-	Role.findById(role_id).then(function(role) {
-		return role.assignUser(username);
-	}).then(function () {
+	roleService.addUserToRole(Number(req.params.role_id), req.body.username).then((role) => {
 		res.redirect('/admin/roles');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 router.get('/:role_id/removeUser/:username', function (req, res, next) {
-	var role_id = parseInt(req.params.role_id);
-	var username = req.params.username;
-	Role.findById(role_id).then(function(role) {
-		return role.removeUser(username);
-	}).then(function () {
+	roleService.removeUserFromRole(Number(req.params.role_id), req.params.username).then((role) => {
 		res.redirect('/admin/roles');
-	}).catch(function (err) {
-		return next(err);
-	});
+	}).catch(next);
 });
 
 /* GET edit role page. */
 router.get('/:role_id/edit', function (req, res, next) {
-	Role.findById(parseInt(req.params.role_id)).then(function (role) {
-			res.render('admin/roles_edit', {role: role});
-		}).catch(function (err) {
-			next(err);
-		});
+	roleService.getRoleById(Number(req.params.role_id)).then((role) => {
+		res.render('admin/roles_edit', {role: role});
+	}).catch(next);
 });
 
 router.post('/:role_id/edit', function (req, res, next) {
-	Role.findById(parseInt(req.params.role_id)).then(function (role) {
-			return role.setDescription(req.body.description);
-		}).then(function () {
-			res.redirect('/admin/roles');
-		}).catch(function (err) {
-			next(err);
-		});
+	roleService.updateRole(
+		Number(req.params.role_id),
+		req.body.title,
+		req.body.description,
+		req.body.level,
+	).then(function (role) {
+		res.redirect('/admin/roles');
+	}).catch(next);
 });
 
 router.get('/:role_id/delete', function (req, res, next) {
-	Role.findById(parseInt(req.params.role_id)).then(function (role) {
-			return role.delete();
-		}).then(function () {
-			res.redirect('/admin/roles');
-		}).catch(function (err) {
-			next(err);
-		});
+	roleService.deleteRole(Number(req.params.role_id)).then(function () {
+		res.redirect('/admin/roles');
+	}).catch(next);
 });
 
 module.exports = router;

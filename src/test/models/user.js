@@ -80,6 +80,7 @@ describe('User Object', function() {
             return db('roles').insert({
                 title: "Fake Role",
                 slug: "Fake-Role",
+                description: "",
                 level: 5
             }).returning("id")
         }).then(function(role_id){

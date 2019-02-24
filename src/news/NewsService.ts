@@ -1,3 +1,4 @@
+import RoleService from './../roles/RoleService';
 import slugify from "slugify";
 import { Connection } from "typeorm";
 import GetArticlesRequest from "./models/GetArticlesRequest";
@@ -8,10 +9,9 @@ import CreateArticleRequest from "./models/CreateArticleRequest";
 import NewsClient from "./NewsClient";
 
 import User from "../models/user";
-import Role from "../models/role";
 
 export default class NewsService extends NewsClient {
-    constructor(private dbConnection: Connection) {
+    constructor(private dbConnection: Connection, private roleService: RoleService) {
         super();
     };
 
@@ -26,7 +26,7 @@ export default class NewsService extends NewsClient {
             roleId: createArticleRequest.roleId,
         });
 
-        return articleRepo.save(article).then(this.populateArticleUserRole);
+        return articleRepo.save(article).then(a => this.populateArticleUserRole(a));
     }
 
     async updateArticle(updateArticleRequest: UpdateArticleRequest): Promise<Article> {
@@ -36,7 +36,7 @@ export default class NewsService extends NewsClient {
         article.title = updateArticleRequest.title;
         article.content = updateArticleRequest.content;
     
-        return articleRepo.save(article).then(this.populateArticleUserRole);
+        return articleRepo.save(article).then(a => this.populateArticleUserRole(a));
     }
 
     async getArticles(getArticlesRequest: GetArticlesRequest): Promise<Article[]> {
@@ -89,7 +89,7 @@ export default class NewsService extends NewsClient {
     
         const articles = await articleQuery.orderBy("updated", "DESC").getMany();
     
-        return Promise.all(articles.map(this.populateArticleUserRole));
+        return Promise.all(articles.map(a => this.populateArticleUserRole(a)));
     }
 
     async deleteArticle(article: Article): Promise<void> {
@@ -108,15 +108,15 @@ export default class NewsService extends NewsClient {
             } else throw err;
         });
 
-        const role = await Role.findById(article.roleId).catch((err) => {
-            if (err.status === 404) {
+        const role = await this.roleService.getRoleById(article.roleId).catch(err => {
+            if (err.name === "EntityNotFound") {
                 return {
                     id: article.roleId,
                     title: "Unknown",
                     slug: "unknown"
                 }
-            } else throw err;
-        });;
+            }
+        });
     
         article.role = role;
         article.author = author;

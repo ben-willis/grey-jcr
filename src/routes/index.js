@@ -3,9 +3,8 @@ var htmlToText = require('html-to-text');
 var router = express.Router();
 var httpError = require('http-errors');
 
-var Blog = require('../models/blog');
 var Event = require('../models/event');
-var Role = require('../models/role');
+var User = require('../models/user');
 
 var auth = require('./auth');
 var jcr = require('./jcr');
@@ -22,34 +21,31 @@ var sportsandsocs = require('./sportsandsocs');
 var mcr = require('./mcr');
 var api = require('./api');
 
+import RoleServiceImpl from "../roles/RoleServiceImpl";
+
+import { getConnection } from "typeorm";
+
+const connection = getConnection("grey");
+
+const roleService = new RoleServiceImpl(connection.getRepository("Role"), connection.getRepository("RoleUser"));
+
 /* GET home page. */
 router.get('/', function (req, res, next) {
+	const exec = Promise.all([roleService.getRoles(5), roleService.getRoles(4)]).then(data => data[0].concat(data[1]));
 	Promise.all([
-		Blog.get(),
 		Event.getFutureEvents(6),
-		Role.getByType("exec").then(function(exec_members) {
-			return Promise.all(
-				exec_members.map(function(exec_member) {
-					return exec_member.getUsers().then(function(users) {
-						exec_member.users = users;
-						return exec_member;
-					});
-				})
-			);
+		exec.then(function(roles) {
+			return Promise.all(roles.map(async role => {
+				const users = await Promise.all(role.roleUsers.map(ru => {
+					return User.findByUsername(ru.username);
+				}));
+				role.users = users;
+				return role;
+			}));
 		})
 	]).then(function (data){
-		var blogs = data[0].splice(0,9);
-		for (blog of blogs) {
-			blog.message = htmlToText.fromString(blog.message, {
-				wordwrap: false,
-				ignoreHref: true,
-				ignoreImage: true
-			}).slice(0, 200) + "...";
-		}
-		res.render('home', {blogs: blogs, events: data[1], exec: data[2]});
-	}).catch(function (err) {
-		next(err);
-	});
+		res.render('home', {events: data[0], exec: data[1]});
+	}).catch(next);
 });
 
 /* GET offline page */
