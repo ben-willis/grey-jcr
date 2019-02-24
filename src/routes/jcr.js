@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 
 var User = require('../models/user');
-var Blog = require('../models/blog');
 
 import FileServiceImpl from "../files/FileServiceImpl";
 import RoleServiceImpl from "../roles/RoleServiceImpl";
@@ -53,24 +52,18 @@ router.get('/blog/:role_slug', function (req, res, next) {
 	if (req.user) {
 		req.user.updateLastLogin();
 	}
-	var page = parseInt(req.query.page) || 1;
-	var limit = parseInt(req.query.limit) || 6;
 	roleService.getRoleBySlug(req.params.role_slug).then(function(role){
 		return Promise.all([
 			role,
-			Blog.get(role.id),
 			Promise.all(role.roleUsers.map(ru => User.findByUsername(ru.username))),
 			fileService.getFolderForOwner(role.id)
 		]);
 	}).then(function(data) {
-		data[0].users = data[2];
+		data[0].users = data[1];
 		res.render('jcr/profile', {
-			page: (data[1].length === 0) ? 0 : page,
-			limit: limit,
-			total_pages: Math.ceil(data[1].length / limit),
-			blogs: data[1].splice((page-1) * limit, page*limit),
 			role: data[0],
-			folder: data[3]});
+			folder: data[2]
+		});
 	}).catch(function (err) {
 		next(err);
 	});

@@ -12,7 +12,7 @@
     "start": "node ./bin/www",
     "test": "mocha dist/test dist/**/*.spec.js --reporter spec --recursive --exit",
     "migrate": "typeorm migration:run -c grey",
-    "seed-postgres": "knex seed:run --knexfile dist/knexfile.js && node ./bin/manage-fixtures load",
+    "seed": "node ./bin/manage-fixtures load",
     "storybook": "start-storybook -p 9001 -c src/ui/.storybook"
   },
   "dependencies": {

@@ -6,7 +6,6 @@ var httpError = require('http-errors');
 
 var User = require('../models/user');
 var Event = require('../models/event');
-var Blog = require('../models/blog');
 var Election = require('../models/election');
 var Feedback = require('../models/feedback');
 
