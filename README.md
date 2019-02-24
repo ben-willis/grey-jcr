@@ -28,7 +28,7 @@ PAYPAL_MODE=sandbox
 PAYPAL_CLIENT_ID=EOJ2S-Z6OoN_le_KS1d75wsZ6y0SFdVsY9183IvxFyZp
 PAYPAL_CLIENT_SECRET=EClusMEUk8e9ihI7ZdVLF5cZ6y0SFdVsY9183IvxFyZp
 
-# Your Durham details, these are used to set you up as the website editor in your local installation
+# Your Durham details, these are used to set you in your local installation
 CIS_USERNAME=hsdz38
 CIS_NAME=Ben Willis
 CIS_EMAIL=b.c.willis@durham.ac.uk
@@ -62,7 +62,7 @@ This project is migrating to typescript so we need to transpile to regular javas
 To set up the database you need to create the tables and add your user (defined in .env) as the website editor. To do this run the following:
 
  1. `npm run migrate` - this will create the required tables in the database
- 2. `npm run seed-postgres` - this will add the user defined in the .env file as the website editor
+ 2. `npm run seed` - this will add the user defined in the .env file as well as some other fixtures
 
  Note the migrate step is required on installation and whenever there are any changes to the database. It is often useful to delete and recreate the "grey" database and run the migrations again to get a clean state.
 
