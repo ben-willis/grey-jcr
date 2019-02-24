@@ -10,6 +10,7 @@ export class UpdateRoleConstraints1550885022646 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "user_roles" ALTER COLUMN "username" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "user_roles" ALTER COLUMN "role_id" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "title" SET NOT NULL`);
+        await queryRunner.query(`UPDATE roles SET description='' WHERE description IS NULL`);
         await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "description" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "level" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "roles" ALTER COLUMN "level" DROP DEFAULT`);
