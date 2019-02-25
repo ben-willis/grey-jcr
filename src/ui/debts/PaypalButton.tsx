@@ -9,7 +9,7 @@ import Debt from "../../debts/entities/Debt";
 
 declare var PAYPAL_MODE;
 
-interface PayPalButtonProps {
+interface PaypalButtonProps {
     username: string;
     amount: number;
     onSuccess: (debt: Debt) => void;
@@ -17,7 +17,7 @@ interface PayPalButtonProps {
     onCancel?: () => void;
 }
 
-export default class PayPalButton extends React.Component<PayPalButtonProps> {
+export default class PaypalButton extends React.Component<PaypalButtonProps> {
     public render() {
         const style = {
             size: "responsive",

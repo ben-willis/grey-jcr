@@ -362,7 +362,7 @@ router.get('/debt/pay/execute', function (req, res, next) {
 
 /* GET the cancel page */
 router.get('/debt/pay/cancel', function (req, res, next) {
-	res.render('services/debt_cancel', {"payerId": req.query.PayerID});
+	res.render('services/debt_cancel');
 });
 
 module.exports = router;
