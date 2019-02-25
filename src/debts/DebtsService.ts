@@ -105,7 +105,7 @@ export default class DebtsService implements DebtsClient {
                 name: "PayPal Payment",
                 amount: -Math.floor(Number(res.data.transactions[0].amount.total) * 100),
                 username,
-                message: "ID: " + JSON.stringify(res.data.id),
+                message: "Payment ID: " + JSON.stringify(res.data.id),
             });
         });
     }

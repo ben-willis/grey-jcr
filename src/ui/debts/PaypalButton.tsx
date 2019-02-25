@@ -7,7 +7,7 @@ import greyAPI from "../greyAPI";
 
 import Debt from "../../debts/entities/Debt";
 
-declare var PAYPAL_MODE;
+declare var PAYPAL_MODE: string;
 
 interface PaypalButtonProps {
     username: string;
