@@ -45,6 +45,22 @@ export default class DebtsRouter {
                     username: req.params.username,
                 }).then((debt) => res.send(debt)).catch(next);
             }
-        })
+        });
+
+        this.router.post("/:username/debts/create-payment", (req, res, next) => {
+            if (!req.user) return next(httpError(403));
+            debtsClient.createPaypalPayment(Number(req.body.amount)).then((paymentId) => res.json({
+                paymentId,
+            })).catch(next);
+        });
+        
+        this.router.post("/:username/debts/execute-payment", (req, res, next) => {
+            if (!req.user) return next(httpError(403));
+            debtsClient.executePaypalPayment(
+                req.user.username,
+                req.body.paymentId,
+                req.body.payerId,
+            ).then((debt) => res.json(debt)).catch(next);
+        });
     };
 }
