@@ -2,11 +2,7 @@ import DebtsClient from "../DebtsClient";
 import AddDebtRequest from "../models/AddDebtRequest";
 import Debt from "../entities/Debt";
 
-export default class MockDebtsService extends DebtsClient {
-    constructor() {
-        super();
-    }
-
+export default class MockDebtsService implements DebtsClient {
     async addDebt(addDebtRequest: AddDebtRequest): Promise<Debt> {
         const debt = new Debt();
         debt.id = 1;
@@ -45,5 +41,20 @@ export default class MockDebtsService extends DebtsClient {
 
     async getDailyDebts(): Promise<Array<{date: Date, amount: number}>> {
         return [];
+    }
+
+    async createPaypalPayment(amount: number): Promise<string> {
+        return "PAY123456789";
+    }
+
+    async executePaypalPayment(username: string, paymentId: string, payerId: string): Promise<Debt> {
+        const debt = new Debt();
+        debt.id = 1;
+        debt.name = "Paypal";
+        debt.message = "Payment ID: " + paymentId;
+        debt.amount = -500;
+        debt.added = new Date();
+        debt.username = username;
+        return debt;
     }
 }

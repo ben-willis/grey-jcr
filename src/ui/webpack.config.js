@@ -53,13 +53,13 @@ module.exports = {
     },
 
     plugins: [
-    //   new DynamicCdnWebpackPlugin(),
       new BundleAnalyzerPlugin({analyzerMode: "static", openAnalyzer: false}),
       new MiniCssExtractPlugin(),
       new webpack.DefinePlugin({
             GREY_API_URL: JSON.stringify(process.env.NODE_ENV === "production"
                 ? "https://greyjcr.com/api"
                 : "http://localhost:3000/api"),
+            PAYPAL_MODE: JSON.stringify(process.env.PAYPAL_MODE),
       })
     ]
 };

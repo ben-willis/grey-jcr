@@ -4,7 +4,6 @@ var multer = require('multer');
 var upload = multer({dest: __dirname+'/../../tmp'});
 var mv = require('mv');
 var mime = require('mime');
-var paypal = require('paypal-rest-sdk');
 var httpError = require('http-errors');
 
 var Feedback = require('../models/feedback');
@@ -256,13 +255,6 @@ router.post('/elections/:election_id', function (req, res, next) {
 		});
 });
 
-// Configure Paypal
-paypal.configure({
-	'mode': process.env.PAYPAL_MODE,
-	'client_id': process.env.PAYPAL_CLIENT_ID,
-	'client_secret': process.env.PAYPAL_CLIENT_SECRET
-});
-
 /* GET the debts page */
 router.get('/debt', function (req, res, next) {
 	debtsService.getDebts(req.user.username).then((debts) => {
@@ -271,98 +263,9 @@ router.get('/debt', function (req, res, next) {
 	}).catch(next);
 });
 
-/* GET pay a debt */
-router.get('/debt/pay', function (req, res, next){
-	var host = req.get('host');
-	debtsService.getDebts(req.user.username).then(function(debts) {
-		const debt = debts.reduce((a, b) => a + b.amount, 0);
-		var payment = {
-			"intent": "sale",
-			"payer": {
-				"payment_method": "paypal"
-			},
-			"redirect_urls": {
-				"return_url": "http://"+host+"/services/debt/pay/confirm",
-				"cancel_url": "http://"+host+"/services/debt/pay/cancel"
-			},
-			"transactions": [{
-				"amount": {
-		  			"total": (debt/100).toFixed(2),
-		  			"currency": "GBP"
-				},
-				"description": "Clear Debt to Grey JCR",
-				"item_list": {
-					"items": [
-						{
-							"quantity": "1",
-							"name": "Clear Debt",
-							"price": (debt/100).toFixed(2),
-							"currency": "GBP"
-						}
-					]
-				}
-			}]
-		};
-		paypal.payment.create(payment, function (err, payment) {
-			if (err) return next(err);
-			req.session.paymentId = payment.id;
-		    for(var i=0; i < payment.links.length; i++) {
-				if (payment.links[i].method === 'REDIRECT') {
-					return res.redirect(303, payment.links[i].href);
-				}
-			}
-		});
-	})
-	.catch(function (err) {
-		next(err);
-	});
-});
-
-/* GET the confirmation page */
-router.get('/debt/pay/confirm', function (req, res, next) {
-	debtsService.getDebts(req.user.username).then(function(debts) {
-		const debt_amount = debts.reduce((a, b) => a + b.amount, 0);
-		res.render('services/debt_confirm', {"payerId": req.query.PayerID, debt_amount});
-	}).catch(next);
-});
-
-/* GET execute the payment */
-router.get('/debt/pay/execute', function (req, res, next) {
-	var paymentId = req.session.paymentId;
-  	var PayerID = req.query.PayerID;
-
-	paypal.payment.execute(paymentId, { 'payer_id': PayerID }, function (err, payment) {
-	    if (err) return next(err);
-	    var amount = -1 * Math.floor(parseFloat(payment.transactions[0].amount.total)*100);
-	   	var paymentid = payment.transactions[0].related_resources[0].sale.id;
-		delete req.session.paymentId;
-
-		debtsService.getDebts(req.user.username).then(function(debts) {
-			var duplicate = debts.find(function(debt) {
-				return debt.message === "Payment ID: " + paymentid;
-			});
-
-			if (duplicate) {
-				console.log('Duplicated PayPal debt found. ID: ' + duplicate.id);
-				return res.redirect(303, '/services/debt');
-			}
-
-			debtsService.addDebt({
-				name: "PayPal Payment",
-				message: "Payment ID: " + paymentid,
-				amount,
-				username: req.user.username
-			}).then(function(){
-					res.redirect(303, '/services/debt');
-				}).catch(next);
-			});
-		}).catch(next);
-});
-
-
 /* GET the cancel page */
 router.get('/debt/pay/cancel', function (req, res, next) {
-	res.render('services/debt_cancel', {"payerId": req.query.PayerID});
+	res.render('services/debt_cancel');
 });
 
 module.exports = router;

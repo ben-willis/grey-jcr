@@ -34,10 +34,8 @@ html
 				div(class="six wide column")
 					h3(class="ui header") Total Debt
 					p £ #{(total_debt/100).toFixed(2)}
-					if (total_debt != 0)
+					if (total_debt > 0)
 						h3(class="ui header") Clear Debt
-						a(class="ui twitter button" href="/services/debt/pay")
-							i(class="paypal icon")
-							| Pay with Paypal
+						div(id="paypal-button" data-username=user.username data-amount=total_debt)
 
 		include ../footer.pug
