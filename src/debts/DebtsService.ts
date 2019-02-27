@@ -116,7 +116,7 @@ export default class DebtsService implements DebtsClient {
             return this.paypalAuthToken;
         }
     
-        return axios.post("https://api.sandbox.paypal.com/v1/oauth2/token", "grant_type=client_credentials", {
+        return axios.post(PAYPAL_API_URL + "/v1/oauth2/token", "grant_type=client_credentials", {
             auth: {
                 username: process.env.PAYPAL_CLIENT_ID,
                 password: process.env.PAYPAL_CLIENT_SECRET,
