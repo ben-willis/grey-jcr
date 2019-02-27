@@ -31,7 +31,7 @@ if (document.getElementById("news-feed-role")) {
 
 if (document.getElementById("paypal-button")) {
     const amount = document.getElementById("paypal-button").getAttribute("data-amount");
-    const username = document.getElementById("paypal-button").getAttribute("data-amount");
+    const username = document.getElementById("paypal-button").getAttribute("data-username");
     ReactDOM.render(
         <PaypalButton
             amount={Number(amount)}
