@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import Position from "./Position";
 import Vote from "./Vote";
+import ElectionStatus from "../models/ElectionStatus";
 
 @Entity("elections")
 export default class Election {
@@ -10,8 +11,8 @@ export default class Election {
     @Column({ type: "text" })
     public name: string;
 
-    @Column({ type: "integer", default: 0 })
-    public status: number;
+    @Column({ type: "integer", default: ElectionStatus.closed })
+    public status: ElectionStatus;
 
     @OneToMany((type) => Position, (position) => position.election, {eager: true})
     public positions: Position[];
