@@ -48,11 +48,3 @@ describe('Static Event Methods', function() {
         }).catch(done);
     })
 });
-
-describe('Room Methods', function() {
-    it("should get all bookings for a date of each type");
-    it("should get all future bookings");
-    it("should add a booking");
-    it("should delete a booking");
-    it("should edit a room")
-})

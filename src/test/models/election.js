@@ -165,22 +165,6 @@ describe('Election Object', function() {
         });
     });
 
-    xit("can cast votes", function(done) {
-        test_election.castVote("hsdz38", 1, [
-            {nominee_id: 1, preference: 'a'},
-            {nominee_id: 2, preference: 0},
-        ]).then(function(){
-            return db('election_votes').select();
-        }).then(function(votes) {
-            expect(votes).to.have.length(2);
-            done();
-        }).catch(function(err) {
-            done(err);
-        });
-    });
-
-    it("can get votes by position");
-
     it("can cleanse a ballot (tidy up preferences)", function(){
         var test_ballot_1 = [
             {nominee_id: 1, preference: 'a'},
@@ -214,5 +198,4 @@ describe('Election Object', function() {
         expect(cleansed_ballot_3).to.have.length(1);
         expect(cleansed_ballot_4).to.have.length(0);
     });
-    it("can find first preference");
 })

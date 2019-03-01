@@ -21,14 +21,6 @@ describe("Static User Methods", function() {
         db('users').del().then(function() {
             done();
         })
-    })
-
-    // Test is flakey so ignore
-    xit("should create new users", function(done){
-        User.create("fake13").catch(function(err) {
-            expect(err.status).to.equal(400);
-            done();
-        })
     });
 
     it("should find users by username", function(done) {
@@ -52,8 +44,6 @@ describe("Static User Methods", function() {
             expect(User.search("xyz")).to.eventually.have.length(0)
         ])
     });
-
-    it("should get all debtors")
 })
 
 describe('User Object', function() {
@@ -160,6 +150,4 @@ describe('User Object', function() {
             done();
         })
     });
-
-    it("should get its vote in an election");
 })
