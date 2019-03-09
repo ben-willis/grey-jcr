@@ -36,8 +36,6 @@ describe('Static Event Methods', function() {
         })
     });
 
-    it("can find an event by slug and date");
-
     it("can create a new event", function(done) {
         Event.create("New Event", "description", new Date(), null).then(function(event) {
             expect(event.name).to.equal("New Event");
@@ -49,8 +47,6 @@ describe('Static Event Methods', function() {
             done(err);
         })
     });
-
-    it("can get all events in a given month");
 
     it("can get all future events", function(done) {
         Event.getFutureEvents().then(function(events) {
@@ -136,7 +132,5 @@ describe('Event Object', function() {
         }).catch(function(err){
             done(err);
         });
-    })
-
-    it("can set associated tickets");
+    });
 });
