@@ -4,6 +4,6 @@ export default interface VotesRequest {
     votes: Array<{
         positionId: number
         nomineeId: number
-        preference: number,
+        preference: string,
     }>;
 }

@@ -11,7 +11,7 @@ export default class Position {
     @Column({ type: "text" })
     public name: string;
 
-    @ManyToOne((type) => Election, (election) => election.positions)
+    @ManyToOne((type) => Election, (election) => election.positions, {onDelete: "CASCADE"})
     @JoinColumn({ name: "election_id" })
     public election?: Election;
 

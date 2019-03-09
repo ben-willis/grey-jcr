@@ -20,11 +20,13 @@ export default class Vote {
     @JoinColumn({ name: "election_id" })
     public election?: Election;
 
-    @Column({ type: "varchar", length: 255 })
-    public preference: number;
+    @Column({ type: "varchar", length: 255, name: "preference" })
+    public rawPreference: string;
+
+    public preference?: number;
 
     @Column({ type: "varchar", length: 255 })
-    public usercode: number;
+    public usercode: string;
 
     @Column({ type: "varchar", length: 6, nullable: true })
     public username: string;

@@ -4,6 +4,7 @@ import {articles} from "../news/tests/newsFixtures";
 import DebtsFixtures from "..//debts/tests/DebtsFixtures";
 import FileFixtureManager from "../files/tests/FileFixtureManager";
 import RoleFixtures from "../roles/tests/RoleFixtures";
+import ElectionsFixtures from "../elections/tests/ElectionsFixtures";
 
 export default class FixturesLoader {
     constructor(private connection: Connection) {};
@@ -15,7 +16,8 @@ export default class FixturesLoader {
     private fixtureManagers = {
         debts: new DebtsFixtures(this.connection.getRepository("Debt")),
         roles: new RoleFixtures(this.connection.getRepository("Role"), this.connection.getRepository("RoleUser")),
-        files: new FileFixtureManager(this.connection.getRepository("File"), this.connection.getRepository("Folder"))
+        files: new FileFixtureManager(this.connection.getRepository("File"), this.connection.getRepository("Folder")),
+        elections: new ElectionsFixtures(this.connection)
     };
 
     public async loadFixtures(): Promise<void> {
@@ -33,6 +35,7 @@ export default class FixturesLoader {
         await this.fixtureManagers.debts.load();
         await this.fixtureManagers.roles.load([process.env.CIS_USERNAME]);
         await this.fixtureManagers.files.load(this.fixtureManagers.roles.roles.map(r => r.id));
+        await this.fixtureManagers.elections.load(["aaaa11", "bbbb22", "cccc33", "dddd44", "eeee55"]);
     }
 
     public async clearFixtures(): Promise<any> {
