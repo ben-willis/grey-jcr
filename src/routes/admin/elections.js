@@ -203,7 +203,7 @@ router.get('/:election_id/:position_id/delete', function (req, res, next) {
 router.post('/:election_id/:position_id/newnominee', upload.single('manifesto'),function (req, res, next) {
 	moveManifesto = new Promise(function(resolve, reject){
 		if (req.file) {
-			var manifesto_name = slug(req.body.name)+'-'+shortid.generate()+'.'+mime.extension(req.file.mimetype);
+			var manifesto_name = slug(req.body.name)+'-'+shortid.generate()+'.'+mime.getExtension(req.file.mimetype);
 			mv(req.file.path, process.env.FILES_DIRECTORY+'/manifestos/'+manifesto_name, function (err) {
 				if(err) return reject(err);
 				return resolve(manifesto_name);
