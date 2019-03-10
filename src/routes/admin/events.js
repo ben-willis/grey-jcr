@@ -142,7 +142,7 @@ router.post('/:event_id/edit', upload.single('image'), function (req, res, next)
 	}).then(function(data) {
 		var event = data[0];
 		if (req.file) {
-			var image_name = event.name+shortid.generate()+'.'+mime.extension(req.file.mimetype);
+			var image_name = event.name+shortid.generate()+'.'+mime.getExtension(req.file.mimetype);
 			mv(req.file.path, process.env.FILES_DIRECTORY+'/events/'+image_name, function (err) {
 				if (err) throw err;
 				return event.update(req.body.name, req.body.description, timestamp, image_name);
