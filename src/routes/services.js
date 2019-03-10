@@ -8,13 +8,17 @@ var httpError = require('http-errors');
 
 var Feedback = require('../models/feedback');
 var User = require('../models/user');
-var Election = require('../models/election');
 var Room = require('../models/room');
 
 import DebtsService from "../debts/DebtsService";
+import ElectionsServiceImpl from "../elections/ElectionsServiceImpl";
 import { getConnection } from "typeorm";
+import ElectionStatus from '../elections/models/ElectionStatus';
 
-const debtsService = new DebtsService(getConnection("grey"));
+const connection = getConnection("grey");
+
+const debtsService = new DebtsService(connection);
+const electionsService = new ElectionsServiceImpl(connection);
 
 /* GET room booking page */
 router.get('/rooms/', function (req, res, next) {
@@ -205,54 +209,44 @@ router.post('/feedback/:feedback_id', function (req, res, next) {
 /* GET the election page */
 router.get('/elections', function (req, res, next) {
 		Promise.all([
-			Election.getByStatus(2),
-			Election.getByStatus(1)
+			electionsService.getElections(ElectionStatus.open),
+			electionsService.getElections(ElectionStatus.publicising),
 		]).then(function(data){
 			res.render('services/elections', {open: data[0], publicizing: data[1]});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+		}).catch(next);
 });
 
 /* GET the vote in elections page */
 router.get('/elections/:election_id', function (req, res, next) {
-	var vote;
-	var election;
-	req.user.getVote(parseInt(req.params.election_id)).then(function(data){
-		vote = data;
-		return Election.findById(parseInt(req.params.election_id));
-	}).then(function (election) {
-			res.render('services/elections_vote', {election: election, user_vote: vote});
-		})
-		.catch(function (err) {
-			next(err);
-		});
+	Promise.all([
+		electionsService.userHasVoted(Number(req.params.election_id), req.user.username),
+		electionsService.getElection(Number(req.params.election_id)),
+	]).then(function([vote, election]){
+		res.render('services/elections_vote', {election: election, user_vote: vote});
+	}).catch(next);
 });
 
 /* POST a vote */
 router.post('/elections/:election_id', function (req, res, next) {
-	req.user.getVote(parseInt(req.params.election_id))
-		.then(function(vote) {
-			if (vote) {
-				throw httpError(400, "You have already voted in this election");
-			}
-			return Election.findById(parseInt(req.params.election_id));
-		})
-		.then(function(election){
-			return Promise.all(
-				req.body.ballot.map(function(ballot){
-					election.castVote(req.user.username, ballot.position_id, ballot.votes);
-				})
-			);
-
-		})
-		.then(function () {
-			res.redirect(303, '/services/elections/'+req.params.election_id+'?success');
-		})
-		.catch( function (err) {
-			next(err);
+	electionsService.userHasVoted(Number(req.params.election_id), req.user.username).then((userHasVoted) => {
+		if (userHasVoted) {
+			throw httpError(400, "You have already voted in this election");
+		} else {
+			return electionsService.getElection(Number(req.params.election_id));
+		}
+	}).then(function(election){
+		return electionsService.voteInElection({
+			electionId: Number(req.params.election_id),
+			username: req.user.username,
+			votes: req.body.ballot.map(ballot => ballot.votes.map(vote => ({
+				positionId: Number(ballot.position_id),
+				nomineeId: Number(vote.nominee_id),
+				preference: vote.preference,
+			}))).reduce((a, b) => a.concat(b))
 		});
+	}).then(function () {
+		res.redirect(303, '/services/elections/'+req.params.election_id+'?success');
+	}).catch(next);
 });
 
 /* GET the debts page */

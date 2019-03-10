@@ -109,45 +109,4 @@ describe('User Object', function() {
             done();
         });
     });
-
-    it("should assign itself to a role", function(done) {
-        current_user.assignRole(fake_role_id).then(function() {
-            return db('user_roles').select().where({
-                username: current_user.username,
-                role_id: fake_role_id
-            })
-        }).then(function(data){
-            expect(data).to.have.length(1);
-            done();
-        }).catch(done);
-    });
-
-    it("should get all its roles", function(done) {
-        db('user_roles').insert({
-            username: current_user.username,
-            role_id: fake_role_id
-        }).then(function(){
-            return current_user.getRoles();
-        }).then(function(roles) {
-            expect(roles).to.have.length(1);
-            done();
-        })
-    });
-
-    it("should remove itself from a role", function(done) {
-        db('user_roles').insert({
-            username: current_user.username,
-            role_id: fake_role_id
-        }).then(function(){
-            return current_user.removeRole(fake_role_id)
-        }).then(function() {
-            return db('user_roles').select().where({
-                username: current_user.username,
-                role_id: fake_role_id
-            })
-        }).then(function(data){
-            expect(data).to.have.length(0);
-            done();
-        })
-    });
-})
+});

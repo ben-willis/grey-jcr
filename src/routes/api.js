@@ -6,11 +6,11 @@ var httpError = require('http-errors');
 
 var User = require('../models/user');
 var Event = require('../models/event');
-var Election = require('../models/election');
 var Feedback = require('../models/feedback');
 
 import NewsService from "../news/NewsService";
 import RoleServiceImpl from "../roles/RoleServiceImpl";
+import ElectionsServiceImpl from "../elections/ElectionsServiceImpl";
 
 import { getConnection } from "typeorm";
 
@@ -18,6 +18,7 @@ const connection = getConnection("grey");
 
 const roleService = new RoleServiceImpl(connection.getRepository("Role"), connection.getRepository("RoleUser"));
 const newsService = new NewsService(connection, roleService);
+const electionsService = new ElectionsServiceImpl(connection);
 
 // The main site search
 router.get('/search/', function (req, res, next) {
@@ -102,26 +103,18 @@ router.get('/users/:username/avatar', function (req, res, next) {
 // Needed for menu notifications
 router.get('/elections/:status', function(req,res,next) {
 	if (!req.user) return res.json({"error": "You must be logged in"});
-	Election.getByStatus(req.params.status).then(function(elections) {
+	electionsService.getElections(req.params.status).then(function(elections) {
 		return Promise.all(
 			elections.map(function(election) {
-				return User.findByUsername(req.user.username).then(function(user) {
-					return user.getVote(election.id);
-				}).then(function(votes) {
-					if (votes) {
-						election.voted = true;
-					} else {
-						election.voted = false;
-					}
+				return electionsService.userHasVoted(election.id, req.user.username).then(function(voted) {
+					election.voted = voted;
 					return election;
 				});
 			})
 		);
 	}).then(function(elections) {
 		res.json(elections);
-	}).catch(function (err) {
-		next(err);
-	});
+	}).catch(next);
 });
 
 router.get('/blogs/unread', function(req, res, next) {
