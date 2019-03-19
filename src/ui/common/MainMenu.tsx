@@ -48,7 +48,7 @@ export default class MainMenu extends React.Component<MainMenuProps, MainMenuSta
                                 <span>More <Icon name="dropdown"/></span>
                             </Menu.Item>
                         } icon={null}>
-                            <Dropdown.Menu>
+                            <Dropdown.Menu direction="left">
                                 {subMenuItems.map(menuItem => (
                                     <Dropdown.Item href={menuItem.path}>
                                         <Icon name={menuItem.icon}/>

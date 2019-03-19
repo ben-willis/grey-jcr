@@ -4,11 +4,8 @@ html
 	head
 		include ../head.pug
 	body
-		div(class='ui container')
-			include ../header.pug
-			- var current="reps";
-			include ../menu.pug
-			
+		div(id="main-menu" data-username=(user && user.username))
+		div(class="ui container")		
 			h2(class="ui header")= title
 
 			div(class="ui vertical segment" id="representatives")

@@ -6,9 +6,8 @@ html
 		include ../head.pug
 		script(src="/javascripts/vue.js")
 	body
+		div(id="main-menu" data-username=(user && user.username))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 			div(class="ui divided stackable vertically padded grid")
 				div(class="five wide column")
 					h3(class="ui dividing header")

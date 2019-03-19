@@ -9,9 +9,8 @@ html
         margin: 100px auto 50px auto !important;
       }
   body
+    div(id="main-menu" data-username=(user && user.username))
     div(class='ui container')
-      include ../header.pug
-      include ../menu.pug
       h2(class='ui header')= title
 
       h3 Fancy Dress Themes

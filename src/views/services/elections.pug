@@ -5,9 +5,8 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 			h2(class="ui header")= title
 			p The Elections system allows you to vote for candidates in husted JCR elections as well as in college referendums.
 			div(class="ui vertical segment")
