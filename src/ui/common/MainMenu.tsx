@@ -33,7 +33,7 @@ export default class MainMenu extends React.Component<MainMenuProps, MainMenuSta
         const subMenuItems = menuItemsToDisplay.slice(visibleItems - 1);
 
         return <div className="main-menu-container">
-            <Grid inverted container stackable columns="equal" verticalAlign="middle">
+            <Grid inverted container stackable={this.props.viewport === "mobile"} columns="equal" verticalAlign="middle">
                 <Grid.Column>
                     <Menu secondary inverted icon="labeled" size="small" widths={visibleItems}>
                         {mainMenuItems.map(menuItem => (
@@ -64,10 +64,12 @@ export default class MainMenu extends React.Component<MainMenuProps, MainMenuSta
                         <Image src={require("../static/header-crest.png")}/>
                     </Header>
                 </Grid.Column>}
-                <Grid.Column>
-                    <Menu secondary inverted compact floated="right" height="100%">
+                <Grid.Column textAlign={this.props.viewport === "mobile" ? "center" : "right"}>
+                    <Menu secondary inverted compact height="100%">
                         <Search
+                            fluid
                             category
+                            placeholder="Search..."
                             className="item"
                             value={this.state.searchValue}
                             loading={this.state.searchLoading}
@@ -82,6 +84,7 @@ export default class MainMenu extends React.Component<MainMenuProps, MainMenuSta
                                 src={greyAPI.defaults.baseURL + "/users/" + this.props.username + "/avatar"}/>
                             }>
                             <Dropdown.Menu direction="left">
+                                <Dropdown.Header>{this.props.username}</Dropdown.Header>
                                 <Dropdown.Item href={"/services/user/" + this.props.username}>
                                     View Profile
                                 </Dropdown.Item>

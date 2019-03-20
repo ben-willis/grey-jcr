@@ -9,10 +9,10 @@ interface ResponsiveMainMenuProps {
 export default class ResponsiveMainMenu extends React.Component<ResponsiveMainMenuProps> {
     public render() {
         return <div>
-            <Responsive maxWidth="767">
+            <Responsive maxWidth="650">
                 <MainMenu viewport="mobile" username={this.props.username} />
             </Responsive>
-            <Responsive minWidth="768" maxWidth="991">
+            <Responsive minWidth="651" maxWidth="991">
                 <MainMenu viewport="tablet" username={this.props.username}/>
             </Responsive>
             <Responsive minWidth="992">
