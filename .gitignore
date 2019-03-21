@@ -51,11 +51,3 @@ src/public/files
 postgres-data
 session-data
 tmp
-
-#Semantic-ui
-src/public/semantic/
-semantic/gulpfile.js
-semantic/tasks/
-semantic/src/*
-!semantic/src/*.config
-!semantic/src/site
