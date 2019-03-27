@@ -5,9 +5,8 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 			h2= title
 			div(class="ui vertical segment")
 				div(class="ui card")

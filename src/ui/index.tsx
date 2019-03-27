@@ -6,6 +6,7 @@ import EventsCalendar from "./events/EventsCalendar";
 import NewsFeed from "./news/NewsFeed";
 import NewsRoutes from "./news/NewsRoutes";
 import PaypalButton from "./debts/PaypalButton";
+import ResponsiveMainMenu from "./common/ResponsiveMainMenu";
 
 const now = new Date();
 if (document.getElementById("events-calendar")) {
@@ -26,6 +27,13 @@ if (document.getElementById("news-feed-role")) {
     ReactDOM.render(
         <NewsFeed filter={{roleId: Number(document.getElementById("news-feed-role").getAttribute("data-role"))}}/>,
         document.getElementById("news-feed-role"),
+    );
+}
+
+if (document.getElementById("main-menu")) {
+    ReactDOM.render(
+        <ResponsiveMainMenu username={document.getElementById("main-menu").getAttribute("data-username")}/>,
+        document.getElementById("main-menu"),
     );
 }
 

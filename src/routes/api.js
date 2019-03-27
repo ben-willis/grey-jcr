@@ -26,21 +26,21 @@ router.get('/search/', function (req, res, next) {
 		newsService.getArticles({query: req.query.q, limit: 100, page: 1}),
 		Event.search(req.query.q)
 	]).then(function(data) {
-		var users = data[0].map(function(user) {
+		var users = data[0].slice(0, 5).map(function(user) {
 			return {
 				title: user.name,
 				url: '/services/user/'+user.username,
 				description: user.username
 			};
 		});
-		var blogs = data[1].map(function(blog) {
+		var blogs = data[1].slice(0, 5).map(function(blog) {
 			return {
 				title: blog.title,
 				url: '/jcr/blog/'+blog.role.slug+'/'+blog.updated.getFullYear()+"/"+(blog.updated.getMonth()+1)+"/"+blog.updated.getDate()+"/"+blog.slug,
 				description: prettydate.format(blog.updated)
 			};
 		});
-		var events = data[2].map(function(event) {
+		var events = data[2].slice(0, 5).map(function(event) {
 			return {
 				title: event.name,
 				url: "/events/"+event.time.getFullYear()+"/"+(event.time.getMonth()+1)+"/"+(event.time.getDate())+"/"+event.slug,
@@ -143,6 +143,9 @@ router.get('/feedbacks', function(req, res, next) {
 });
 
 router.use(function(err, req, res, next) {
+	if (!err.status) {
+		console.log(err);
+	}
 	var error_status = err.status || 500;
 	return res.status(error_status).json({
 		status: error_status,

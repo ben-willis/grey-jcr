@@ -6,6 +6,12 @@ body {
   background-color: #efefef;
 }
 
+#promo {
+  background-image: url("/images/header-bg.png");
+	background-repeat: no-repeat;
+	background-position: 5% 120%;
+}
+
 .site {
   display: flex;
   min-height: 100vh;

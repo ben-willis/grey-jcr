@@ -5,9 +5,8 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 
 			h2 Valentines Formal Swapping
 			p Every year, we raise money for charity by allowing members of the JCR to swap around table plans at Valentine's Formal for a small contribution. Anyone can participate, even those not attending formal! If you are in the hot seats (in bold) at the end of swapping, there will be a forfeit... That forfeit will only be told once swapping is closed.

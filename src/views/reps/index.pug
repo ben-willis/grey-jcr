@@ -4,15 +4,12 @@ html
 	head
 		include ../head.pug
 	body
-		div(class='ui container')
-			include ../header.pug
-			- var current="reps";
-			include ../menu.pug
-			
+		div(id="main-menu" data-username=(user && user.username))
+		div(class="ui container")
 			h2(class="ui header")= title
 
 			div(class="ui vertical segment" id="representatives")
-				p 
+				p
 					| Representatives Committee (Reps Comm) are elected roles in Grey
 					| that cover all people in the JCR, from minority groups, such as
 					| LGBTa and Mature students (among others) to entire year groups,

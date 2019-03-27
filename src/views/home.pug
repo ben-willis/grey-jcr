@@ -5,10 +5,8 @@ html
 	head
 		include ./head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username))
 		div(class='ui container')
-			include ./header.pug
-			- var current = 'home';
-			include ./menu.pug
 			include ./promo.pug
 			div(class="ui vertical segment")
 				div(class="ui divided padded stackable grid")

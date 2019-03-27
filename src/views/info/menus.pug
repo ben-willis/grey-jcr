@@ -5,9 +5,8 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 			- var currWeek = ((week-1)%3)+1
 			h2 Week #{week} #{title}
 			p Here you can find this week's menu.

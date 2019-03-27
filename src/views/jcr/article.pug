@@ -11,9 +11,8 @@ html
 		meta(property="og:image" content="https://greyjcr.com/api/users/"+blog.author.username+"/avatar")
 		meta(property="fb:app_id" content="634847773365124")
 	body
+		div(id="main-menu" data-username=(user && user.username))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 			div(class="ui vertical segment items")
 				div(class="item")
 					div(class="ui tiny image")

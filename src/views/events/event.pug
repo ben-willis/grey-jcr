@@ -6,9 +6,8 @@ html
 		include ../head.pug
 		script(src="/javascripts/countdown.min.js")
 	body
+		div(id="main-menu" data-username=(user && user.username))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 			h2(class="ui header")
 				if (event.image)
 					img(class="ui image" src="/files/events/"+event.image)
