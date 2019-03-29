@@ -4,6 +4,7 @@ import { Repository, FindManyOptions, In } from 'typeorm';
 import RoleService from "./RoleService";
 import Role from "./entities/Role";
 import RoleUser from './entities/RoleUser';
+import { reject } from 'q';
 
 export default class RoleServiceImpl implements RoleService {
     constructor(
@@ -58,9 +59,12 @@ export default class RoleServiceImpl implements RoleService {
     }
 
     addUserToRole(roleId: number, username: string): Promise<Role> {
-        const roleUser = this.roleUserRepo.create({roleId, username});
-
-        return this.roleUserRepo.save(roleUser).then(() => this.roleRepo.findOne(roleId));
+        if (username.match(/^[A-Za-z]{4}[0-9]{2}$/gi)) {
+            const roleUser = this.roleUserRepo.create({roleId, username});
+            return this.roleUserRepo.save(roleUser).then(() => this.roleRepo.findOne(roleId));
+        } else {
+            return Promise.reject(new Error("Invalid username entered: \"" + username + "\""));
+        }
     }
 
     removeUserFromRole(roleId: number, username: string): Promise<Role> {
