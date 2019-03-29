@@ -4,19 +4,20 @@ import React from "react";
 
 interface ResponsiveMainMenuProps {
     username?: string;
+    admin: string;
 }
 
 export default class ResponsiveMainMenu extends React.Component<ResponsiveMainMenuProps> {
     public render() {
         return <div>
-            <Responsive maxWidth="650">
-                <MainMenu viewport="mobile" username={this.props.username} />
+            <Responsive maxWidth="800">
+                <MainMenu viewport="mobile" username={this.props.username} admin={this.props.admin}/>
             </Responsive>
-            <Responsive minWidth="651" maxWidth="991">
-                <MainMenu viewport="tablet" username={this.props.username}/>
+            <Responsive minWidth="801" maxWidth="1141">
+                <MainMenu viewport="tablet" username={this.props.username} admin={this.props.admin}/>
             </Responsive>
-            <Responsive minWidth="992">
-                <MainMenu viewport="desktop" username={this.props.username}/>
+            <Responsive minWidth="1142">
+                <MainMenu viewport="desktop" username={this.props.username} admin={this.props.admin}/>
             </Responsive>
         </div>
     }

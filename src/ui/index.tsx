@@ -32,7 +32,7 @@ if (document.getElementById("news-feed-role")) {
 
 if (document.getElementById("main-menu")) {
     ReactDOM.render(
-        <ResponsiveMainMenu username={document.getElementById("main-menu").getAttribute("data-username")}/>,
+        <ResponsiveMainMenu username={document.getElementById("main-menu").getAttribute("data-username")} admin={document.getElementById("main-menu").getAttribute("data-admin")}/>,
         document.getElementById("main-menu"),
     );
 }

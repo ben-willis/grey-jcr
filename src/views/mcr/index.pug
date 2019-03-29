@@ -5,7 +5,7 @@ html
 	head
 		include ../head.pug
 	body
-		div(id="main-menu" data-username=(user && user.username))
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
 			h2(class="ui header")= title
 			div(class="ui vertical segment")
@@ -84,7 +84,7 @@ html
 						div(class="image")
 							img(src="/api/users/lcrm57/avatar")
 						div(class="content")
-							div(class="header") Fourth Year and Mature Students Representative 
+							div(class="header") Fourth Year and Mature Students Representative
 							div(class="meta") Beth Brewer
 
 

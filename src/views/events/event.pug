@@ -6,7 +6,7 @@ html
 		include ../head.pug
 		script(src="/javascripts/countdown.min.js")
 	body
-		div(id="main-menu" data-username=(user && user.username))
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
 			h2(class="ui header")
 				if (event.image)
@@ -26,7 +26,7 @@ html
 						else if (ticket.sold == ticket.stock)
 							p Tickets have sold out.
 						else if (ticket.open_booking > (new Date()))
-							p Booking opens in 
+							p Booking opens in
 								span(data-milliseconds=Math.floor(ticket.open_booking - new Date()))
 							a(class="ui primary transition hidden booking button" href="/events/"+event.id+"/"+ticket.id+"/book") Book Now!
 						else if (ticket.stock - ticket.sold <= Math.max(ticket.stock/10,15))

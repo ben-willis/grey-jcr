@@ -5,13 +5,13 @@ html
 	head
 	include ../head.pug
 	body
-	div(id="main-menu" data-username=(user && user.username))
+	div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 	div(class='ui container')
 	  h2(class="ui header")= title
 	  p
 		| The Technical Managers are responsible for all of the technical equipment
 		| in the JCR (Lighting, Audio, Staging, Power ..etc) as well as managing
-		| technical side of the 
+		| technical side of the
 		| <a href="https://greyjcr.com/files/uploaded/k-events-IRINi.doc">JCR events</a>
 
 	  p
@@ -22,11 +22,11 @@ html
 		h3(class="ui header") Equipment Hire & Events
 		p
 		  | We also hire out our equipment! Equipment can be hired for a variety
-		  | of events, such as socials, other colleges events, theatre productions, 
-		  | or private events. You can see the list of equipment our and their 
-		  | respective hire prices at 
+		  | of events, such as socials, other colleges events, theatre productions,
+		  | or private events. You can see the list of equipment our and their
+		  | respective hire prices at
 		  | <a href="https://durhamtech.org.uk/grey" target="_blank">durhamtech.org.uk/grey</a>
-		  | Or, if you are unsure please use the Google Form at the bottom of 
+		  | Or, if you are unsure please use the Google Form at the bottom of
 		  | the page.
 		p
 		  | Grey JCR sports and societies can hire equipment for free.
@@ -42,14 +42,14 @@ html
 		  | If you have any queries, feel free to contact us.
 
 	  div(class="ui vertical segment")
-		iframe(width="100%" 
-		  height="800" 
-		  src="https://docs.google.com/forms/d/e/1FAIpQLSdUX8G1jD5k0fKTNdLDGlrcdM99jKeVqBD2Xw881WUzSiAgJQ/viewform?embedded=true" 
-		  frameborder="0" 
-		  marginheight="15px" 
-		  marginwidth="0" 
+		iframe(width="100%"
+		  height="800"
+		  src="https://docs.google.com/forms/d/e/1FAIpQLSdUX8G1jD5k0fKTNdLDGlrcdM99jKeVqBD2Xw881WUzSiAgJQ/viewform?embedded=true"
+		  frameborder="0"
+		  marginheight="15px"
+		  marginwidth="0"
 		  style="margin-top: 15px;")= 'Loading form...'
-	  
+
 	  div(class="ui vertical segment")
 		div(class="ui seven doubling link cards")
 		  if tech
@@ -60,7 +60,7 @@ html
 				div(class="content")
 				  div(class="header")= tech.title
 				  div(class="meta")=user.name
-	  
+
 	div(class="ui modal")
 	  div(class="header") No Position
 	  div(class="content")
