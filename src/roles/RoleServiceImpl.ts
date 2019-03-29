@@ -4,7 +4,6 @@ import { Repository, FindManyOptions, In } from 'typeorm';
 import RoleService from "./RoleService";
 import Role from "./entities/Role";
 import RoleUser from './entities/RoleUser';
-import { reject } from 'q';
 
 export default class RoleServiceImpl implements RoleService {
     constructor(
