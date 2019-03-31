@@ -6,7 +6,7 @@ html
 		include ../head.pug
 		script(src="/javascripts/vue.js")
 	body
-		div(id="main-menu" data-username=(user && user.username))
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
 			div(class="ui divided stackable vertically padded grid")
 				div(class="five wide column")

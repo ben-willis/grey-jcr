@@ -4,7 +4,7 @@ html
 	head
 		include ../head.pug
 	body
-		div(id="main-menu" data-username=(user && user.username))
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
 			div(class="ui vertical segment")
 				h2(class="ui header")= title
@@ -28,7 +28,7 @@ html
 											i(class="twitter icon")
 										if(sport.email)
 											i(class="mail icon")
-		
+
 			div(class="ui vertical segment")
 				h3(class="ui header") Societies
 				div(class="ui four wide stackable cards")

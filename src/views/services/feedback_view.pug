@@ -5,10 +5,10 @@ html
 	head
 		include ../head.pug
 	body
-		div(id="main-menu" data-username=(user && user.username))
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
 			h2(class="ui header")= title
-			
+
 			if ("success" in query)
 				div(class="ui positive icon message")
 					i(class="close icon")
@@ -20,7 +20,7 @@ html
 					$('.message .close').on('click', function() {
 						$(this).closest('.message').transition('fade');
 					});
-					
+
 			else if (feedback.archived)
 				div(Class="ui icon message")
 					i(class="archive icon")

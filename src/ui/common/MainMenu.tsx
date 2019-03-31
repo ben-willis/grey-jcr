@@ -7,6 +7,7 @@ import greyAPI from "../greyAPI";
 interface MainMenuProps {
     viewport: "mobile"|"tablet"|"desktop"
     username?: string
+    admin: string
 }
 
 interface MainMenuState {
@@ -26,11 +27,13 @@ export default class MainMenu extends React.Component<MainMenuProps, MainMenuSta
     }
 
     public render() {
-        const menuItemsToDisplay = this.props.username ? menuItems : menuItems.filter(mu => !mu.usersOnly)
+        const menuItemsToDisplay = this.props.username ? menuItems : menuItems.filter(mu => !mu.usersOnly && mu.name !== "admin");
         const visibleItems = (this.props.viewport === "desktop") ? 6 : 5;
 
         const mainMenuItems = menuItemsToDisplay.slice(0, visibleItems - 1);
         const subMenuItems = menuItemsToDisplay.slice(visibleItems - 1);
+
+        const adminMenuItem = menuItems.find(mu => mu.name === "admin");
 
         return <div className="main-menu-container">
             <Grid inverted container stackable={this.props.viewport === "mobile"} columns="equal" verticalAlign="middle">
@@ -56,7 +59,7 @@ export default class MainMenu extends React.Component<MainMenuProps, MainMenuSta
                                     </Dropdown.Item>
                                 ))}
                             </Dropdown.Menu>
-                        </Dropdown>                    
+                        </Dropdown>
                     </Menu>
                 </Grid.Column>
                 {(this.props.viewport === "desktop") && <Grid.Column>
@@ -76,6 +79,10 @@ export default class MainMenu extends React.Component<MainMenuProps, MainMenuSta
                             results={this.state.searchResults}
                             onSearchChange={this.handleSearchChange}
                         />
+                        {(this.props.admin === "true") &&
+                            <Menu.Item name={adminMenuItem.name} href={adminMenuItem.path} fitted="horizontally">
+                                {adminMenuItem.label}
+                            </Menu.Item>}
                         {this.props.username && <Dropdown item trigger={
                             <Image
                                 circular

@@ -5,7 +5,7 @@ html
 	head
 		include ../head.pug
 	body
-		div(id="main-menu" data-username=(user && user.username))
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
 			h2 Update your profile
 			div(class="ui vertical segment")

@@ -99,6 +99,13 @@ const menuItems: MenuItem[] = [
         icon: "comments",
         usersOnly: true,
         path: "/services/feedback",
+    },
+    {
+        name: "admin",
+        label: "Admin",
+        icon: "wrench",
+        usersOnly: true,
+        path: "/admin/",
     }
 ]
 

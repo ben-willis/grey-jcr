@@ -5,7 +5,7 @@ html
 	head
 		include ../head.pug
 	body
-		div(id="main-menu" data-username=(user && user.username))
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
 			h2(class="ui header")
 				= title
@@ -25,7 +25,7 @@ html
 					$('.message .close').on('click', function() {
 						$(this).closest('.message').transition('fade');
 					});
-			else 
+			else
 				p You have already voted in this election. Your votes are listed below.
 			div(class="ui vertical segment")
 				if (user_vote == null)
@@ -76,5 +76,5 @@ html
 											div(class="ui circular label")= user_vote[nominee.id]
 										else
 											div(class="ui circular label")
-				
+
 		include ../footer.pug
