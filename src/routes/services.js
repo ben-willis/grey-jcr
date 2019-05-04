@@ -13,6 +13,7 @@ var Room = require('../models/room');
 
 import DebtsService from "../debts/DebtsService";
 import { getConnection } from "typeorm";
+import UserServiceImpl from 'src/users/UserServiceImpl';
 
 const debtsService = new DebtsService(getConnection("grey"));
 
@@ -127,8 +128,9 @@ router.post('/user/:username/update', upload.single('avatar'), function (req, re
 		err.status = 403;
 		return next(err);
 	}
-	mv(req.file.path, process.env.FILES_DIRECTORY + '/avatars/'+req.params.username+'.png', function (err) {
-		if (err) return next(err);
+
+	const userService = new UserServiceImpl();
+	userService.updateAvatar(req.user.username, req.file).then(newAvatarPath => {
 		res.redirect(303, '/services/user/'+req.params.username+'?success');
 	});
 });
