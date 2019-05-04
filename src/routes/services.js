@@ -13,9 +13,10 @@ var Room = require('../models/room');
 
 import DebtsService from "../debts/DebtsService";
 import { getConnection } from "typeorm";
-import UserServiceImpl from 'src/users/UserServiceImpl';
+import UserServiceImpl from '../users/UserServiceImpl';
 
 const debtsService = new DebtsService(getConnection("grey"));
+const userService = new UserServiceImpl();
 
 /* GET room booking page */
 router.get('/rooms/', function (req, res, next) {
@@ -129,10 +130,9 @@ router.post('/user/:username/update', upload.single('avatar'), function (req, re
 		return next(err);
 	}
 
-	const userService = new UserServiceImpl();
 	userService.updateAvatar(req.user.username, req.file).then(newAvatarPath => {
 		res.redirect(303, '/services/user/'+req.params.username+'?success');
-	});
+	}).catch(next);
 });
 
 /* GET feedback page */

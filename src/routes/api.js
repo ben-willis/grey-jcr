@@ -87,9 +87,9 @@ router.get('/users', function (req, res, next) {
 });
 
 router.get('/users/:username/avatar', function (req, res, next) {
-	fs.access(process.env.FILES_DIRECTORY+'/avatars/'+req.params.username+'.png', function (err) {
+	fs.access(process.env.FILES_DIRECTORY+'/avatars/'+req.params.username+'.jpg', function (err) {
 		if (!err) {
-			res.sendFile(process.env.FILES_DIRECTORY + '/avatars/'+req.params.username+'.png');
+			res.sendFile(process.env.FILES_DIRECTORY + '/avatars/'+req.params.username+'.jpg');
 		} else {
 			res.sendFile('ui/images/anon.png', {
     			root: __dirname+'/../'
