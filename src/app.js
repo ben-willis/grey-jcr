@@ -26,12 +26,6 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 var flash = require('connect-flash');
-var passport = require('passport');
-var io = require('socket.io')(8082);
-var session = require('express-session');
-var RedisStore = require('connect-redis')(session);
-var LocalStrategy = require('passport-local').Strategy;
-var https = require('https');
 var compress = require('compression');
 var helmet = require('helmet');
 
@@ -64,74 +58,7 @@ app.use(compress());
 app.use(bodyParser.json());
 app.use(flash());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({
-    store: new RedisStore({host: process.env.REDIS_HOST, port: process.env.REDIS_PORT}),
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: {maxAge: 14*24*60*60*1000}
-}));
-app.use(passport.initialize());
-app.use(passport.session());
 app.use(express.static(path.join(__dirname, 'ui')));
-
-/* PASSPORT */
-passport.serializeUser(function (user, done) {
-  done(null, user.username);
-});
-
-passport.deserializeUser(function (username, done) {
-    var current_user = null;
-    User.findByUsername(username).then(function(user){
-        current_user = user;
-        return current_user.getRoles();
-    }).then(function(roles) {
-        return Promise.all(
-            roles.map(function(role) {
-                return fileService.getFolderForOwner(role.id).then((folder) => {
-                    role.folder = folder;
-                    return role;
-                });
-            })
-        )
-    }).then(function(roles) {
-        current_user.level = 0;
-        for (var i = 0; i < roles.length; i++) {
-            if (roles[i].level > current_user.level) {
-                current_user.level = roles[i].level;
-            }
-        };
-        current_user.roles = roles;
-        return debtsService.getDebts(current_user.username);
-    }).then(function(debts){
-        current_user.debt = debts.reduce((a, b) => a + b.amount, 0);
-        done(null, current_user);
-    }).catch(function (err) {
-        return done(err);
-    });
-});
-
-passport.use(new LocalStrategy( function (username, password, done) {
-    // Check username and password are set
-    if (!password || !username) return done(null, false);
-    var username = username.toLowerCase();
-
-    // authorize user
-    User.authorize(username, password)
-        .then(function() {
-            User.findByUsername(username).catch(function(err) {
-                if (err.status != 404) throw err;
-                return User.create(username);
-            }).then(function(user) {
-                done(null, user)
-            }).catch(function(err) {
-                done(err);
-            });
-        })
-        .catch(function(err) {
-            done(null, false);
-        });
-}));
 
 /* PUG */
 var prettydate = require('pretty-date');
@@ -152,13 +79,6 @@ app.use("/api/files/", new FileRouter(fileService).router);
 
 app.use("/files/", (req, res, next) => {
     res.sendFile(process.env.FILES_DIRECTORY + decodeURIComponent(req.path));
-});
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
 });
 
 // error handler
