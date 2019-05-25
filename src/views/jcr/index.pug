@@ -5,10 +5,8 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
-			include ../header.pug
-			- var current="jcr";
-			include ../menu.pug
 			h2(class="ui header")= title
 			div(class="ui vertical segment" id="about")
 				h3(class="ui header") What is the JCR?

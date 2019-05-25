@@ -5,9 +5,8 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 
 			h2 Valentines Formal Swapping
 			p Every year, we raise money for charity by allowing members of the JCR to swap around table plans at Valentine's Formal for a small contribution. Anyone can participate, even those not attending formal! If you are in the hot seats (in bold) at the end of swapping, there will be a forfeit... That forfeit will only be told once swapping is closed.
@@ -22,7 +21,7 @@ html
 									tr
 										each j in [0,1,2,3]
 											- var position_id = ((i*8)+j)%(pairs.length)
-											td(data-position=position_id, data-pair=pairs[position_id].id, class="pair", style=(position_id == 51 || position_id == 56)?"font-weight:bold; border: 1px black solid;":"") 
+											td(data-position=position_id, data-pair=pairs[position_id].id, class="pair", style=(position_id == 51 || position_id == 56)?"font-weight:bold; border: 1px black solid;":"")
 												span(class="lead")= pairs[position_id].lead
 												br
 												span(class="partner")= pairs[position_id].partner
@@ -62,7 +61,7 @@ html
 						div(class="ui fluid icon input")
 							input(type="text" class="search" placeholder="Search by name here...")
 							i(class="search icon")
-					
+
 
 					if (swapping_open)
 						div(class="ui vertical segment" id="swapping_form")
@@ -87,10 +86,10 @@ html
 									div(class="content")
 										div(class="date")= swap.created.toLocaleTimeString()
 										= swap.paira.lead+" and "+swap.paira.partner
-										|  were swapped with 
+										|  were swapped with
 										= swap.pairb.lead+" and "+swap.pairb.partner
 
-		
+
 		script(type="text/javascript", src="https://cdn.socket.io/socket.io-1.4.5.js")
 		script(type="text/javascript", src="/javascripts/valentines.js")
 

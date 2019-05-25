@@ -5,10 +5,8 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
-			include ../header.pug
-			- var current="events";
-			include ../menu.pug
 			div(class="ui divided padded stackable grid")
 				div(class="six wide column")
 					h2(class="ui header") Upcoming Events

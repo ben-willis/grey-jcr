@@ -5,9 +5,8 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 			h2(class="ui header")= title
 			div(class="ui vertical segment")
 				p The Payment was cancelled.

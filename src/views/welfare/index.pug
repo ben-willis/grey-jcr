@@ -5,35 +5,33 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
-			include ../header.pug
-			- var current="welfare";
-			include ../menu.pug
 			h2(class="ui header")= title
-			p 
-				| Welcome to the Welfare section of the JCR website! 
-				| Hopefully this website will be a good resource for you, but it is no 
-				| substitute for having a chat with somebody. We're always around to 
-				| talk - feel free to get in touch. You can visit us in the welfare room, 
+			p
+				| Welcome to the Welfare section of the JCR website!
+				| Hopefully this website will be a good resource for you, but it is no
+				| substitute for having a chat with somebody. We're always around to
+				| talk - feel free to get in touch. You can visit us in the welfare room,
 				| or use our anonymous online support system.
 			div(class="ui vertical segment")
 				h3(class="ui header") How does College Welfare Work?
 				p
-					| University can be a very exciting time, but it also can be really 
-					| daunting and unnerving. Though people might be very happy most of 
-					| the time, there are sometimes those who are not. That's where the 
-					| college welfare team come in. We provide a confidential, non-advisory, 
-					| listening, signposting, and support service to allow you to come and 
-					| talk to another student. You can talk to the welfare team about 
-					| literally anything, even if you just fancy a chat. We also have loads 
-					| of information leaflets and we can point you in the right direction 
-					| if you need contact details for hospitals, clinics or professional 
-					| advice. 
+					| University can be a very exciting time, but it also can be really
+					| daunting and unnerving. Though people might be very happy most of
+					| the time, there are sometimes those who are not. That's where the
+					| college welfare team come in. We provide a confidential, non-advisory,
+					| listening, signposting, and support service to allow you to come and
+					| talk to another student. You can talk to the welfare team about
+					| literally anything, even if you just fancy a chat. We also have loads
+					| of information leaflets and we can point you in the right direction
+					| if you need contact details for hospitals, clinics or professional
+					| advice.
 				p
-					| The team also organise and run campaign weeks in college like SHAG 
-					| (Sexual Health and Guidance) week, Substance Awareness week, and 
-					| Mental Health Awareness Week. The aim of these is to promote 
-					| awareness of various issues, and provide members of college with 
+					| The team also organise and run campaign weeks in college like SHAG
+					| (Sexual Health and Guidance) week, Substance Awareness week, and
+					| Mental Health Awareness Week. The aim of these is to promote
+					| awareness of various issues, and provide members of college with
 					| useful information.
 			div(class="ui vertical segment")
 				h3(class="ui header") Who are we?
@@ -50,33 +48,33 @@ html
 			div(class="ui vertical segment")
 				h3(class="ui header") How do you find us?
 				p
-					| We run drop-in hours 3 times a week, in the evening/afternoon, 
-					| during which anyone can drop in to talk to the team member on duty 
-					| about anything, in confidence. Welfare hours are held in the Welfare 
-					| Room which is located on the bottom floor of Hollingside, opposite 
-					| the laundry room. They are held on Tuesday and Thursday 6.30-8.30pm 
-					| and Saturday 2-4pm. You can find out which member of the team is 
-					| running the drop-ins by looking at the rota which is emailed out to 
-					| college. 
+					| We run drop-in hours 3 times a week, in the evening/afternoon,
+					| during which anyone can drop in to talk to the team member on duty
+					| about anything, in confidence. Welfare hours are held in the Welfare
+					| Room which is located on the bottom floor of Hollingside, opposite
+					| the laundry room. They are held on Tuesday and Thursday 6.30-8.30pm
+					| and Saturday 2-4pm. You can find out which member of the team is
+					| running the drop-ins by looking at the rota which is emailed out to
+					| college.
 				p
-					| We can also be found on Facebook at 
-					| <a href="https://www.facebook.com/greycollegewelfare/" target="_blank">www.facebook.com/greycollegewelfare/</a> 
+					| We can also be found on Facebook at
+					| <a href="https://www.facebook.com/greycollegewelfare/" target="_blank">www.facebook.com/greycollegewelfare/</a>
 					| and on instagram at <a href="https://www.instagram.com/greywelfare/" target="_blank">www.instagram.com/greywelfare/</a>.
-				p 
-					| So make sure you all look out for the Welfare team: we are here to 
-					| support you anytime you need it, to make sure everyone enjoys their 
+				p
+					| So make sure you all look out for the Welfare team: we are here to
+					| support you anytime you need it, to make sure everyone enjoys their
 					| university experience as much as they can.
 			div(class="ui vertical segment")
 				h3(class="ui header") Anonymous Online Support system
 				p
-					| You can use the anonymous online support system to send an anonymous 
-					| message to the Male and Female Welfare Officers from whom you should 
-					| receive a reply from within 24 hours. Click 
-					| <a href="https://community.dur.ac.uk/grey.welfare/" target="_blank">here</a> 
-					| to access this service. You could report an incident (such as egging, 
-					| drink spiking) to enable us to warn other students about it. You 
-					| could ask us a question if you prefer not to talk directly. Or you 
-					| can simply use it as an easy way of sending us your thoughts. Here 
+					| You can use the anonymous online support system to send an anonymous
+					| message to the Male and Female Welfare Officers from whom you should
+					| receive a reply from within 24 hours. Click
+					| <a href="https://community.dur.ac.uk/grey.welfare/" target="_blank">here</a>
+					| to access this service. You could report an incident (such as egging,
+					| drink spiking) to enable us to warn other students about it. You
+					| could ask us a question if you prefer not to talk directly. Or you
+					| can simply use it as an easy way of sending us your thoughts. Here
 					| are a few of the things you might want to write about:
 				ul
 					li Request information like leaflets, names of charities, phone numbers etc.
@@ -86,76 +84,76 @@ html
 					li Request certain supplies, and we can leave it in a discreet place for you.
 				h4(class="ui header") Pregnancy Testing
 				p
-					| Free pregnancy tests can be taken from the welfare room at any time 
-					| during drop in. The test is very simple and only takes a few minutes. 
-					| Please contact the anonymous online support system if you would like 
+					| Free pregnancy tests can be taken from the welfare room at any time
+					| during drop in. The test is very simple and only takes a few minutes.
+					| Please contact the anonymous online support system if you would like
 					| a test out of drop in hours or would like them to help you.
 				h4(class="ui header") Chlamydia Testing
 				p
 					| In the same way we offer free chlamydia tests - these can be done in
-					| your own time and dropped down to the Durham SU. Results come back 
+					| your own time and dropped down to the Durham SU. Results come back
 					| quite quickly. We have an awareness week when we encourage people to
-					| get the test done, but you can get one at any time from the welfare 
+					| get the test done, but you can get one at any time from the welfare
 					| room.
 				h4(class="ui header") Condoms
 				p
-					| Condoms and lube are both free, and are available in a range of 
+					| Condoms and lube are both free, and are available in a range of
 					| sizes and types, including female and latex-free. They can be picked
-					| up in drop-ins, from the box outside the Welfare room out of hours, 
+					| up in drop-ins, from the box outside the Welfare room out of hours,
 					| or by messaging the anonymous online support system.
 			div(class="ui vertical segment")
 				h3(class="ui header") Getting involved in Welfare
 				p
-					| Would you like to get involved in welfare? Whilst at Durham, there 
-					| are several opportunities to get involved in welfare: be at Grey, 
+					| Would you like to get involved in welfare? Whilst at Durham, there
+					| are several opportunities to get involved in welfare: be at Grey,
 					| through Nightline or Durham SU.
 				h4(class="ui header") College Welfare team
 				p
-					| The new Welfare team will be picked during the second term of the 
-					| year (Epiphany). The Male and Female Welfare Officers will also be 
-					| elected during Epiphany term and anyone who would like to run for 
+					| The new Welfare team will be picked during the second term of the
+					| year (Epiphany). The Male and Female Welfare Officers will also be
+					| elected during Epiphany term and anyone who would like to run for
 					| the roles can stand for either Male or Female Welfare Officer.
 				p
-					| If you would like to apply to be on the Welfare team or run for the 
-					| role as a Welfare Officer – feel free to get in touch with the 
+					| If you would like to apply to be on the Welfare team or run for the
+					| role as a Welfare Officer – feel free to get in touch with the
 					| current team to answer any questions you might have.
 				h4(class="ui header") Nightline
 				p
-					| Nightline is a listening service run by students for students and is 
-					| open every night of term between 9pm and 7am. They are there to 
-					| listen to you about anything on your mind such as friends, 
+					| Nightline is a listening service run by students for students and is
+					| open every night of term between 9pm and 7am. They are there to
+					| listen to you about anything on your mind such as friends,
 					| relationships, stress, late night thoughts, and more.
 				p
-					| Nightline is based on 5 principles: confidentiality, anonymity, 
-					| non-advisory, non-judgmental, and non-aligned. So, you can be ensured 
-					| that every conversation remains between the caller and volunteer and 
-					| that your identity will remain anonymous. As well, they are 
-					| non-directive/non-advisory respecting your right to make your own 
-					| decisions, and are both non-judgmental and non-aligned respecting 
+					| Nightline is based on 5 principles: confidentiality, anonymity,
+					| non-advisory, non-judgmental, and non-aligned. So, you can be ensured
+					| that every conversation remains between the caller and volunteer and
+					| that your identity will remain anonymous. As well, they are
+					| non-directive/non-advisory respecting your right to make your own
+					| decisions, and are both non-judgmental and non-aligned respecting
 					| each person's thoughts, beliefs, and actions.
 				p
-					| You can contact them by calling their number which is found on DUO 
-					| and the back of your campus card or online via their instant 
-					| messaging system which can be found on their website: 
+					| You can contact them by calling their number which is found on DUO
+					| and the back of your campus card or online via their instant
+					| messaging system which can be found on their website:
 					| <a href="https://durhamnightline.com/" target="_blank">durhamnightline.com</a>
 
 		div(class="ui modal")
 			div(class="header") President
 			div(class="content")
 				p
-					| The President is a sabbatical officer, employed by the college to 
+					| The President is a sabbatical officer, employed by the college to
 					| oversee the JCR and ensure it runs properly.
-				p 
-					| Their main role is to act as a representative of the JCR to other 
-					| bodies, such as the SCR, College and the wider University as well as 
-					| external bodies should the need arise. To this end they sit on a 
-					| number of University Committees as well as Grey College Council. 
-					| They are also Ex-Offico members of all the committees in the College 
+				p
+					| Their main role is to act as a representative of the JCR to other
+					| bodies, such as the SCR, College and the wider University as well as
+					| external bodies should the need arise. To this end they sit on a
+					| number of University Committees as well as Grey College Council.
+					| They are also Ex-Offico members of all the committees in the College
 					| and the JCR and sit on them when required.
-				p 
-					| A few more particular duties include performing the First Year Room 
-					| Ballot with the Assistant Senior Tutor, organising college parenting, 
-					| organising Burst the Bubble Trips and the prestigious President's 
+				p
+					| A few more particular duties include performing the First Year Room
+					| Ballot with the Assistant Senior Tutor, organising college parenting,
+					| organising Burst the Bubble Trips and the prestigious President's
 					| Guest Night, a large dinner-dance during Epiphany Term.
 			div(class="actions")
 				div(class="ui ok button") Done

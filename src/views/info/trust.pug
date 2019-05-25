@@ -5,9 +5,8 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 			h2(class="ui header") #{title}
 			div(Class="ui vertical segment")
 				p Grey JCR is different to many of Durham’s other college JCRs because we are an Independent Charity, governed by our own Trustee board of four student trustees and four external trustees. This board oversee the JCR’s legal and financial operation and it’s long-term aims, enabling us to have full control over what direction we take as a Common Room. Our four student trustees are elected positions within the JCR, being the JCR President, JCR FACSO (Finance and Commercial Services Officer), Vice-President and elected Student trustee. For more information, get in contact with the JCR President at grey.president@durham.ac.uk.
@@ -33,7 +32,7 @@ html
 						div(class="content")
 							span(class="header") Alex Rae
 							div(class="description")
-								p Alex Rae is a founding trustee of the Grey JCR Trust. Alex is from Nottingham and attended Grey College from 1974 until 1977, obtaining an honours degree in law. While at Grey, Alex was a member of the JCR executive and played cricket for the college as well as being an active member of the dramatic society. Alex was called to the Bar in 1978 and after a brief period in practice in Newcastle upon Tyne joined the Government Legal Service. Over a 30-year career, Alex served in the Health and Safety Exective, the Ministry of Agriculture, Fisheries and Food and the Food Standards Agency. In the mid-1980s, Alex was seconded to the Legal Service of the European Commission in Brussels. As well as his work with the Grey JCR Trust, Alex is also a trustee of a homeless charity in Nottingham.  
+								p Alex Rae is a founding trustee of the Grey JCR Trust. Alex is from Nottingham and attended Grey College from 1974 until 1977, obtaining an honours degree in law. While at Grey, Alex was a member of the JCR executive and played cricket for the college as well as being an active member of the dramatic society. Alex was called to the Bar in 1978 and after a brief period in practice in Newcastle upon Tyne joined the Government Legal Service. Over a 30-year career, Alex served in the Health and Safety Exective, the Ministry of Agriculture, Fisheries and Food and the Food Standards Agency. In the mid-1980s, Alex was seconded to the Legal Service of the European Commission in Brussels. As well as his work with the Grey JCR Trust, Alex is also a trustee of a homeless charity in Nottingham.
 					div(class="item")
 						//- div(class="image"): img(src="/api/users/anon/avatar")
 						div(class="content")

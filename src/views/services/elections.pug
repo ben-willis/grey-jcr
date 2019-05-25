@@ -5,9 +5,8 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 			h2(class="ui header")= title
 			p The Elections system allows you to vote for candidates in husted JCR elections as well as in college referendums.
 			div(class="ui vertical segment")
@@ -24,12 +23,12 @@ html
 								each nominee in position.nominees
 									div(class="item")
 										= nominee.name
-										|  - 
+										|  -
 										if (nominee.manifesto != null)
 											a(href="/files/manifestos/"+nominee.manifesto) Manifesto
 										else
 											| Manifesto Unavailable
-											
+
 					if (election.voted)
 						a(class="ui primary button" href="/services/elections/"+election.id) Your Vote
 					else
@@ -50,11 +49,11 @@ html
 								each nominee in position.nominees
 									div(class="item")
 										= nominee.name
-										|  - 
+										|  -
 										if (nominee.manifesto != null)
 											a(href="/files/manifestos/"+nominee.manifesto) Manifesto
 										else
 											| Manifesto Unavailable
 
-				
+
 		include ../footer.pug

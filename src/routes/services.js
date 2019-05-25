@@ -12,6 +12,7 @@ var Room = require('../models/room');
 
 import DebtsService from "../debts/DebtsService";
 import ElectionsServiceImpl from "../elections/ElectionsServiceImpl";
+import UserServiceImpl from '../users/UserServiceImpl';
 import { getConnection } from "typeorm";
 import ElectionStatus from '../elections/models/ElectionStatus';
 
@@ -19,6 +20,7 @@ const connection = getConnection("grey");
 
 const debtsService = new DebtsService(connection);
 const electionsService = new ElectionsServiceImpl(connection);
+const userService = new UserServiceImpl();
 
 /* GET room booking page */
 router.get('/rooms/', function (req, res, next) {
@@ -131,10 +133,10 @@ router.post('/user/:username/update', upload.single('avatar'), function (req, re
 		err.status = 403;
 		return next(err);
 	}
-	mv(req.file.path, process.env.FILES_DIRECTORY + '/avatars/'+req.params.username+'.png', function (err) {
-		if (err) return next(err);
+
+	userService.updateAvatar(req.user.username, req.file).then(newAvatarPath => {
 		res.redirect(303, '/services/user/'+req.params.username+'?success');
-	});
+	}).catch(next);
 });
 
 /* GET feedback page */

@@ -5,9 +5,8 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
-			include ../header.pug
-			include ../menu.pug
 			div(id="feedback")
 				h2= title
 				div(class="ui vertical segment")
@@ -52,5 +51,5 @@ html
 									td= prettydate.format(new Date(feedback.created))
 									td
 										a(class="ui label" href="/services/feedback/"+feedback.id)= feedback.replies.length
-		
+
 		include ../footer.pug

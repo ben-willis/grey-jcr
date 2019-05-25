@@ -4,34 +4,31 @@ html
 	head
 		include ../head.pug
 	body
+		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
-			include ../header.pug
-			- var current="support";
-			include ../menu.pug
-			
 			h2(class="ui header")= title
-			
+
 			div(class="ui vertical segment" id="college")
 				h3(class="ui header") College Support
-				p 
-					| Second years are assigned a College Mentor. This is someone 
+				p
+					| Second years are assigned a College Mentor. This is someone
 					| who is appointed to help with personal development.
-				p 
-					| The College also has a Parenting system where a fresher is 
-					| paired with a student from a later year who acts as someone 
-					| they can approach for help or advice about academic work, or 
-					| information on what goes on in college. They are also someone 
-					| you can socialise with and who can introduce you to people 
+				p
+					| The College also has a Parenting system where a fresher is
+					| paired with a student from a later year who acts as someone
+					| they can approach for help or advice about academic work, or
+					| information on what goes on in college. They are also someone
+					| you can socialise with and who can introduce you to people
 					| in other years.
-				p 
-					| Subject groups are an exciting new addition to college life, 
-					| giving you the means to get to know others in college studying 
-					| your subject, share advice between year groups, and have a 
-					| point of contact who can connect you with other students. 
-					| It’s an opportunity to learn from more experienced students, 
-					| for older years to share interests in their subject and help 
+				p
+					| Subject groups are an exciting new addition to college life,
+					| giving you the means to get to know others in college studying
+					| your subject, share advice between year groups, and have a
+					| point of contact who can connect you with other students.
+					| It’s an opportunity to learn from more experienced students,
+					| for older years to share interests in their subject and help
 					| guide other students.
-				p 
+				p
 					| Every subject has a point of contact called the Subject Leader,
 					| a motivated student passionate about their subject. They’ll be
 					| able to recommend modules, career paths, give essay advice,
@@ -47,7 +44,7 @@ html
 
 			div(class="ui vertical segment" id="representatives")
 				h3(class="ui header") JCR Representatives
-				p 
+				p
 					| Representatives Committee (Reps Comm) are elected roles in Grey
 					| that cover all people in the JCR, from minority groups, such as
 					| LGBTa and Mature students (among others) to entire year groups,
@@ -62,7 +59,7 @@ html
 					| If you have any queries, concerns or feedback for indvidual reps,
 					| please feel free to contact them. Any general queries please
 					| contact the Representatives Officer.
-				
+
 				div(class="ui six doubling link cards")
 					if (reps_officer != null)
 						if (reps_officer.users.length < 1)
@@ -114,7 +111,7 @@ html
 
 			div(class="ui vertical segment" id="university")
 				h3(class="ui header") University Support
-				
+
 				h4(class="ui header") Students' Union Welfare
 				p
 					| The Students' Union also has an Advice Centre, which can be
@@ -153,7 +150,7 @@ html
 					| can also call you back on a landline in the Durham area. Have a look
 					| at the website here:
 					| <a href="https://durhamnightline.com/" target="_blank">durhamnightline.com</a>
-				
+
 				h4(class="ui header") LGBTa
 				p
 					| The LGBTa (Lesbian, Gay, Bisexual and Transgender Association)
