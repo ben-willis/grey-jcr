@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, Unique } from "typeorm";
 import { SocietyType } from "../models";
+import { IsInt, IsEnum, IsDefined } from "class-validator";
 
 @Entity({
     name: "societies"
@@ -7,9 +8,11 @@ import { SocietyType } from "../models";
 @Unique(["type", "slug"])
 export default class Society {
     @PrimaryGeneratedColumn()
+    @IsInt()
     public id: number;
 
     @Column({type: "integer"})
+    @IsEnum(SocietyType)
     public type: SocietyType;
 
     @Column({ type: "character varying", length: 255 })
