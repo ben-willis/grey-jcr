@@ -33,7 +33,7 @@ function getElectionRound(nominees: Nominee[], votes: Vote[]): ElectionRound {
     });
 
     const totalVotes = votes.length;
-    const threshold = Math.ceil(totalVotes / 2);
+    const threshold = Math.floor(totalVotes / 2) + 1;
     const winner = getWinner(nomineeElectionRounds, threshold);
     const loser = winner ? undefined : getLoser(nomineeElectionRounds);
 

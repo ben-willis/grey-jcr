@@ -35,53 +35,6 @@ User.prototype.delete = function(){
     return db('users').del().where('username', this.username);
 };
 
-User.prototype.addDebt = function(name, message, amount) {
-    return db('debts').insert({
-        username: this.username,
-        name: name,
-        message: message,
-        amount: amount
-    });
-};
-
-User.prototype.assignRole = function(role_id) {
-    return db('user_roles').insert({
-        username: this.username,
-        role_id: role_id
-    });
-};
-
-User.prototype.getRoles = function() {
-    return db('user_roles')
-        .where({'username': this.username})
-        .join('roles', 'user_roles.role_id', '=', 'roles.id')
-        .select('roles.id', 'roles.title', 'roles.slug', 'roles.level', 'roles.description');
-};
-
-User.prototype.removeRole = function(role_id) {
-    return db('user_roles').where({
-        username: this.username,
-        role_id: role_id
-    }).del();
-};
-
-User.prototype.getBlogs = function() {
-    return db('blogs').select().where({author: this.username});
-};
-
-User.prototype.getVote = function(election_id) {
-    var votes = {};
-    return db('election_votes')
-        .select('nominee_id', 'preference')
-        .where({username: this.username, election_id: election_id})
-        .then(function(data){
-            if (data.length === 0) return null;
-            for (vote of data) {
-                votes[vote.nominee_id] = vote.preference;
-            }
-            return votes;
-        });
-};
 
 /* Static Methods */
 

@@ -84,7 +84,7 @@ passport.deserializeUser(function (username, done) {
     var current_user = null;
     User.findByUsername(username).then(function(user){
         current_user = user;
-        return current_user.getRoles();
+        return rolesService.getRolesForUser(current_user.username);
     }).then(function(roles) {
         return Promise.all(
             roles.map(function(role) {
@@ -95,12 +95,7 @@ passport.deserializeUser(function (username, done) {
             })
         )
     }).then(function(roles) {
-        current_user.level = 0;
-        for (var i = 0; i < roles.length; i++) {
-            if (roles[i].level > current_user.level) {
-                current_user.level = roles[i].level;
-            }
-        };
+        current_user.level = Math.max(...roles.map(r => r.level));
         current_user.roles = roles;
         return debtsService.getDebts(current_user.username);
     }).then(function(debts){
