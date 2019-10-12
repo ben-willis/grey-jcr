@@ -1,6 +1,7 @@
 language: node_js
 
-services: postgres
+services:
+  - postgresql
 
 addons:
   ssh_known_hosts: greyjcr.com
