@@ -45,6 +45,13 @@ const menuItems: MenuItem[] = [
         path: "/welfare",
     },
     {
+        name: "reps",
+        label: "Reps",
+        icon: "user circle",
+        usersOnly: false,
+        path: "/reps",
+    },
+    {
         name: "mcr",
         label: "MCR",
         icon: "users",
@@ -78,13 +85,6 @@ const menuItems: MenuItem[] = [
         icon: "cogs",
         usersOnly: false,
         path: "/tech",
-    },
-    {
-        name: "reps",
-        label: "Reps",
-        icon: "user circle",
-        usersOnly: false,
-        path: "/reps",
     },
     {
         name: "menus",
