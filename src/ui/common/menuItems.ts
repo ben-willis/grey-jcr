@@ -24,8 +24,8 @@ const menuItems: MenuItem[] = [
         path: "/jcr",
     },
     {
-        name: "societies",
-        label: "Societies",
+        name: "sportsandsocs",
+        label: "Sport/Socs",
         icon: "soccer",
         usersOnly: false,
         path: "/sportsandsocs",
