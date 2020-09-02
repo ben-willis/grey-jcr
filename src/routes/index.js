@@ -8,7 +8,7 @@ var User = require('../models/user');
 
 var auth = require('./auth');
 var jcr = require('./jcr');
-var freshers = require('./freshers');
+var handbook = require('./handbook');
 var services = require('./services');
 var info = require('./info');
 var support = require('./support');
@@ -58,7 +58,7 @@ router.get('/offline', function(req,res,next) {
 
 router.use('/', auth);
 router.use('/jcr/', jcr);
-router.use('/freshers/', freshers);
+router.use('/handbook/', handbook);
 router.use('/services/', services);
 router.use('/info/', info);
 router.use('/support/', support);

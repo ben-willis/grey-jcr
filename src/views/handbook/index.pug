@@ -1,0 +1,16 @@
+- var title = 'Freshers Handbook'
+
+doctype html
+html
+  head
+    include ../head.pug
+    style(type="text/css").
+      .smcx-widget {
+        margin: 100px auto 50px auto !important;
+      }
+  body
+    div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
+    div(class='ui container')
+      h2(class='ui header')= title
+
+      include ../footer.pug
