@@ -8,7 +8,7 @@ html
 		div(id="main-menu" data-username=(user && user.username) data-admin=(user && (user.level > 3).toString()))
 		div(class='ui container')
 			h2= title
-			div(class="ui top attached tabular rooms menu")
+			div(class="ui top attached tabular rooms menu" style="display:flex; flex-wrap:wrap;")
 				for room in rooms
 					a(class="item" data-tab=room.id)= room.name
 
