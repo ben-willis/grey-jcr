@@ -30,7 +30,7 @@ export default class MainMenu extends React.Component<MainMenuProps, MainMenuSta
         const menuItemsToDisplay = this.props.username ? menuItems : menuItems.filter(mu => !mu.usersOnly && mu.name !== "admin");
         const visibleItems = (this.props.viewport === "desktop") ? 6 : 5;
 
-        const mainMenuItems = menuItemsToDisplay.slice(0, visibleItems);
+        const mainMenuItems = menuItemsToDisplay.slice(0, visibleItems + 1);
         const subMenuItems = menuItemsToDisplay.slice(visibleItems);
 
         const adminMenuItem = menuItems.find(mu => mu.name === "admin");

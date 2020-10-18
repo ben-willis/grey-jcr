@@ -52,6 +52,13 @@ const menuItems: MenuItem[] = [
         path: "/reps",
     },
     {
+        name: "feedback",
+        label: "Feedback",
+        icon: "comments",
+        usersOnly: true,
+        path: "/services/feedback",
+    },
+    {
         name: "mcr",
         label: "MCR",
         icon: "users",
@@ -92,13 +99,6 @@ const menuItems: MenuItem[] = [
         icon: "utensils",
         usersOnly: false,
         path: "/info/menus",
-    },
-    {
-        name: "feedback",
-        label: "Feedback",
-        icon: "comments",
-        usersOnly: true,
-        path: "/services/feedback",
     },
     {
         name: "admin",
