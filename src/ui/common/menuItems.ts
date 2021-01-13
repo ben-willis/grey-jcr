@@ -45,6 +45,13 @@ const menuItems: MenuItem[] = [
         path: "/welfare",
     },
     {
+        name: "shop",
+        label: "Shop",
+        icon: "shopping bag",
+        usersOnly: false,
+        path: "https://shop.greyjcr.com/"
+    },
+    {
         name: "reps",
         label: "Reps",
         icon: "user circle",
