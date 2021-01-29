@@ -42,14 +42,14 @@ const menuItems: MenuItem[] = [
         label: "Welfare",
         icon: "heart",
         usersOnly: false,
-        path: "/welfare",
+        path: "https://services.greyjcr.com/welfare",
     },
     {
         name: "shop",
         label: "Shop",
         icon: "shopping bag",
         usersOnly: false,
-        path: "https://shop.greyjcr.com/"
+        path: "https://services.greyjcr.com/"
     },
     {
         name: "reps",
@@ -91,7 +91,7 @@ const menuItems: MenuItem[] = [
         label: "Elections",
         icon: "check square outline",
         usersOnly: true,
-        path: "/services/elections",
+        path: "https://services.greyjcr.com/elections",
     },
     {
         name: "tech",
