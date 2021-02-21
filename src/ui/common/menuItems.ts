@@ -63,7 +63,7 @@ const menuItems: MenuItem[] = [
         label: "Feedback",
         icon: "comments",
         usersOnly: true,
-        path: "/services/feedback",
+        path: "https://services.greyjcr.com/feedback",
     },
     {
         name: "mcr",
