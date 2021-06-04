@@ -21,7 +21,7 @@ const menuItems: MenuItem[] = [
         label: "JCR",
         icon: "users",
         usersOnly: false,
-        path: "/jcr",
+        path: "https://services.greyjcr.com/jcr/committees",
     },
     {
         name: "sportsandsocs",
@@ -35,7 +35,7 @@ const menuItems: MenuItem[] = [
         label: "Events",
         icon: "calendar alternate outline",
         usersOnly: false,
-        path: "/events",
+        path: "https://services.greyjcr.com/events",
     },
     {
         name: "welfare",
@@ -52,11 +52,18 @@ const menuItems: MenuItem[] = [
         path: "https://services.greyjcr.com/"
     },
     {
+        name: "toasties",
+        label: "Toastie Bar",
+        icon: "food",
+        usersOnly: false,
+        path: "https://services.greyjcr.com/toasties"
+    },
+    {
         name: "reps",
         label: "Reps",
         icon: "user circle",
         usersOnly: false,
-        path: "/reps",
+        path: "https://services.greyjcr.com/jcr/committees?committee=representatives",
     },
     {
         name: "feedback",
@@ -84,7 +91,7 @@ const menuItems: MenuItem[] = [
         label: "Room Booking",
         icon: "book",
         usersOnly: false,
-        path: "/services/rooms",
+        path: "https://services.greyjcr.com/bookings",
     },
     {
         name: "elections",
